@@ -78,6 +78,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         
         let routeOptions = NavigationRouteOptions(waypoints: _wayPoints, profileIdentifier: .automobile)
         routeOptions.shapeFormat = .polyline6
+        routeOptions.locale = Locale(identifier: "vi")
         requestRoute(with: routeOptions, success: defaultSuccess, failure: defaultFailure)
     }
     
