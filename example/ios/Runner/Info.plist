@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>VietMapAccessToken</key>
-	<string>95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c</string>
-	<key>VietMapAPIBaseURL</key>
-	<string>https://maps.vietmap.vn/api/navigations/route/</string>
-	<key>VietMapURL</key>
-	<string>https://run.mocky.io/v3/2cdf49bc-40fe-4aa5-a992-1954c8fb298f</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -32,8 +26,19 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Get user location</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Get user location</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Get user location</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>location</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -53,16 +58,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Get user location</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Get user location</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Get user location</string>
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>audio</string>
-        <string>location</string>
-    </array>
+	<key>VietMapAPIBaseURL</key>
+	<string>https://maps.vietmap.vn/api/navigations/route/</string>
+	<key>VietMapAccessToken</key>
+	<string>95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c</string>
+	<key>VietMapURL</key>
+	<string>https://run.mocky.io/v3/2cdf49bc-40fe-4aa5-a992-1954c8fb298f</string>
 </dict>
 </plist>
