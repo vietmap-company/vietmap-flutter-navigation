@@ -64,8 +64,8 @@ class _MyAppState extends State<MyApp> {
   void _startNavigation() {
     List<WayPoint> wayPoints = [
       WayPoint(
-          name: "You are here", latitude: 10.760668, longitude: 106.682014),
-      WayPoint(name: "You are here", latitude: 10.808203, longitude: 106.707348)
+          name: "You are here", latitude: 10.792145, longitude: 106.690157),
+      WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
     ];
     MapOptions options = MapOptions(
       zoom: 15,
