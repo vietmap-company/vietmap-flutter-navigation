@@ -22,7 +22,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _demoPlugin = DemoPlugin();
-
+  final _toLatLngController = TextEditingController();
+  final _fromLatLngController = TextEditingController();
+  bool isCustomizeUI = false;
   @override
   void initState() {
     super.initState();
@@ -62,12 +64,26 @@ class _MyAppState extends State<MyApp> {
   );
 
   void _startNavigation() {
+    double? fromLat, fromLong, toLat, toLong;
+    if (_fromLatLngController.text.isNotEmpty) {
+      var data = _fromLatLngController.text.trim().split(', ');
+      fromLat = double.tryParse(data.first);
+      fromLong = double.tryParse(data.last);
+    }
+    if (_toLatLngController.text.isNotEmpty) {
+      var data = _toLatLngController.text.trim().split(', ');
+      toLat = double.tryParse(data.first);
+      toLong = double.tryParse(data.last);
+    }
     List<WayPoint> wayPoints = [
       WayPoint(
-          name: "You are here", latitude: 10.792145, longitude: 106.690157),
+          name: "You are here",
+          latitude: fromLat ?? 10.792145,
+          longitude: fromLong ?? 106.690157),
       WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
     ];
     MapOptions options = MapOptions(
+      isCustomizeUI: isCustomizeUI,
       zoom: 15,
       tilt: 0,
       bearing: 0,
@@ -99,6 +115,57 @@ class _MyAppState extends State<MyApp> {
             children: [
               Text('Running on: $_platformVersion\n'),
               const SizedBox(height: 50),
+              CheckboxListTile(
+                value: isCustomizeUI,
+                onChanged: (value) {
+                  setState(() {
+                    isCustomizeUI = value ?? !isCustomizeUI;
+                  });
+                },
+                title: Text('Tuỳ chỉnh giao diện'),
+                
+              ),
+              const Text('Copy lat long từ google'),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _fromLatLngController,
+                      decoration:
+                          const InputDecoration(hintText: 'Nhập điểm bắt đầu'),
+                    ),
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        ClipboardData? data =
+                            await Clipboard.getData(Clipboard.kTextPlain);
+                        if (data != null) {
+                          _fromLatLngController.text = data.text ?? '';
+                        }
+                      },
+                      child: Text('Paste'))
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _toLatLngController,
+                      decoration:
+                          const InputDecoration(hintText: 'Nhập điểm kết thúc'),
+                    ),
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        ClipboardData? data =
+                            await Clipboard.getData(Clipboard.kTextPlain);
+                        if (data != null) {
+                          _toLatLngController.text = data.text ?? '';
+                        }
+                      },
+                      child: Text('Paste'))
+                ],
+              ),
               ElevatedButton(
                 style: raisedButtonStyle,
                 onPressed: () {

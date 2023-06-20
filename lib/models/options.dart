@@ -11,30 +11,30 @@ import 'navmode.dart';
 /// 'do not change this configuration option'.
 ///
 class MapOptions {
-  MapOptions({
-    this.initialLatitude,
-    this.initialLongitude,
-    this.language,
-    this.zoom,
-    this.bearing,
-    this.tilt,
-    this.alternatives,
-    this.mode,
-    this.units,
-    this.allowsUTurnAtWayPoints,
-    this.enableRefresh,
-    this.voiceInstructionsEnabled,
-    this.bannerInstructionsEnabled,
-    this.longPressDestinationEnabled,
-    this.simulateRoute,
-    this.isOptimized,
-    this.mapStyleUrlDay,
-    this.mapStyleUrlNight,
-    this.padding,
-    this.animateBuildRoute,
-    this.showReportFeedbackButton = true,
-    this.showEndOfRouteFeedback = true,
-  });
+  MapOptions(
+      {this.initialLatitude,
+      this.initialLongitude,
+      this.language,
+      this.zoom,
+      this.bearing,
+      this.tilt,
+      this.alternatives,
+      this.mode,
+      this.units,
+      this.allowsUTurnAtWayPoints,
+      this.enableRefresh,
+      this.voiceInstructionsEnabled,
+      this.bannerInstructionsEnabled,
+      this.longPressDestinationEnabled,
+      this.simulateRoute,
+      this.isOptimized,
+      this.mapStyleUrlDay,
+      this.mapStyleUrlNight,
+      this.padding,
+      this.animateBuildRoute,
+      this.showReportFeedbackButton = true,
+      this.showEndOfRouteFeedback = true,
+      this.isCustomizeUI = false});
 
   /// The initial Latitude of the Map View
   double? initialLatitude;
@@ -136,6 +136,8 @@ class MapOptions {
   /// In iOS this will show/hide the end of route page when navigation is done. Default to True.
   bool? showEndOfRouteFeedback;
 
+  bool? isCustomizeUI;
+
   Map<String, dynamic> toMap() {
     final optionsMap = <String, dynamic>{};
     void addIfNonNull(String fieldName, dynamic value) {
@@ -193,6 +195,7 @@ class MapOptions {
     addIfNonNull('showReportFeedbackButton', showReportFeedbackButton);
     addIfNonNull('showEndOfRouteFeedback', showEndOfRouteFeedback);
 
+    addIfNonNull('isCustomizeUI', isCustomizeUI);
     return optionsMap;
   }
 
