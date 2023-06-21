@@ -5,6 +5,7 @@ import 'package:demo_plugin/models/options.dart';
 import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/voice_units.dart';
 import 'package:demo_plugin/models/way_point.dart';
+import 'package:demo_plugin_example/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:demo_plugin/embedded/view.dart';
@@ -134,7 +135,7 @@ class _MyAppState extends State<MyApp> {
       allowsUTurnAtWayPoints: true,
       mode: MapNavigationMode.drivingWithTraffic,
       units: VoiceUnits.imperial,
-      simulateRoute: false,
+      simulateRoute: true,
       animateBuildRoute: true,
       longPressDestinationEnabled: true,
       language: 'vi',
@@ -146,92 +147,109 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              Text('Running on: $_platformVersion\n'),
-              const SizedBox(height: 50),
-              CheckboxListTile(
-                value: isCustomizeUI,
-                onChanged: (value) {
-                  setState(() {
-                    isCustomizeUI = value ?? !isCustomizeUI;
-                  });
-                },
-                title: Text('Tuỳ chỉnh giao diện'),
-              ),
-              const Text('Copy lat long từ google'),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _fromLatLngController,
-                      decoration:
-                          const InputDecoration(hintText: 'Nhập điểm bắt đầu'),
-                    ),
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        ClipboardData? data =
-                            await Clipboard.getData(Clipboard.kTextPlain);
-                        if (data != null) {
-                          _fromLatLngController.text = data.text ?? '';
-                        }
-                      },
-                      child: Text('Paste'))
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _toLatLngController,
-                      decoration:
-                          const InputDecoration(hintText: 'Nhập điểm kết thúc'),
-                    ),
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        ClipboardData? data =
-                            await Clipboard.getData(Clipboard.kTextPlain);
-                        if (data != null) {
-                          _toLatLngController.text = data.text ?? '';
-                        }
-                      },
-                      child: Text('Paste'))
-                ],
-              ),
-              Text(_distanceRemaining.toString()),
-              Text(_durationRemaining.toString()),
-              ElevatedButton(
-                style: raisedButtonStyle,
-                onPressed: () {
-                  _startNavigation();
-                },
-                child: const Text('Start Navigation'),
-              ),
-              SizedBox(
-                height: 300,
-                child: Container(
-                  color: Colors.red,
-                  child: MapNavigationView(
-                      options: _navigationOption,
-                      onRouteEvent: _onEmbeddedRouteEvent,
-                      onCreated:
-                          (MapNavigationViewController controller) async {
-                        _controller = controller;
-                        controller.initialize();
-                      }),
-                ),
-              )
-            ],
+      home: Builder(builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
           ),
-        ),
-      ),
+          body: Center(
+            child: Column(
+              children: [
+                Text('Running on: $_platformVersion\n'),
+                const SizedBox(height: 50),
+                CheckboxListTile(
+                  value: isCustomizeUI,
+                  onChanged: (value) {
+                    setState(() {
+                      isCustomizeUI = value ?? !isCustomizeUI;
+                    });
+                  },
+                  title: Text('Tuỳ chỉnh giao diện'),
+                ),
+                const Text('Copy lat long từ google'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _fromLatLngController,
+                        decoration: const InputDecoration(
+                            hintText: 'Nhập điểm bắt đầu'),
+                      ),
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          ClipboardData? data =
+                              await Clipboard.getData(Clipboard.kTextPlain);
+                          if (data != null) {
+                            _fromLatLngController.text = data.text ?? '';
+                          }
+                        },
+                        child: Text('Paste'))
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _toLatLngController,
+                        decoration: const InputDecoration(
+                            hintText: 'Nhập điểm kết thúc'),
+                      ),
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          ClipboardData? data =
+                              await Clipboard.getData(Clipboard.kTextPlain);
+                          if (data != null) {
+                            _toLatLngController.text = data.text ?? '';
+                          }
+                        },
+                        child: Text('Paste'))
+                  ],
+                ),
+                Text(_distanceRemaining.toString()),
+                Text(_durationRemaining.toString()),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: raisedButtonStyle,
+                      onPressed: () {
+                        _startNavigation();
+                      },
+                      child: const Text('Start Navigation'),
+                    ),
+                    ElevatedButton(
+                      style: raisedButtonStyle,
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const NavigationScreen()));
+                      },
+                      child: const Text('Push to navigation screen'),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 300,
+                  child: Container(
+                    color: Colors.red,
+                    child: MapNavigationView(
+                        options: _navigationOption,
+                        onRouteEvent: _onEmbeddedRouteEvent,
+                        onCreated:
+                            (MapNavigationViewController controller) async {
+                          _controller = controller;
+                          controller.initialize();
+                        }),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 

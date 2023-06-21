@@ -1,14 +1,5 @@
 package com.example.demo_plugin
 
-//import com.dormmom.flutter_mapbox_navigation.DemoPlugin
-//import com.dormmom.flutter_mapbox_navigation.R
-//import com.dormmom.flutter_mapbox_navigation.models.VietMapEvents
-//import com.dormmom.flutter_mapbox_navigation.models.VietMapLocation
-//import com.dormmom.flutter_mapbox_navigation.models.VietMapMileStone
-//import com.dormmom.flutter_mapbox_navigation.models.MapBoxRouteProgressEvent
-//import com.dormmom.flutter_mapbox_navigation.utilities.PluginUtilities
-//import com.dormmom.flutter_mapbox_navigation.utilities.PluginUtilities.Companion.sendEvent
-//import com.dormmom.flutter_mapbox_navigation.utilities.SimplifiedCallback
 
 import android.content.*
 import android.location.Location
@@ -16,12 +7,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.demo_plugin.VietmapNavigationLauncher.KEY_STOP_NAVIGATION
-import com.example.models.VietMapEvents
-import com.example.models.VietMapLocation
-import com.example.models.VietMapMileStone
-import com.example.models.VietMapRouteProgressEvent
+import com.example.models.*
 import com.example.utilities.PluginUtilities
 import com.example.utilities.PluginUtilities.Companion.sendEvent
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
@@ -30,6 +19,7 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.modes.RenderMode
+import com.mapbox.mapboxsdk.maps.MapboxMap.OnMoveListener
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.services.android.navigation.ui.v5.NavigationView
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions
@@ -64,7 +54,7 @@ class NavigationActivity : AppCompatActivity(),
     SpeechAnnouncementListener,
     Callback<DirectionsResponse>,
     BannerInstructionsListener,
-    RouteListener {
+    RouteListener, OnMoveListener {
 
     var receiver: BroadcastReceiver? = null
 
@@ -168,7 +158,10 @@ class NavigationActivity : AppCompatActivity(),
 
         if(points.count() > 0)
         {
-            fetchRoute(points.removeAt(0), points.removeAt(0))
+            val point1:Waypoint = points.removeAt(0) as Waypoint
+            val point2:Waypoint = points.removeAt(0) as Waypoint
+
+            fetchRoute(point1.point, point2.point)
         }
 
     }
@@ -274,6 +267,7 @@ class NavigationActivity : AppCompatActivity(),
 
     private fun buildAndStartNavigation(directionsRoute: DirectionsRoute) {
 
+        sendEvent(VietMapEvents.ROUTE_BUILT, "routeBuilt")
         dropoffDialogShown = false
 
         navigationView?.retrieveNavigationMapboxMap()?.let {navigationMap ->
@@ -306,8 +300,10 @@ class NavigationActivity : AppCompatActivity(),
                     .routeListener(this)
                     .directionsRoute(directionsRoute)
                     .shouldSimulateRoute(DemoPlugin.simulateRoute)
+                    .onMoveListener(this)
                     .build()
 
+            navigationView?.initViewConfig(DemoPlugin.isCustomizeUI)
             navigationView?.startNavigation(options)
 
         }
@@ -374,5 +370,17 @@ class NavigationActivity : AppCompatActivity(),
     override fun onFailure(call: Call<DirectionsResponse>, t: Throwable) {
         sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, t.localizedMessage)
                     finish()
+    }
+
+    override fun onMoveBegin(p0: MoveGestureDetector) {
+        println("On map move begin")
+    }
+
+    override fun onMove(p0: MoveGestureDetector) {
+        println("On map move")
+    }
+
+    override fun onMoveEnd(p0: MoveGestureDetector) {
+        println("On map move end")
     }
 }

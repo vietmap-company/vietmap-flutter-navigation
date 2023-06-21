@@ -113,7 +113,7 @@ class FlutterMapViewFactory  :
     private var isNavigationInProgress = false
     private var isNavigationCanceled = false
 
-    constructor(cxt: Context, messenger: BinaryMessenger, accessToken: String, viewId: Int, act: Activity, args: Any?)
+    constructor(cxt: Context, messenger: BinaryMessenger, viewId: Int, act: Activity, args: Any?)
     {
         context = cxt
         activity = act

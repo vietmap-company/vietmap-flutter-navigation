@@ -94,6 +94,13 @@ class MapNavigationViewController {
     return _methodChannel.invokeMethod('clearRoute', null);
   }
 
+  /// Starts Free Drive Mode
+  Future<bool?> startFreeDrive({MapOptions? options}) async {
+    Map<String, dynamic>? args;
+    if (options != null) args = options.toMap();
+    return _methodChannel.invokeMethod('startFreeDrive', args);
+  }
+
   /// Starts the Navigation
   Future<bool?> startNavigation({MapOptions? options}) async {
     Map<String, dynamic>? args;
@@ -134,6 +141,7 @@ class MapNavigationViewController {
 
   RouteEvent _parseRouteEvent(String jsonString) {
     RouteEvent event;
+    print(jsonString);
     var map = json.decode(jsonString);
     var progressEvent = RouteProgressEvent.fromJson(map);
     if (progressEvent.isProgressEvent!) {

@@ -16,6 +16,6 @@ class MapViewFactory(private val messenger: BinaryMessenger, private val activit
         if (context != null) {
             Mapbox.getInstance(context)
         }
-        return FlutterMapViewFactory(context!!, messenger, "", viewId, activity, args)
+        return FlutterMapViewFactory(context!!, messenger, viewId, activity, args)
     }
 }
