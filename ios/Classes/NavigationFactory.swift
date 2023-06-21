@@ -137,6 +137,49 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         return nil
     }
+    
+    func parseFlutterArguments(arguments: NSDictionary?) {
+        _language = arguments?["language"] as? String ?? _language
+        _voiceUnits = arguments?["units"] as? String ?? _voiceUnits
+        _simulateRoute = arguments?["simulateRoute"] as? Bool ?? _simulateRoute
+        _isOptimized = arguments?["isOptimized"] as? Bool ?? _isOptimized
+        _allowsUTurnAtWayPoints = arguments?["allowsUTurnAtWayPoints"] as? Bool
+        _navigationMode = arguments?["mode"] as? String ?? "drivingWithTraffic"
+        _showReportFeedbackButton = arguments?["showReportFeedbackButton"] as? Bool ?? _showReportFeedbackButton
+        _showEndOfRouteFeedback = arguments?["showEndOfRouteFeedback"] as? Bool ?? _showEndOfRouteFeedback
+        _mapStyleUrlDay = arguments?["mapStyleUrlDay"] as? String
+        _mapStyleUrlNight = arguments?["mapStyleUrlNight"] as? String
+        _zoom = arguments?["zoom"] as? Double ?? _zoom
+        _bearing = arguments?["bearing"] as? Double ?? _bearing
+        _tilt = arguments?["tilt"] as? Double ?? _tilt
+        _animateBuildRoute = arguments?["animateBuildRoute"] as? Bool ?? _animateBuildRoute
+        _longPressDestinationEnabled = arguments?["longPressDestinationEnabled"] as? Bool ?? _longPressDestinationEnabled
+    }
+    
+    func sendEvent(eventType: MapEventType, data: String = "") {
+        let routeEvent = MapRouteEvent(eventType: eventType, data: data)
+        
+        let jsonEncoder = JSONEncoder()
+        let jsonData = try! jsonEncoder.encode(routeEvent)
+        let eventJson = String(data: jsonData, encoding: String.Encoding.utf8)
+        if(_eventSink != nil) {
+            _eventSink!(eventJson)
+        }
+    }
+    
+    func encodeRoute(route: Route) -> String {
+        let jsonEncoder = JSONEncoder()
+        // TODO: Add parameter on routeDictionary.
+        let routeDictionary: [String: Any] = [
+            "wayPoints": route.routeOptions.waypoints
+        ]
+        if let jsonData = try? JSONSerialization.data(withJSONObject: routeDictionary, options: []) {
+            if let jsonData = String(data: jsonData, encoding: .utf8) {
+                return jsonData
+            }
+        }
+        return "{}"
+    }
 }
 
 extension NavigationFactory: NavigationViewControllerDelegate {
