@@ -1,10 +1,13 @@
+import 'package:demo_plugin/embedded/controller.dart';
+import 'package:demo_plugin/models/events.dart';
 import 'package:demo_plugin/models/navmode.dart';
 import 'package:demo_plugin/models/options.dart';
+import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/voice_units.dart';
 import 'package:demo_plugin/models/way_point.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:demo_plugin/embedded/view.dart';
 import 'package:flutter/services.dart';
 import 'package:demo_plugin/demo_plugin.dart';
 
@@ -25,12 +28,49 @@ class _MyAppState extends State<MyApp> {
   final _toLatLngController = TextEditingController();
   final _fromLatLngController = TextEditingController();
   bool isCustomizeUI = false;
+  bool _isMultipleStop = false;
+  double? _distanceRemaining, _durationRemaining;
+  MapNavigationViewController? _controller;
+  bool _routeBuilt = false;
+  bool _isNavigating = false;
+  bool _inFreeDrive = false;
+  late MapOptions _navigationOption;
+  String? _instruction;
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    initialize();
   }
 
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initialize() async {
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    _navigationOption = DemoPlugin.instance.getDefaultOptions();
+    _navigationOption.simulateRoute = true;
+    //_navigationOption.initialLatitude = 36.1175275;
+    //_navigationOption.initialLongitude = -115.1839524;
+    DemoPlugin.instance.registerRouteEventListener(_onEmbeddedRouteEvent);
+    DemoPlugin.instance.setDefaultOptions(_navigationOption);
+
+    String? platformVersion;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      platformVersion = await DemoPlugin.instance.getPlatformVersion();
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    setState(() {
+      _platformVersion = platformVersion ?? '';
+    });
+  }
+
+  MapOptions? options;
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     String platformVersion;
@@ -82,7 +122,7 @@ class _MyAppState extends State<MyApp> {
           longitude: fromLong ?? 106.690157),
       WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
     ];
-    MapOptions options = MapOptions(
+    options = MapOptions(
       isCustomizeUI: isCustomizeUI,
       zoom: 15,
       tilt: 0,
@@ -99,7 +139,7 @@ class _MyAppState extends State<MyApp> {
       longPressDestinationEnabled: true,
       language: 'vi',
     );
-    var result = _demoPlugin.startNavigation(wayPoints, options);
+    var result = DemoPlugin.instance.startNavigation(wayPoints, options!);
     print(result);
   }
 
@@ -123,7 +163,6 @@ class _MyAppState extends State<MyApp> {
                   });
                 },
                 title: Text('Tuỳ chỉnh giao diện'),
-                
               ),
               const Text('Copy lat long từ google'),
               Row(
@@ -166,17 +205,79 @@ class _MyAppState extends State<MyApp> {
                       child: Text('Paste'))
                 ],
               ),
+              Text(_distanceRemaining.toString()),
+              Text(_durationRemaining.toString()),
               ElevatedButton(
                 style: raisedButtonStyle,
                 onPressed: () {
                   _startNavigation();
                 },
                 child: const Text('Start Navigation'),
+              ),
+              SizedBox(
+                height: 300,
+                child: Container(
+                  color: Colors.red,
+                  child: MapNavigationView(
+                      options: _navigationOption,
+                      onRouteEvent: _onEmbeddedRouteEvent,
+                      onCreated:
+                          (MapNavigationViewController controller) async {
+                        _controller = controller;
+                        controller.initialize();
+                      }),
+                ),
               )
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _onEmbeddedRouteEvent(e) async {
+    _distanceRemaining = await DemoPlugin.instance.getDistanceRemaining();
+    _durationRemaining = await DemoPlugin.instance.getDurationRemaining();
+
+    switch (e.eventType) {
+      case MapEvent.progressChange:
+        var progressEvent = e.data as RouteProgressEvent;
+        if (progressEvent.currentStepInstruction != null) {
+          _instruction = progressEvent.currentStepInstruction;
+        }
+        break;
+      case MapEvent.routeBuilding:
+      case MapEvent.routeBuilt:
+        setState(() {
+          _routeBuilt = true;
+        });
+        break;
+      case MapEvent.routeBuildFailed:
+        setState(() {
+          _routeBuilt = false;
+        });
+        break;
+      case MapEvent.navigationRunning:
+        setState(() {
+          _isNavigating = true;
+        });
+        break;
+      case MapEvent.onArrival:
+        if (!_isMultipleStop) {
+          await Future.delayed(const Duration(seconds: 3));
+          await _controller?.finishNavigation();
+        } else {}
+        break;
+      case MapEvent.navigationFinished:
+      case MapEvent.navigationCancelled:
+        setState(() {
+          _routeBuilt = false;
+          _isNavigating = false;
+        });
+        break;
+      default:
+        break;
+    }
+    setState(() {});
   }
 }

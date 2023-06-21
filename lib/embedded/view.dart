@@ -25,7 +25,7 @@ class MapNavigationView extends StatelessWidget {
   final OnNavigationViewCreatedCallBack? onCreated;
   final ValueSetter<RouteEvent>? onRouteEvent;
 
-  static const String viewType = 'FlutterMapboxNavigationView';
+  static const String viewType = 'DemoPluginView';
 
   const MapNavigationView(
       {super.key, this.options, this.onCreated, this.onRouteEvent});
@@ -61,7 +61,7 @@ class MapNavigationView extends StatelessWidget {
       );
     } else if (Platform.isIOS) {
       return UiKitView(
-          viewType: 'FlutterMapboxNavigationView',
+          viewType: viewType,
           onPlatformViewCreated: _onPlatformViewCreated,
           creationParams: options!.toMap(),
           creationParamsCodec: _decoder);
@@ -71,6 +71,8 @@ class MapNavigationView extends StatelessWidget {
   }
 
   void _onPlatformViewCreated(int id) {
+    print("---------------------------_onPlatformViewCreated$id");
+    print("$onCreated");
     if (onCreated == null) {
       return;
     }
