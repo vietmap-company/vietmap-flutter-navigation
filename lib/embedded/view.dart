@@ -21,14 +21,14 @@ typedef OnNavigationViewCreatedCallBack = void Function(
 ///Embeddable Navigation View.
 class MapNavigationView extends StatelessWidget {
   static const StandardMessageCodec _decoder = StandardMessageCodec();
-  final MapOptions? options;
+  final MapOptions options;
   final OnNavigationViewCreatedCallBack? onCreated;
   final ValueSetter<RouteEvent>? onRouteEvent;
 
-  static const String viewType = 'FlutterMapboxNavigationView';
+  static const String viewType = 'FlutterMapNavigationView';
 
   const MapNavigationView(
-      {super.key, this.options, this.onCreated, this.onRouteEvent});
+      {super.key, required this.options, this.onCreated, this.onRouteEvent});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class MapNavigationView extends StatelessWidget {
             id: params.id,
             viewType: viewType,
             layoutDirection: TextDirection.ltr,
-            creationParams: options!.toMap(),
+            creationParams: options.toMap(),
             creationParamsCodec: const StandardMessageCodec(),
             onFocus: () {
               params.onFocusChanged(true);
@@ -61,9 +61,9 @@ class MapNavigationView extends StatelessWidget {
       );
     } else if (Platform.isIOS) {
       return UiKitView(
-          viewType: 'FlutterMapboxNavigationView',
+          viewType: viewType,
           onPlatformViewCreated: _onPlatformViewCreated,
-          creationParams: options!.toMap(),
+          creationParams: options.toMap(),
           creationParamsCodec: _decoder);
     } else {
       return Container();

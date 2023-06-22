@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:demo_plugin/models/events.dart';
@@ -94,12 +95,21 @@ class MapNavigationViewController {
     return _methodChannel.invokeMethod('clearRoute', null);
   }
 
+  /// Recenter the map
+  Future<bool?> recenterMap() async {
+    return _methodChannel.invokeMethod('reCenter', null);
+  }
+
   /// Starts the Navigation
   Future<bool?> startNavigation({MapOptions? options}) async {
     Map<String, dynamic>? args;
     if (options != null) args = options.toMap();
+    log('heree');
     _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
-    return _methodChannel.invokeMethod('startNavigation', args);
+    final result = await _methodChannel.invokeMethod('startNavigation', args);
+    if (result is bool) return result;
+    log(result.toString());
+    return result;
   }
 
   ///Ends Navigation and Closes the Navigation View

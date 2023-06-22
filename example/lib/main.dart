@@ -2,6 +2,7 @@ import 'package:demo_plugin/models/navmode.dart';
 import 'package:demo_plugin/models/options.dart';
 import 'package:demo_plugin/models/voice_units.dart';
 import 'package:demo_plugin/models/way_point.dart';
+import 'package:demo_plugin_example/mapview.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -9,7 +10,10 @@ import 'package:flutter/services.dart';
 import 'package:demo_plugin/demo_plugin.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MaterialApp(
+    title: 'Plugin example app',
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -105,75 +109,83 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              Text('Running on: $_platformVersion\n'),
-              const SizedBox(height: 50),
-              CheckboxListTile(
-                value: isCustomizeUI,
-                onChanged: (value) {
-                  setState(() {
-                    isCustomizeUI = value ?? !isCustomizeUI;
-                  });
-                },
-                title: const Text('Tuỳ chỉnh giao diện'),
-              ),
-              const Text('Copy lat long từ google'),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _fromLatLngController,
-                      decoration:
-                          const InputDecoration(hintText: 'Nhập điểm bắt đầu'),
-                    ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            Text('Running on: $_platformVersion\n'),
+            const SizedBox(height: 50),
+            CheckboxListTile(
+              value: isCustomizeUI,
+              onChanged: (value) {
+                setState(() {
+                  isCustomizeUI = value ?? !isCustomizeUI;
+                });
+              },
+              title: const Text('Tuỳ chỉnh giao diện'),
+            ),
+            const Text('Copy lat long từ google'),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _fromLatLngController,
+                    decoration:
+                        const InputDecoration(hintText: 'Nhập điểm bắt đầu'),
                   ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        ClipboardData? data =
-                            await Clipboard.getData(Clipboard.kTextPlain);
-                        if (data != null) {
-                          _fromLatLngController.text = data.text ?? '';
-                        }
-                      },
-                      child: const Text('Paste'))
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _toLatLngController,
-                      decoration:
-                          const InputDecoration(hintText: 'Nhập điểm kết thúc'),
-                    ),
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      ClipboardData? data =
+                          await Clipboard.getData(Clipboard.kTextPlain);
+                      if (data != null) {
+                        _fromLatLngController.text = data.text ?? '';
+                      }
+                    },
+                    child: const Text('Paste'))
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _toLatLngController,
+                    decoration:
+                        const InputDecoration(hintText: 'Nhập điểm kết thúc'),
                   ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        ClipboardData? data =
-                            await Clipboard.getData(Clipboard.kTextPlain);
-                        if (data != null) {
-                          _toLatLngController.text = data.text ?? '';
-                        }
-                      },
-                      child: const Text('Paste'))
-                ],
-              ),
-              ElevatedButton(
-                style: raisedButtonStyle,
-                onPressed: () {
-                  _startNavigation();
-                },
-                child: const Text('Start Navigation'),
-              )
-            ],
-          ),
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      ClipboardData? data =
+                          await Clipboard.getData(Clipboard.kTextPlain);
+                      if (data != null) {
+                        _toLatLngController.text = data.text ?? '';
+                      }
+                    },
+                    child: const Text('Paste'))
+              ],
+            ),
+            ElevatedButton(
+              style: raisedButtonStyle,
+              onPressed: () {
+                _startNavigation();
+              },
+              child: const Text('Start Navigation'),
+            ),
+            ElevatedButton(
+              style: raisedButtonStyle,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const VietMapView()),
+                );
+              },
+              child: const Text('Open MapView'),
+            )
+          ],
         ),
       ),
     );

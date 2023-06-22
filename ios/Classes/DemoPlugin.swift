@@ -7,6 +7,9 @@ public class DemoPlugin:  NavigationFactory, FlutterPlugin {
     let channel = FlutterMethodChannel(name: "demo_plugin", binaryMessenger: registrar.messenger())
     let instance = DemoPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
+      
+    let viewFactory = FlutterMapNavigationViewFactory(messenger: registrar.messenger())
+    registrar.register(viewFactory, withId: "FlutterMapNavigationView")
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

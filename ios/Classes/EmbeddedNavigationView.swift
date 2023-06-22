@@ -23,24 +23,30 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     let channel: FlutterMethodChannel
     let eventChannel: FlutterEventChannel
 
-    var navigationMapView: NavigationMapView!
-    var arguments: NSDictionary?
-    var routes: [Route]? {
+    var navigationMapView: NavigationMapView! {
         didSet {
-//            guard let routes = routes,
-//                  let current = routes.first else { mapView?.removeRoutes(); return }
-//
-//            mapView?.showRoutes(routes)
-//            mapView?.showWaypoints(current)
+            oldValue?.removeFromSuperview()
+            if let mapView = navigationMapView {
+                configureMapView(mapView)
+            }
         }
     }
+    var routes: [Route]? {
+        didSet {
+            guard let routes = routes,
+                  let current = routes.first else { navigationMapView?.removeRoutes(); return }
+
+            navigationMapView?.showRoutes(routes)
+            navigationMapView?.showWaypoints(current)
+        }
+    }
+    var arguments: NSDictionary?
     var wayPoints = [Waypoint]()
     var routeResponse: Route?
     var selectedRouteIndex = 0
     var routeOptions: NavigationRouteOptions?
 //    var navigationService: NavigationService!
 
-    var _mapInitialized = false;
     var locationManager = CLLocationManager()
 
 //    private let passiveLocationManager = PassiveLocationManager()
@@ -53,8 +59,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         self.arguments = args as! NSDictionary?
 
         self.messenger = messenger
-        self.channel = FlutterMethodChannel(name: "flutter_map_navigation/\(viewId)", binaryMessenger: messenger)
-        self.eventChannel = FlutterEventChannel(name: "flutter_map_navigation/\(viewId)/events", binaryMessenger: messenger)
+        self.channel = FlutterMethodChannel(name: "demo_plugin/\(viewId)", binaryMessenger: messenger)
+        self.eventChannel = FlutterEventChannel(name: "demo_plugin/\(viewId)/events", binaryMessenger: messenger)
 
         super.init()
 
@@ -76,7 +82,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "clearRoute")
             {
-//                strongSelf.clearRoute(arguments: arguments, result: result)
+                strongSelf.clearRoute(arguments: arguments, result: result)
             }
             else if(call.method == "getDistanceRemaining")
             {
@@ -96,11 +102,16 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "startNavigation")
             {
-//                strongSelf.startEmbeddedNavigation(arguments: arguments, result: result)
+                strongSelf.startNavigationWithRoute()
             }
-            else if(call.method == "reCenter"){
+            else if(call.method == "reCenter")
+            {
                 //used to recenter map from user action during navigation
-//                strongSelf.navigationMapView.navigationCamera.follow()
+                strongSelf.navigationMapView.recenterMap()
+            }
+            else if(call.method == "longClickMap")
+            {
+                
             }
             else
             {
@@ -112,45 +123,29 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
 
     public func view() -> UIView
     {
-        if(_mapInitialized)
-        {
-            return navigationMapView
-        }
-
         setupMapView()
-
         return navigationMapView
     }
 
-    private func configureMapView() {
-        navigationMapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        navigationMapView.styleURL = URL(string: _url);
-        navigationMapView.routeLineColor = UIColor.yellow
-        navigationMapView.userTrackingMode = .follow
-        navigationMapView.showsUserHeadingIndicator = true
+    private func configureMapView(_ mapView: NavigationMapView) {
+        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mapView.delegate = self
+        mapView.navigationMapDelegate = self
     }
     
     private func setupMapView()
     {
-        navigationMapView = NavigationMapView(frame: frame)
-        navigationMapView.delegate = self
-
+        navigationMapView = NavigationMapView(frame: frame,styleURL: URL(string: _url))
         if(self.arguments != nil)
         {
-
             parseFlutterArguments(arguments: arguments)
-            configureMapView()
-
             var currentLocation: CLLocation!
-
             locationManager.requestWhenInUseAuthorization()
-
             if(CLLocationManager.authorizationStatus() == .authorizedWhenInUse ||
                 CLLocationManager.authorizationStatus() == .authorizedAlways) {
                 currentLocation = locationManager.location
 
             }
-
             let initialLatitude = arguments?["initialLatitude"] as? Double ?? currentLocation?.coordinate.latitude
             let initialLongitude = arguments?["initialLongitude"] as? Double ?? currentLocation?.coordinate.longitude
             if(initialLatitude != nil && initialLongitude != nil)
@@ -170,21 +165,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     }
 
     func moveCameraToCoordinates(latitude: Double, longitude: Double) {
-        let camera = MGLMapCamera(
-            lookingAtCenter: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
-            acrossDistance: calculateDistance(zoomLevel: _zoom),
-            pitch: 75,
-            heading: (navigationMapView.userLocation?.heading?.trueHeading) ?? 0
-        )
-        navigationMapView.setCamera(camera, animated: true)
-    }
-    
-    func calculateDistance(zoomLevel: Double) -> CLLocationDistance {
-        let earthRadius = 6378137.0 // Earth's radius in meters
-        let tileSize = 512.0 // Map tile size in pixels
-        let zoomFactor = pow(2, zoomLevel)
-        let distance = (2 * .pi * earthRadius) * (tileSize / zoomFactor)
-        return distance
+        navigationMapView.setCenter(CLLocationCoordinate2D(latitude: latitude, longitude: longitude), zoomLevel: self._zoom, animated: true)
     }
     
     fileprivate lazy var defaultSuccess: RouteRequestSuccess = { [weak self] (routes) in
@@ -192,6 +173,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         guard let current = routes.first else { return }
         strongSelf.routeResponse = current
         strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: strongSelf.encodeRoute(route: current))
+        strongSelf.routes = routes
         strongSelf._routes = routes
         strongSelf._wayPoints = current.routeOptions.waypoints
         strongSelf.navigationMapView.showRoutes(routes)
@@ -202,21 +184,29 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         guard let strongSelf = self else { return }
         strongSelf._routes = nil //clear routes from the map
     }
-
+    
+    func clearRoute(arguments: NSDictionary?, result: @escaping FlutterResult) {
+        if routeResponse == nil
+        {
+            return
+        }
+        navigationMapView.removeRoutes()
+        navigationMapView.removeWaypoints()
+        _wayPoints.removeAll()
+        sendEvent(eventType: MapEventType.navigationCancelled)
+    }
 }
 
+// MARK: - NavigationMapViewDelegate
 extension FlutterMapNavigationView : NavigationMapViewDelegate {
     public func navigationMapView(_ mapView: NavigationMapView, didSelect route: Route) {
         guard let routes = routes else { return }
         guard let index = routes.firstIndex(where: { $0 == route }) else { return }
         self.routes!.remove(at: index)
         self.routes!.insert(route, at: 0)
+        self._routes!.remove(at: index)
+        self._routes!.insert(route, at: 0)
     }
-
-    public func mapViewDidFinishLoadingMap(_ mapView: NavigationMapView) {
-        self.navigationMapView.recenterMap()
-    }
-
 }
 
 extension FlutterMapNavigationView : MGLMapViewDelegate {
@@ -242,8 +232,8 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
         guard let userLocation = navigationMapView.userLocation?.location else { return }
         let location = CLLocation(latitude: userLocation.coordinate.latitude,
                                   longitude: userLocation.coordinate.longitude)
-        let userWaypoint = Waypoint(location: location, name: "Current Location")
-        let destinationWaypoint = Waypoint(coordinate: destination)
+        let userWaypoint = Waypoint(location: location, name: "Vị trí của bạn")
+        let destinationWaypoint = Waypoint(coordinate: destination, name: "Điểm đến của bạn")
 
         let routeOptions = NavigationRouteOptions(waypoints: [userWaypoint, destinationWaypoint])
         routeOptions.shapeFormat = .polyline6

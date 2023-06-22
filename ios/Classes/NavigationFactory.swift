@@ -61,7 +61,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     }
 
     func getLocationsFromFlutterArgument(arguments: NSDictionary?) {
-        var routes = [Route]()
+        _ = [Route]()
         guard let oWayPoints = arguments?["wayPoints"] as? NSDictionary else {return}
         for item in oWayPoints as NSDictionary
         {
@@ -118,7 +118,6 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         _navigationViewController?.mapView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         _navigationViewController?.routeController.reroutesProactively = true
         _navigationViewController?.mapView?.styleURL = URL(string: _url);
-        _navigationViewController?.mapView?.routeLineColor = UIColor.yellow
         _navigationViewController?.mapView?.userTrackingMode = .follow
         _navigationViewController?.mapView?.showsUserHeadingIndicator = true
     }
@@ -128,14 +127,6 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         let simulatedLocationManager = SimulatedLocationManager(route: route)
         simulatedLocationManager.speedMultiplier = 2
         return simulated ? simulatedLocationManager : NavigationLocationManager()
-    }
-
-    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        return nil
-    }
-    
-    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        return nil
     }
     
     func parseFlutterArguments(arguments: NSDictionary?) {
@@ -171,7 +162,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         let jsonEncoder = JSONEncoder()
         // TODO: Add parameter on routeDictionary.
         let routeDictionary: [String: Any] = [
-            "wayPoints": route.routeOptions.waypoints
+            "description": route.description
         ]
         if let jsonData = try? JSONSerialization.data(withJSONObject: routeDictionary, options: []) {
             if let jsonData = String(data: jsonData, encoding: .utf8) {
@@ -179,6 +170,17 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             }
         }
         return "{}"
+    }
+    
+    //MARK: EventListener Delegates
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        _eventSink = events
+        return nil
+    }
+    
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        _eventSink = nil
+        return nil
     }
 }
 
@@ -194,5 +196,6 @@ extension NavigationFactory: NavigationViewControllerDelegate {
     // Called when the user hits the exit button.
     // If implemented, you are responsible for also dismissing the UI.
     public func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
+        self._navigationViewController?.dismiss(animated: true)
     }
 }
