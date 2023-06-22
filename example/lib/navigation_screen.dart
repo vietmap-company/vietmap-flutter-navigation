@@ -237,8 +237,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   Future<void> _onEmbeddedRouteEvent(e) async {
-    _distanceRemaining = await _demoPlugin.getDistanceRemaining();
-    _durationRemaining = await _demoPlugin.getDurationRemaining();
+    _distanceRemaining = await _controller?.distanceRemaining;
+    _durationRemaining = await _controller?.durationRemaining;
 
     switch (e.eventType) {
       case MapEvent.progressChange:
@@ -270,6 +270,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
         } else {}
         break;
       case MapEvent.navigationFinished:
+        _controller?.clearRoute();
+        break;
       case MapEvent.navigationCancelled:
         setState(() {
           _routeBuilt = false;

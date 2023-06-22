@@ -6,7 +6,7 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		GJuY5SH3qiW+m8n6z1So1STgIsA=
+		YQ1i1sqHEqqT2l480lrsFNs6ZI0=
 		</data>
 		<key>Base.lproj/Foundation.strings</key>
 		<data>
@@ -310,7 +310,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		2F864G6Lse00EVrqiRSgqZyZqxk=
+		U7ZsHL+lERpj1V+wB30Kijp56TA=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -1029,11 +1029,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			GJuY5SH3qiW+m8n6z1So1STgIsA=
+			YQ1i1sqHEqqT2l480lrsFNs6ZI0=
 			</data>
 			<key>hash2</key>
 			<data>
-			76b1bmr9D09T6CObkFLLuMEag3bl7rdAPeYLhwkWNuY=
+			+N5vSp8Gc4GLGPQruE1iHwhiN+DV6ewEkoQVQdY+z0c=
 			</data>
 		</dict>
 		<key>Base.lproj/Foundation.strings</key>

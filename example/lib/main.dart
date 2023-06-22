@@ -167,7 +167,7 @@ class _MyAppState extends State<MyApp> {
                       isCustomizeUI = value ?? !isCustomizeUI;
                     });
                   },
-                  title: Text('Tuỳ chỉnh giao diện'),
+                  title: const Text('Tuỳ chỉnh giao diện'),
                 ),
                 const Text('Copy lat long từ google'),
                 Row(
@@ -187,7 +187,7 @@ class _MyAppState extends State<MyApp> {
                             _fromLatLngController.text = data.text ?? '';
                           }
                         },
-                        child: Text('Paste'))
+                        child: const Text('Paste'))
                   ],
                 ),
                 Row(
@@ -207,7 +207,7 @@ class _MyAppState extends State<MyApp> {
                             _toLatLngController.text = data.text ?? '';
                           }
                         },
-                        child: Text('Paste'))
+                        child: const Text('Paste'))
                   ],
                 ),
                 Text(_distanceRemaining.toString()),

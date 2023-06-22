@@ -66,13 +66,13 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         for item in oWayPoints as NSDictionary
         {
             let point = item.value as! NSDictionary
-            guard let oName = point["Name"] as? String else {return }
+            guard point["Name"] is String else {return }
             guard let oLatitude = point["Latitude"] as? Double else {return}
             guard let oLongitude = point["Longitude"] as? Double else {return}
-            let oIsSilent = point["IsSilent"] as? Bool ?? false
-            let order = point["Order"] as? Int
+            _ = point["IsSilent"] as? Bool ?? false
+            _ = point["Order"] as? Int
             let coordinate = CLLocationCoordinate2D(latitude: oLatitude, longitude: oLongitude)
-            let waypoint = Waypoint(coordinate: coordinate, name: "Điểm đến của bạn")
+            let waypoint = Waypoint(coordinate: coordinate)
             _wayPoints.append(waypoint)
         }
         
@@ -98,6 +98,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     func startNavigation(arguments: NSDictionary?, result: @escaping FlutterResult) {
         _wayPoints.removeAll()
         getLocationsFromFlutterArgument(arguments: arguments)
+        registerNotifications()
     }
     
     func startNavigationWithRoute(simulated: Bool = false) {
@@ -159,7 +160,6 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     }
     
     func encodeRoute(route: Route) -> String {
-        let jsonEncoder = JSONEncoder()
         // TODO: Add parameter on routeDictionary.
         let routeDictionary: [String: Any] = [
             "description": route.description
@@ -170,6 +170,39 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             }
         }
         return "{}"
+    }
+    
+    func endNavigation(result: FlutterResult?)
+    {
+        sendEvent(eventType: MapEventType.navigationFinished)
+        if(self._navigationViewController != nil)
+        {
+            endNotifications()
+            self._navigationViewController?.routeController.endNavigation()
+            self._navigationViewController?.dismiss(animated: true, completion: {
+                self._navigationViewController = nil
+                if(result != nil)
+                {
+                    result!(true)
+                }
+            })
+        }
+    }
+
+    func registerNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(reRouted(_:)), name: .routeControllerDidReroute, object: nil)
+    }
+    
+    func endNotifications() {
+        NotificationCenter.default.removeObserver(self, name: .routeControllerWillReroute, object: nil)
+    }
+    
+    @objc func reRouted(_ notification: NSNotification) {
+        if let userInfo = notification.object as? RouteController {
+            self._navigationViewController?.mapView?.showRoutes([userInfo.routeProgress.route])
+            self._navigationViewController?.mapView?.tracksUserCourse = true
+            self._navigationViewController?.mapView?.recenterMap()
+        }
     }
     
     //MARK: EventListener Delegates
@@ -185,17 +218,45 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
 }
 
 extension NavigationFactory: NavigationViewControllerDelegate {
-    // By default, when the user arrives at a waypoint, the next leg starts immediately.
-    // If you implement this method, return true to preserve this behavior.
-    // Return false to remain on the current leg, for example to allow the user to provide input.
-    // If you return false, you must manually advance to the next leg. See the example above in `confirmationControllerDidConfirm(_:)`.
+    public func navigationViewController(_ navigationViewController: NavigationViewController, didUpdate progress: RouteProgress, with location: CLLocation, rawLocation: CLLocation) {
+        _lastKnownLocation = location
+        _distanceRemaining = progress.distanceRemaining
+        _durationRemaining = progress.durationRemaining
+        sendEvent(eventType: MapEventType.navigationRunning)
+        //_currentLegDescription =  progress.currentLeg.description
+        if(_eventSink != nil)
+        {
+            let routeDictionary: [String: Any] = [
+                "description": progress.description
+            ]
+            var progressEventJson = "{}"
+            if let jsonData = try? JSONSerialization.data(withJSONObject: routeDictionary, options: []) {
+                if let jsonData = String(data: jsonData, encoding: .utf8) {
+                    progressEventJson = jsonData
+                }
+            }
+            
+            _eventSink!(progressEventJson)
+            
+            if(progress.isFinalLeg && progress.currentLegProgress.userHasArrivedAtWaypoint && !_showEndOfRouteFeedback)
+            {
+                _eventSink = nil
+            }
+        }
+    }
+
     public func navigationViewController(_ navigationViewController: NavigationViewController, didArriveAt waypoint: Waypoint) -> Bool {
+        sendEvent(eventType: MapEventType.onArrival, data: "true")
         return true
     }
     
     // Called when the user hits the exit button.
     // If implemented, you are responsible for also dismissing the UI.
     public func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
-        self._navigationViewController?.dismiss(animated: true)
+        if(canceled)
+        {
+           sendEvent(eventType: MapEventType.navigationCancelled)
+        }
+        endNavigation(result: nil)
     }
 }

@@ -40,6 +40,9 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             navigationMapView?.showWaypoints(current)
         }
     }
+    
+    var routeController: RouteController?
+    
     var arguments: NSDictionary?
     var wayPoints = [Waypoint]()
     var routeResponse: Route?
@@ -78,7 +81,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "buildRoute")
             {
-//                strongSelf.buildRoute(arguments: arguments, flutterResult: result)
+                strongSelf.buildRoute(arguments: arguments, flutterResult: result)
             }
             else if(call.method == "clearRoute")
             {
@@ -86,15 +89,15 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "getDistanceRemaining")
             {
-                result(strongSelf._distanceRemaining)
+                result(strongSelf._distanceRemaining ?? 0.0)
             }
             else if(call.method == "getDurationRemaining")
             {
-                result(strongSelf._durationRemaining)
+                result(strongSelf._durationRemaining ?? 0.0)
             }
             else if(call.method == "finishNavigation")
             {
-//                strongSelf.endNavigation(result: result)
+                strongSelf.endNavigation(result: result)
             }
             else if(call.method == "startFreeDrive")
             {
@@ -102,16 +105,12 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "startNavigation")
             {
-                strongSelf.startNavigationWithRoute()
+                strongSelf.startNavigationEmbedded(arguments: arguments, result: result)
             }
             else if(call.method == "reCenter")
             {
                 //used to recenter map from user action during navigation
                 strongSelf.navigationMapView.recenterMap()
-            }
-            else if(call.method == "longClickMap")
-            {
-                
             }
             else
             {
@@ -131,6 +130,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         mapView.delegate = self
         mapView.navigationMapDelegate = self
+        mapView.showsUserHeadingIndicator = true
     }
     
     private func setupMapView()
@@ -176,13 +176,82 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         strongSelf.routes = routes
         strongSelf._routes = routes
         strongSelf._wayPoints = current.routeOptions.waypoints
-        strongSelf.navigationMapView.showRoutes(routes)
-        strongSelf.navigationMapView.showWaypoints(current)
     }
 
     fileprivate lazy var defaultFailure: RouteRequestFailure = { [weak self] (error) in
         guard let strongSelf = self else { return }
         strongSelf._routes = nil //clear routes from the map
+    }
+    
+    func buildRoute(arguments: NSDictionary?, flutterResult: @escaping FlutterResult)
+    {
+        sendEvent(eventType: MapEventType.routeBuilding)
+
+        guard let oWayPoints = arguments?["wayPoints"] as? NSDictionary else {return}
+
+        for item in oWayPoints as NSDictionary
+        {
+            let point = item.value as! NSDictionary
+            guard point["Name"] is String else {return }
+            guard let oLatitude = point["Latitude"] as? Double else {return}
+            guard let oLongitude = point["Longitude"] as? Double else {return}
+            _ = point["IsSilent"] as? Bool ?? false
+            _ = point["Order"] as? Int
+            let coordinate = CLLocationCoordinate2D(latitude: oLatitude, longitude: oLongitude)
+            let waypoint = Waypoint(coordinate: coordinate)
+            _wayPoints.append(waypoint)
+        }
+
+        parseFlutterArguments(arguments: arguments)
+        
+        if(_wayPoints.count > 3 && arguments?["mode"] == nil)
+        {
+            _navigationMode = "driving"
+        }
+
+        var mode: MBDirectionsProfileIdentifier = .automobileAvoidingTraffic
+
+        if (_navigationMode == "cycling")
+        {
+            mode = .cycling
+        }
+        else if(_navigationMode == "driving")
+        {
+            mode = .automobile
+        }
+        else if(_navigationMode == "walking")
+        {
+            mode = .walking
+        }
+
+        let routeOptions = NavigationRouteOptions(waypoints: _wayPoints, profileIdentifier: mode)
+        routeOptions.shapeFormat = .polyline6
+
+        if (_allowsUTurnAtWayPoints != nil)
+        {
+            routeOptions.allowsUTurnAtWaypoint = _allowsUTurnAtWayPoints!
+        }
+
+        routeOptions.distanceMeasurementSystem = _voiceUnits == "imperial" ? .imperial : .metric
+        routeOptions.locale = Locale(identifier: _language)
+        self.routeOptions = routeOptions
+
+        // Generate the route object and draw it on the map
+        _ = Directions.shared.calculate(routeOptions) { [weak self] (session, result, error) in
+            guard let strongSelf = self else { return }
+            if let response = result?.first {
+                // Handle success case
+                strongSelf.routes = result
+                strongSelf._routes = result
+                strongSelf._wayPoints = response.routeOptions.waypoints
+                strongSelf.routeResponse = response
+                strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: strongSelf.encodeRoute(route: response))
+            } else {
+                // Handle failure case
+                flutterResult(false)
+                strongSelf.sendEvent(eventType: MapEventType.routeBuildFailed)
+            }
+        }
     }
     
     func clearRoute(arguments: NSDictionary?, result: @escaping FlutterResult) {
@@ -194,6 +263,59 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         navigationMapView.removeWaypoints()
         _wayPoints.removeAll()
         sendEvent(eventType: MapEventType.navigationCancelled)
+    }
+    
+    func endNavigationEmbedded(result: FlutterResult?) {
+        if (routeController != nil) {
+            routeController?.endNavigation()
+            navigationMapView.recenterMap()                        
+            suspendNotifications()
+            sendEvent(eventType: MapEventType.navigationCancelled)
+            if(result != nil)
+            {
+                result!(true)
+            }
+        }
+    }
+    
+    func startNavigationEmbedded(arguments: NSDictionary?, result: @escaping FlutterResult) {
+        isEmbeddedNavigation = true
+        guard let response = self.routeResponse else { return }
+        
+        routeController = RouteController(along: response, locationManager: NavigationLocationManager())
+        routeController?.delegate = self
+        routeController?.reroutesProactively = true
+        routeController?.resume()
+        navigationMapView.recenterMap()
+        resumeNotifications()
+        result(true)
+    }
+    
+    func resumeNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(progressDidChange(_ :)), name: .routeControllerProgressDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(rerouted(_:)), name: .routeControllerDidReroute, object: nil)
+    }
+
+    func suspendNotifications() {
+        NotificationCenter.default.removeObserver(self, name: .routeControllerProgressDidChange, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .routeControllerWillReroute, object: nil)
+    }
+    
+    @objc func progressDidChange(_ notification: NSNotification) {
+        let routeProgress = notification.userInfo![RouteControllerNotificationUserInfoKey.routeProgressKey] as! RouteProgress
+        let location = notification.userInfo![RouteControllerNotificationUserInfoKey.locationKey] as! CLLocation
+        // Update the user puck
+        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, fromDistance: 120, pitch: 60, heading: location.course)
+        navigationMapView.updateCourseTracking(location: location, camera: camera, animated: true)
+        _distanceRemaining = routeProgress.distanceRemaining
+        _durationRemaining = routeProgress.durationRemaining
+        sendEvent(eventType: MapEventType.navigationRunning)
+    }
+    
+    @objc func rerouted(_ notification: NSNotification) {
+        self.navigationMapView.showRoutes([(routeController?.routeProgress.route)!])
+        self.navigationMapView.tracksUserCourse = true
+        self.navigationMapView.recenterMap()
     }
 }
 
@@ -226,7 +348,6 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
     }
 
     func requestRoute(destination: CLLocationCoordinate2D) {
-        isEmbeddedNavigation = true
         sendEvent(eventType: MapEventType.routeBuilding)
 
         guard let userLocation = navigationMapView.userLocation?.location else { return }
@@ -250,6 +371,12 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
         let apiUrl = Directions.shared.url(forCalculating: options)
         print("API Request URL: \(apiUrl)")
         Directions.shared.calculate(options, completionHandler: handler)
+    }
+}
+
+extension FlutterMapNavigationView: RouteControllerDelegate {
+    public func routeController(_ routeController: RouteController, didArriveAt waypoint: Waypoint) -> Bool {
+        return false
     }
 }
 
