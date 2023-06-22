@@ -6,9 +6,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.NonNull
+import com.example.factory.MapViewFactory
+import com.example.models.VietMapNavigationOptions
 import com.example.models.Waypoint
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.mapboxsdk.Mapbox
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -21,7 +24,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.platform.PlatformViewRegistry
 
 /** DemoPlugin */
-class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
+class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel.StreamHandler {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -36,7 +39,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
         channel = MethodChannel(messenger, "demo_plugin")
         channel.setMethodCallHandler(this)
 
-        progressEventChannel = EventChannel(messenger, "flutter_mapbox_navigation/events")
+        progressEventChannel = EventChannel(messenger, "demo_plugin/events")
 //      progressEventChannel.setStreamHandler(this)
 
         platformViewRegistry = flutterPluginBinding.platformViewRegistry
@@ -63,6 +66,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
         var mapStyleUrlNight: String? = null
         var navigationLanguage = "en"
         var navigationVoiceUnits = DirectionsCriteria.IMPERIAL
+        var isCustomizeUI:Boolean=false
         var zoom = 15.0
         var bearing = 0.0
         var tilt = 0.0
@@ -71,7 +75,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
         var platformViewRegistry: PlatformViewRegistry? = null
         var binaryMessenger: BinaryMessenger? = null
 
-        var viewId = "FlutterMapboxNavigationView"
+        var viewId = "DemoPluginView"
     }
 
 
@@ -114,11 +118,21 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
         }
     }
 
+    override fun onListen(args: Any?, events: EventChannel.EventSink?) {
+        eventSink = events
+    }
+
+    override fun onCancel(args: Any?) {
+        eventSink = null
+    }
+
     private fun checkPermissionAndBeginNavigation(
         call: MethodCall
     ) {
         val arguments = call.arguments as? Map<String, Any>
 
+        isCustomizeUI = (arguments?.get("isCustomizeUI") ?: false) as Boolean
+        VietMapNavigationOptions.instance.isCustomizeUI= isCustomizeUI
         val navMode = arguments?.get("mode") as? String
         if (navMode != null) {
             when (navMode) {
@@ -203,6 +217,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
 
     private fun beginNavigation(wayPoints: List<Waypoint>) {
         VietmapNavigationLauncher.startNavigation(currentActivity, wayPoints)
+
     }
 
 
@@ -217,16 +232,18 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware {
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         currentActivity = binding.activity
         currentContext = binding.activity.applicationContext
-//        if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
-//            platformViewRegistry?.registerViewFactory(
-//                viewId,
-//                EmbeddedNavigationViewFactory(binaryMessenger!!, currentActivity!!)
-//            )
-//        }
+        Mapbox.getInstance(currentContext)
+        if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
+            platformViewRegistry?.registerViewFactory(
+                viewId,
+                MapViewFactory(binaryMessenger!!, currentActivity!!)
+            )
+        }
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        TODO("Not yet implemented")
+
+        println("--------onDetachedFromActivityForConfigChanges----------------")
     }
 
     private fun addWayPointsToNavigation(
