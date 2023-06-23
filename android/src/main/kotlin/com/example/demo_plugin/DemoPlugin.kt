@@ -2,9 +2,11 @@ package com.example.demo_plugin
 
 import android.Manifest
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.NonNull
 import com.example.factory.MapViewFactory
 import com.example.models.VietMapNavigationOptions
@@ -12,19 +14,17 @@ import com.example.models.Waypoint
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.services.android.navigation.ui.v5.NavigationView
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.*
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.platform.PlatformViewRegistry
 
 /** DemoPlugin */
-class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel.StreamHandler {
+class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel.StreamHandler{
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -40,7 +40,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
         channel.setMethodCallHandler(this)
 
         progressEventChannel = EventChannel(messenger, "demo_plugin/events")
-//      progressEventChannel.setStreamHandler(this)
+        progressEventChannel.setStreamHandler(this)
 
         platformViewRegistry = flutterPluginBinding.platformViewRegistry
         binaryMessenger = messenger
@@ -55,7 +55,6 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
         lateinit var routes: List<DirectionsRoute>
         private var currentRoute: DirectionsRoute? = null
         val wayPoints: MutableList<Waypoint> = mutableListOf()
-
         var showAlternateRoutes: Boolean = true
         val allowsClickToSetDestination: Boolean = false
         var allowsUTurnsAtWayPoints: Boolean = false
@@ -76,6 +75,24 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
         var binaryMessenger: BinaryMessenger? = null
 
         var viewId = "DemoPluginView"
+        @JvmStatic
+        var view_name = "DemoPluginView"
+
+        @JvmStatic
+        fun registerWith(registrar: PluginRegistry.Registrar) {
+            val messenger = registrar.messenger()
+            val instance = DemoPlugin()
+
+            val channel = MethodChannel(messenger, "demo_plugin")
+            channel.setMethodCallHandler(instance)
+
+            val progressEventChannel = EventChannel(messenger, "demo_plugin/events")
+            progressEventChannel.setStreamHandler(instance)
+
+            platformViewRegistry = registrar.platformViewRegistry()
+            binaryMessenger = messenger;
+
+        }
     }
 
 
@@ -231,6 +248,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
     }
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         currentActivity = binding.activity
+
         currentContext = binding.activity.applicationContext
         Mapbox.getInstance(currentContext)
         if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
@@ -238,6 +256,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
                 viewId,
                 MapViewFactory(binaryMessenger!!, currentActivity!!)
             )
+
         }
     }
 
@@ -263,4 +282,5 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
         }
         VietmapNavigationLauncher.addWayPoints(currentActivity, wayPoints)
     }
+
 }

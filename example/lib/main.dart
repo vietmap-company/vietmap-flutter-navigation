@@ -231,20 +231,20 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 300,
-                  child: Container(
-                    color: Colors.red,
-                    child: MapNavigationView(
-                        options: _navigationOption,
-                        onRouteEvent: _onEmbeddedRouteEvent,
-                        onCreated:
-                            (MapNavigationViewController controller) async {
-                          _controller = controller;
-                          controller.initialize();
-                        }),
-                  ),
-                )
+                // SizedBox(
+                //   height: 300,
+                //   child: Container(
+                //     color: Colors.red,
+                //     child: MapNavigationView(
+                //         options: _navigationOption,
+                //         onRouteEvent: _onEmbeddedRouteEvent,
+                //         onCreated:
+                //             (MapNavigationViewController controller) async {
+                //           _controller = controller;
+                //           controller.initialize();
+                //         }),
+                //   ),
+                // )
               ],
             ),
           ),

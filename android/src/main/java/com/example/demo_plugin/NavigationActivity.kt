@@ -267,7 +267,7 @@ class NavigationActivity : AppCompatActivity(),
 
     private fun buildAndStartNavigation(directionsRoute: DirectionsRoute) {
 
-        sendEvent(VietMapEvents.ROUTE_BUILT, "routeBuilt")
+        sendEvent(VietMapEvents.ROUTE_BUILT, "${directionsRoute?.toJson()}")
         dropoffDialogShown = false
 
         navigationView?.retrieveNavigationMapboxMap()?.let {navigationMap ->
