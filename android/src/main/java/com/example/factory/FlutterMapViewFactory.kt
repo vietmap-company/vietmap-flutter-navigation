@@ -1,8 +1,11 @@
 package com.example.factory
 
+//import com.mapbox.services.android.navigation.ui.v5.LocationEngineConductor
+import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
@@ -12,9 +15,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.annotation.NonNull
-import androidx.fragment.app.FragmentManager
+import androidx.core.app.ActivityCompat
 import com.example.demo_plugin.DemoPlugin
-import com.example.demo_plugin.NavigationActivity
 import com.example.demo_plugin.R
 import com.example.models.VietMapEvents
 import com.example.models.VietMapLocation
@@ -26,6 +28,7 @@ import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -43,11 +46,10 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
+import com.mapbox.services.android.navigation.ui.v5.NavigationPresenter
 import com.mapbox.services.android.navigation.ui.v5.NavigationView
+import com.mapbox.services.android.navigation.ui.v5.NavigationViewModel
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions
-import com.mapbox.services.android.navigation.ui.v5.OnNavigationReadyCallback
 import com.mapbox.services.android.navigation.ui.v5.camera.NavigationCamera
 import com.mapbox.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
 import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener
@@ -107,8 +109,7 @@ class FlutterMapViewFactory  :
     private var mapBoxMap: MapboxMap? = null
     private var currentRoute: DirectionsRoute? = null
     private var navigationView: NavigationView? = null
-    private var locationEngine: LocationEngine? =null
-
+    private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
     private val navigationOptions = MapboxNavigationOptions.builder()
         .build()
@@ -119,14 +120,16 @@ class FlutterMapViewFactory  :
     private var isBuildingRoute = false
     private var isNavigationInProgress = false
     private var isNavigationCanceled = false
+    private var navigationViewModel: NavigationViewModel? = null
 
-    constructor(cxt: Context, messenger: BinaryMessenger, viewId: Int, act: Activity, args: Any?)
-    {
+    constructor(cxt: Context, messenger: BinaryMessenger, viewId: Int, act: Activity, args: Any?) {
+
+        Mapbox.getInstance(act.applicationContext)
         activity = act
         activity.application.registerActivityLifecycleCallbacks(this)
         context = cxt
         val arguments = args as? Map<*, *>
-        if(arguments != null)
+        if (arguments != null)
             setOptions(arguments)
 
         methodChannel = MethodChannel(messenger, "demo_plugin/${viewId}")
@@ -138,17 +141,23 @@ class FlutterMapViewFactory  :
             .logoEnabled(true)
         mapView = MapView(context, options)
         navigationView = NavigationView(context)
-
         locationEngine = LocationEngineProvider.getBestLocationEngine(context)
-
         navigation = MapboxNavigation(
             context,
             navigationOptions,
             locationEngine!!
         )
 
+        navigationViewModel = NavigationViewModel(activity.application)
+        navigationViewModel?.initializeLocationEngine()
+        navigationViewModel?.initializeNavigation(context, navigationOptions, locationEngine)
+        navigationViewModel?.initializeRouter()
+//            navigationViewModel?.initializeLocationEngineFrom(options)
+        navigationView?.onCreate(null, navigationViewModel)
         methodChannel.setMethodCallHandler(this)
         mapView.getMapAsync(this)
+
+//        navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
 
     }
 
@@ -159,14 +168,14 @@ class FlutterMapViewFactory  :
         var initialLongitude: Double? = null
 
         val wayPoints: MutableList<Point> = mutableListOf()
-        var navigationMode =  DirectionsCriteria.PROFILE_DRIVING_TRAFFIC
+        var navigationMode = DirectionsCriteria.PROFILE_DRIVING_TRAFFIC
         var simulateRoute = false
         var mapStyleURL: String? = null
         var navigationLanguage = Locale("en")
         var navigationVoiceUnits = DirectionsCriteria.IMPERIAL
-        var zoom = 15.0
-        var bearing = 0.0
-        var tilt = 0.0
+        var zoom = 18.0
+        var bearing = 10000.0
+        var tilt = 10000.0
         var distanceRemaining: Double? = null
         var durationRemaining: Double? = null
 
@@ -185,7 +194,13 @@ class FlutterMapViewFactory  :
     }
 
     override fun getView(): View {
-        return mapView
+        return if (isNavigationInProgress) {
+            println("getting navigation view")
+            navigationView!!
+        } else {
+            println("getting map view")
+            mapView
+        }
     }
     override fun onMethodCall(methodCall: MethodCall, result: MethodChannel.Result) {
         when (methodCall.method) {
@@ -213,6 +228,18 @@ class FlutterMapViewFactory  :
             }
             "getDurationRemaining" -> {
                 result.success(durationRemaining)
+            }
+            "recenter" -> {
+
+                val navigationPresenter: NavigationPresenter? =
+                    navigationView?.getNavigationPresenter()
+                navigationPresenter?.onRecenterClick()
+
+            }
+            "overview" -> {
+                val navigationPresenter: NavigationPresenter? =
+                    navigationView?.getNavigationPresenter()
+                navigationPresenter?.onRouteOverviewClick()
             }
             else -> result.notImplemented()
         }
@@ -279,14 +306,10 @@ class FlutterMapViewFactory  :
     private fun startNavigation() {
         isNavigationCanceled = false
         if (currentRoute != null) {
-            navigationView?.retrieveMapboxNavigation()?.let {
-                this.navigation = it
+            if (simulateRoute) {
+                (locationEngine as ReplayRouteLocationEngine).assign(currentRoute)
+                navigation.locationEngine = locationEngine as ReplayRouteLocationEngine
             }
-            navigation.addOffRouteListener(this)
-            navigation.addFasterRouteListener(this)
-            navigation.addProgressChangeListener(this)
-            navigation.addMilestoneEventListener(this)
-            navigation.addNavigationEventListener(this)
             val options =
                 NavigationViewOptions.builder()
                     .progressChangeListener(this)
@@ -295,22 +318,21 @@ class FlutterMapViewFactory  :
                     .speechAnnouncementListener(this)
                     .bannerInstructionsListener(this)
                     .routeListener(this)
+                    .locationEngine(locationEngine)
                     .directionsRoute(currentRoute)
-                    .shouldSimulateRoute(DemoPlugin.simulateRoute)
+                    .shouldSimulateRoute(simulateRoute)
                     .onMoveListener(this)
+                    .navigationOptions(navigationOptions)
                     .build()
 
-
             currentRoute?.let {
-                if (simulateRoute) {
-                    (locationEngine as ReplayRouteLocationEngine).assign(it)
-                    navigation.locationEngine = locationEngine as ReplayRouteLocationEngine
-                }
+
                 isNavigationInProgress = true
-//                navigationView?.initViewConfig(DemoPlugin.isCustomizeUI)
-//                navigationView?.startNavigation(options)
-                navigation.startNavigation(it)
+                navigationView?.initViewConfig(false)
                 navigationView?.startNavigation(options)
+                navigationView?.startCamera(currentRoute)
+                navigationView?.updateCameraRouteOverview()
+//                navigation.startNavigation(currentRoute!!)
                 PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_RUNNING)
             }
         }
@@ -354,6 +376,8 @@ class FlutterMapViewFactory  :
 
         val simulated = arguments["simulateRoute"] as? Boolean
         if (simulated != null) {
+            println(simulated)
+            println("----------------------------------------")
             simulateRoute = simulated
         }
 
@@ -414,12 +438,12 @@ class FlutterMapViewFactory  :
     }
 
     override fun onMapReady(map: MapboxMap) {
-
         this.mapReady = true
         this.mapBoxMap = map
-        locationEngine = ReplayRouteLocationEngine()
-
-        if(mapStyleURL == null)
+        if (simulateRoute) {
+            locationEngine = ReplayRouteLocationEngine()
+        }
+        if (mapStyleURL == null)
             mapStyleURL = "https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326"
 
         mapBoxMap?.setStyle(mapStyleURL) { style ->
@@ -569,7 +593,7 @@ class FlutterMapViewFactory  :
                 if (navigationMapRoute != null) {
                     navigationMapRoute?.updateRouteArrowVisibilityTo(false)
                 } else {
-                    navigationMapRoute = NavigationMapRoute(navigation, mapView, mapBoxMap!!, R.style.NavigationMapRoute)
+//                    navigationMapRoute = NavigationMapRoute(navigation, mapView, mapBoxMap!!, R.style.NavigationMapRoute)
                 }
                 navigationMapRoute?.addRoute(currentRoute)
                 isBuildingRoute = false
@@ -601,17 +625,17 @@ class FlutterMapViewFactory  :
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         println("-------------------------onActivityCreated")
         mapView.onCreate(savedInstanceState)
-        navigationView?.onCreate(savedInstanceState)
-        navigationView?.initialize(
-            OnNavigationReadyCallback { return@OnNavigationReadyCallback },
-            getInitialCameraPosition()
-        )
+         navigationView?.onCreate(savedInstanceState,null)
+//         navigationView?.initialize(
+//            OnNavigationReadyCallback { return@OnNavigationReadyCallback },
+//            getInitialCameraPosition()
+//        )
     }
 
     override fun onActivityStarted(activity: Activity) {
 
         try {
-            navigationView?.onStart()
+             navigationView?.onStart()
             mapView.onStart()
         } catch (e: java.lang.Exception) {
             Timber.i(String.format("onActivityStarted, %s", "Error: ${e.message}"))
@@ -619,27 +643,27 @@ class FlutterMapViewFactory  :
     }
 
     override fun onActivityResumed(activity: Activity) {
-        navigationView?.onResume()
+         navigationView?.onResume()
         mapView.onResume()
     }
 
     override fun onActivityPaused(activity: Activity) {
-        navigationView?.onPause()
+         navigationView?.onPause()
         mapView.onPause()
     }
 
     override fun onActivityStopped(activity: Activity) {
         //mapView.onStop()
-        navigationView?.onStop()
+        // navigationView?.onStop()
     }
 
     override fun onActivitySaveInstanceState(@NonNull p0: Activity, @NonNull outState: Bundle) {
-        navigationView?.onSaveInstanceState(outState)
+         navigationView?.onSaveInstanceState(outState)
         mapView.onSaveInstanceState(outState)
     }
 
     override fun onActivityDestroyed(activity: Activity) {
-        navigationView?.onDestroy()
+        // navigationView?.onDestroy()
         //mapView.onDestroy()
     }
 
@@ -692,7 +716,7 @@ class FlutterMapViewFactory  :
 
     override fun onCancelNavigation() {
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_CANCELLED)
-        navigationView?.stopNavigation()
+         navigationView?.stopNavigation()
         navigation.stopNavigation()
 
     }
@@ -817,30 +841,43 @@ class FlutterMapViewFactory  :
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context)
                 .pulseEnabled(true)
-                .backgroundDrawable(R.drawable.maplibre_marker_icon_default)
-                .foregroundDrawable(R.drawable.maplibre_marker_icon_default)
-                .gpsDrawable(R.drawable.maplibre_marker_icon_default)
                 .build()
             mapBoxMap?.locationComponent?.let { locationComponent ->
-                try {
-                    locationComponent.activateLocationComponent(
-                        LocationComponentActivationOptions.builder(context, loadedMapStyle)
-                            .locationComponentOptions(customLocationComponentOptions)
-                            .locationEngine(locationEngine)
-                            .styleRes(R.drawable.maplibre_marker_icon_default)
-                            .build())
-                    locationComponent.isLocationComponentEnabled = true
-                    locationComponent.cameraMode = CameraMode.TRACKING
-                    locationComponent.renderMode = RenderMode.NORMAL
+//                try {
+                locationComponent.activateLocationComponent(
+                    LocationComponentActivationOptions.builder(context, loadedMapStyle)
+                        .locationComponentOptions(customLocationComponentOptions)
+                        .locationEngine(locationEngine)
+                        .build()
+                )
 
-                    locationComponent.lastKnownLocation?.let {
-                        val location = LatLng(it.latitude, it.longitude)
-                        moveCamera(location)
-                    }
-                } catch (e: Exception) {
-                    Timber.i(String.format("enableLocationComponent, %s", "Error: ${e.message}"))
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    locationComponent.isLocationComponentEnabled = true
                 }
+
+                locationComponent.setCameraMode(
+                    CameraMode.TRACKING_GPS_NORTH,
+                    750L,
+                    zoom,
+                    bearing,
+                    tilt,
+                    null
+                )
+                locationComponent.isLocationComponentEnabled = true
+                locationComponent.zoomWhileTracking(18.0)
+                locationComponent.renderMode = RenderMode.GPS
+                locationComponent.locationEngine = locationEngine
+
             }
+
+            navigationView?.initializeNavigationMap(mapView, mapBoxMap)
         }
     }
 

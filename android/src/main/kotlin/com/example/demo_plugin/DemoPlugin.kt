@@ -2,19 +2,23 @@ package com.example.demo_plugin
 
 import android.Manifest
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle
 import androidx.annotation.NonNull
 import com.example.factory.MapViewFactory
+import com.example.models.VietMapEvents
 import com.example.models.VietMapNavigationOptions
 import com.example.models.Waypoint
+import com.example.utilities.PluginUtilities
 import com.mapbox.api.directions.v5.DirectionsCriteria
+import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.services.android.navigation.ui.v5.NavigationView
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -22,9 +26,13 @@ import io.flutter.plugin.common.*
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.platform.PlatformViewRegistry
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 /** DemoPlugin */
-class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel.StreamHandler{
+class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel.StreamHandler
+    {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -233,10 +241,39 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
     }
 
     private fun beginNavigation(wayPoints: List<Waypoint>) {
-        VietmapNavigationLauncher.startNavigation(currentActivity, wayPoints)
+//        VietmapNavigationLauncher.startNavigation(currentActivity, wayPoints)
+        fetchRoute(wayPoints.get(0).point,wayPoints.get(1).point)
 
     }
 
+    private fun fetchRoute(origin: Point, destination: Point) {
+        val builder = NavigationRoute.builder(currentContext)
+            .apikey("95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c")
+            .origin(origin)
+            .destination(destination)
+            .alternatives(true)
+            .build()
+        builder.getRoute(object : Callback<DirectionsResponse?> {
+            override fun onResponse(
+                call: Call<DirectionsResponse?>,
+                response: Response<DirectionsResponse?>
+            ) {
+                val directionsResponse = response.body()
+                if (directionsResponse != null) {
+                    if (!directionsResponse.routes().isEmpty())
+                        buildAndStartNavigation(directionsResponse.routes()[0])
+                    else {
+                        val message = directionsResponse.message()
+                        PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, message!!)
+//                finish()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<DirectionsResponse?>, t: Throwable) {}
+        })
+        //Callback<DirectionsResponse>
+    }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         currentActivity = binding.activity
@@ -281,6 +318,16 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
             wayPoints.add(Waypoint(name, latitude, longitude, isSilent))
         }
         VietmapNavigationLauncher.addWayPoints(currentActivity, wayPoints)
+    }
+
+
+
+    private fun buildAndStartNavigation(directionsRoute: DirectionsRoute) {
+
+        PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT, "${directionsRoute?.toJson()}")
+        NavigationLauncher.startNavigation(currentActivity, NavigationLauncherOptions.builder()
+            .directionsRoute(currentRoute)
+            .build())
     }
 
 }

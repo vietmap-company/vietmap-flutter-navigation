@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <com.mapbox.services.android.navigation.ui.v5.NavigationView
-        android:id="@+id/navigationViewPluginWidget"
+        android:id="@+id/navigationViewPluginWidgett"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

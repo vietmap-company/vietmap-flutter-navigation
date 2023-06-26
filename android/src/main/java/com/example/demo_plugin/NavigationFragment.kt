@@ -105,7 +105,7 @@ class NavigationFragment : Fragment(), OnNavigationReadyCallback, NavigationList
         super.onViewCreated(view, savedInstanceState)
         updateNightMode()
         navigationView = view.findViewById(R.id.navigation_fragment_frame)
-        navigationView?.onCreate(savedInstanceState)
+        navigationView?.onCreate(savedInstanceState,null)
         navigationView?.initialize(
             this,
             getInitialCameraPosition()

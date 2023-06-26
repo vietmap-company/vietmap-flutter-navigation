@@ -22,6 +22,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap.OnMoveListener
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.services.android.navigation.ui.v5.NavigationView
+import com.mapbox.services.android.navigation.ui.v5.NavigationViewModel
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions
 import com.mapbox.services.android.navigation.ui.v5.OnNavigationReadyCallback
 import com.mapbox.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
@@ -95,7 +96,8 @@ class NavigationActivity : AppCompatActivity(),
 
         navigationView = findViewById(R.id.navigationViewPluginWidget)
 
-        navigationView?.onCreate(savedInstanceState)
+//        navigationView= activity.findViewById(R.id.navigationViewPluginWidget)
+        navigationView?.onCreate(savedInstanceState,null)
         navigationView?.initialize(
             this,
             getInitialCameraPosition()

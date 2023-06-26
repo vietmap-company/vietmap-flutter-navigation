@@ -109,6 +109,20 @@ class MapNavigationViewController {
     return _methodChannel.invokeMethod('startNavigation', args);
   }
 
+  Future<bool?> recenter({MapOptions? options}) async {
+    Map<String, dynamic>? args;
+    if (options != null) args = options.toMap();
+    _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
+    return _methodChannel.invokeMethod('recenter', args);
+  }
+
+  Future<bool?> overview({MapOptions? options}) async {
+    Map<String, dynamic>? args;
+    if (options != null) args = options.toMap();
+    _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
+    return _methodChannel.invokeMethod('overview', args);
+  }
+
   ///Ends Navigation and Closes the Navigation View
   Future<bool?> finishNavigation() async {
     var success = await _methodChannel.invokeMethod('finishNavigation', null);

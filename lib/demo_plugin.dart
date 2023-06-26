@@ -14,8 +14,8 @@ class DemoPlugin {
 
   MapOptions _defaultOptions = MapOptions(
     zoom: 15,
-    tilt: 0,
-    bearing: 0,
+    tilt: 10000,
+    bearing: 10000,
     enableRefresh: false,
     alternatives: true,
     voiceInstructionsEnabled: true,
