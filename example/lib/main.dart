@@ -121,11 +121,13 @@ class _MyAppState extends State<MyApp> {
           name: "You are here",
           latitude: fromLat ?? 10.792145,
           longitude: fromLong ?? 106.690157),
-      WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
+      // 10.762528, 106.653099
+
+      WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
     ];
     options = MapOptions(
       isCustomizeUI: isCustomizeUI,
-      zoom: 15,
+      zoom: 19,
       tilt: 10000,
       bearing: 10000,
       enableRefresh: false,
@@ -136,7 +138,7 @@ class _MyAppState extends State<MyApp> {
       mode: MapNavigationMode.driving,
       units: VoiceUnits.imperial,
       simulateRoute: false,
-      animateBuildRoute: false,
+      animateBuildRoute: true,
       longPressDestinationEnabled: false,
       language: 'vi',
     );
@@ -292,6 +294,8 @@ class _MyAppState extends State<MyApp> {
           _routeBuilt = false;
           _isNavigating = false;
         });
+        break;
+      case MapEvent.milestoneEvent:
         break;
       default:
         break;

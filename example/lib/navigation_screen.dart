@@ -29,7 +29,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   String? _instruction;
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
-    WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
+    WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
   ];
   @override
   void initState() {
@@ -304,6 +304,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
           _routeBuilt = false;
           _isNavigating = false;
         });
+        break;
+      case MapEvent.milestoneEvent:
         break;
       default:
         break;

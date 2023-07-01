@@ -44,10 +44,12 @@ class PluginUtilities {
 
         fun sendEvent(event: VietMapEvents, data: String = "") {
             val jsonString =
-                if (VietMapEvents.MILESTONE_EVENT == event || event == VietMapEvents.USER_OFF_ROUTE || event == VietMapEvents.ROUTE_BUILT) "{" +
+                //VietMapEvents.MILESTONE_EVENT == event ||
+                if ( event == VietMapEvents.USER_OFF_ROUTE || event == VietMapEvents.ROUTE_BUILT) "{" +
                         "  \"eventType\": \"${event.value}\"," +
                         "  \"data\": $data" +
-                        "}" else "{" +
+                        "}"
+                else "{" +
                         "  \"eventType\": \"${event.value}\"," +
                         "  \"data\": \"$data\"" +
                         "}"
