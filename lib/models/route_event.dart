@@ -22,11 +22,13 @@ class RouteEvent {
         // TODO handle the error
       }
     }
-    var dataJson = json['data'];
-    if (eventType == MapEvent.progressChange) {
-      data = RouteProgressEvent.fromJson(dataJson);
-    } else {
-      data = jsonEncode(dataJson);
-    }
+    try {
+      var dataJson = json['data'];
+      if (eventType == MapEvent.progressChange) {
+        data = RouteProgressEvent.fromJson(dataJson);
+      } else {
+        data = jsonEncode(dataJson);
+      }
+    } catch (e) {}
   }
 }

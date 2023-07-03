@@ -13,9 +13,9 @@ class DemoPlugin {
   static DemoPlugin get instance => _instance;
 
   MapOptions _defaultOptions = MapOptions(
-    zoom: 15,
-    tilt: 0,
-    bearing: 0,
+    zoom: 18,
+    tilt: 10000,
+    bearing: 10000,
     enableRefresh: false,
     alternatives: true,
     voiceInstructionsEnabled: true,
@@ -23,7 +23,7 @@ class DemoPlugin {
     allowsUTurnAtWayPoints: true,
     mode: MapNavigationMode.drivingWithTraffic,
     units: VoiceUnits.imperial,
-    simulateRoute: false,
+    simulateRoute: true,
     animateBuildRoute: true,
     longPressDestinationEnabled: true,
     language: 'vi',

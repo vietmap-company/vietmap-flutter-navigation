@@ -29,7 +29,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   String? _instruction;
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
-    WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
+    WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
   ];
   @override
   void initState() {
@@ -45,7 +45,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     if (!mounted) return;
 
     _navigationOption = _demoPlugin.getDefaultOptions();
-    _navigationOption.simulateRoute = true;
+    _navigationOption.simulateRoute = false;
     _navigationOption.isCustomizeUI = true;
     //_navigationOption.initialLatitude = 36.1175275;
     //_navigationOption.initialLongitude = -115.1839524;
@@ -113,7 +113,17 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   onPressed: () {
                     _demoPlugin.startNavigation(wayPoints, _navigationOption);
                   },
-                  child: const Text('startNavigation'))
+                  child: const Text('startNavigation')),
+              Expanded(
+                child: CheckboxListTile(
+                    value: _navigationOption.simulateRoute,
+                    title: Text('SimulateRoute'),
+                    onChanged: (value) {
+                      setState(() {
+                        _navigationOption.simulateRoute = value;
+                      });
+                    }),
+              )
             ],
           ),
           Container(
@@ -167,6 +177,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
               ElevatedButton(
                 onPressed: _isNavigating
                     ? () {
+                        setState(() {
+                          _isNavigating = false;
+                        });
                         _controller?.finishNavigation();
                       }
                     : null,
@@ -227,6 +240,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         : "---")
                   ],
                 ),
+                Row(
+                  children: _isNavigating
+                      ? [
+                          ElevatedButton(
+                              onPressed: () {
+                                _controller?.recenter();
+                              },
+                              child: const Text('ReCenter')),
+                          ElevatedButton(
+                              onPressed: () {
+                                _controller?.overview();
+                              },
+                              child: const Text('overView')),
+                        ]
+                      : [],
+                )
               ],
             ),
           ),
@@ -277,6 +306,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
           _routeBuilt = false;
           _isNavigating = false;
         });
+        break;
+      case MapEvent.milestoneEvent:
         break;
       default:
         break;

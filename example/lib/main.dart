@@ -124,23 +124,25 @@ class _MyAppState extends State<MyApp> {
           name: "You are here",
           latitude: fromLat ?? 10.792145,
           longitude: fromLong ?? 106.690157),
-      WayPoint(name: "You are here", latitude: 10.747709, longitude: 106.649902)
+      // 10.762528, 106.653099
+
+      WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
     ];
     options = MapOptions(
       isCustomizeUI: isCustomizeUI,
-      zoom: 15,
-      tilt: 0,
-      bearing: 0,
+      zoom: 19,
+      tilt: 10000,
+      bearing: 10000,
       enableRefresh: false,
-      alternatives: true,
-      voiceInstructionsEnabled: true,
-      bannerInstructionsEnabled: true,
-      allowsUTurnAtWayPoints: true,
-      mode: MapNavigationMode.drivingWithTraffic,
+      alternatives: false,
+      voiceInstructionsEnabled: false,
+      bannerInstructionsEnabled: false,
+      allowsUTurnAtWayPoints: false,
+      mode: MapNavigationMode.driving,
       units: VoiceUnits.imperial,
-      simulateRoute: true,
+      simulateRoute: false,
       animateBuildRoute: true,
-      longPressDestinationEnabled: true,
+      longPressDestinationEnabled: false,
       language: 'vi',
     );
     var result = DemoPlugin.instance.startNavigation(wayPoints, options!);
@@ -234,20 +236,20 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 300,
-                  child: Container(
-                    color: Colors.red,
-                    child: MapNavigationView(
-                        options: _navigationOption,
-                        onRouteEvent: _onEmbeddedRouteEvent,
-                        onCreated:
-                            (MapNavigationViewController controller) async {
-                          _controller = controller;
-                          controller.initialize();
-                        }),
-                  ),
-                )
+                // SizedBox(
+                //   height: 300,
+                //   child: Container(
+                //     color: Colors.red,
+                //     child: MapNavigationView(
+                //         options: _navigationOption,
+                //         onRouteEvent: _onEmbeddedRouteEvent,
+                //         onCreated:
+                //             (MapNavigationViewController controller) async {
+                //           _controller = controller;
+                //           controller.initialize();
+                //         }),
+                //   ),
+                // )
               ],
             ),
           ),
@@ -295,6 +297,8 @@ class _MyAppState extends State<MyApp> {
           _routeBuilt = false;
           _isNavigating = false;
         });
+        break;
+      case MapEvent.milestoneEvent:
         break;
       default:
         break;
