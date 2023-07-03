@@ -245,6 +245,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
                 strongSelf._routes = result
                 strongSelf._wayPoints = response.routeOptions.waypoints
                 strongSelf.routeResponse = response
+                strongSelf.navigationMapView.setOverheadCameraView(from: strongSelf._wayPoints.first!.coordinate, along: response.coordinates!, for: strongSelf.overheadInsets)
                 strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: strongSelf.encodeRoute(route: response))
             } else {
                 // Handle failure case
@@ -252,6 +253,10 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
                 strongSelf.sendEvent(eventType: MapEventType.routeBuildFailed)
             }
         }
+    }
+    
+    @objc var overheadInsets: UIEdgeInsets {
+        return UIEdgeInsets(top: 20, left: 20, bottom: 70, right: 20)
     }
     
     func clearRoute(arguments: NSDictionary?, result: @escaping FlutterResult) {
