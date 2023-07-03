@@ -20,4 +20,6 @@ enum class VietMapEvents(val value: String) {
     ON_ARRIVAL("onArrival"),
     FAILED_TO_REROUTE("failedToReroute"),
     REROUTE_ALONG("rerouteAlong"),
+    ON_MAP_MOVE("onMapMove"),
+
 }

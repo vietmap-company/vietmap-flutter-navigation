@@ -16,6 +16,7 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.location.permissions.PermissionsManager
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
@@ -112,6 +113,14 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
 
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+
+        val hasPermission =
+            currentActivity?.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (hasPermission != PackageManager.PERMISSION_GRANTED) {
+            currentActivity?.requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSION_REQUEST_CODE
+            )}
         when (call.method) {
             "getPlatformVersion" -> {
                 result.success("Android ${Build.VERSION.RELEASE}")
