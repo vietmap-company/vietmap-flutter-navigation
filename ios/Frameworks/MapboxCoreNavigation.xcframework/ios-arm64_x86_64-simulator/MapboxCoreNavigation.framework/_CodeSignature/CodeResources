@@ -38,11 +38,11 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		qe+yrC+5LNktllgOMasn+h6mBkk=
+		rrtppovUyzhqyDmITX15Q6eWfiM=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		F5PtzfCwrdlvv9z8riMVTeHCQVs=
+		7JzwdOx8GlGw2dHYU6wzxpDZ+gE=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		KNv9KEMOaBoipWUWGbo6iSJKkX8=
+		Dtcpb6CBFfICJ6y8FzvY/+aCrYM=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		XP3hB7bIZzaKxyOfwIxSA367Sc0=
+		J/T9qwb93wInWiH6XG6WGkeBY58=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -281,14 +281,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			44vfdk0OIrg6Ogh3ZMAAi8RN2jCGQWS5pOAKLjsfDSA=
+			XCqpgfTB/pjnd9wOg/HHTdEO2Yp46NMdKA3QzCcwSk4=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3DvQbKKF52YKHwBe65he8tpftFfmePDr3iO6SeBspDU=
+			3eDKbX+hHd4cQlRx/0hXtbM/jzFGas7hZPBB8MOJPL8=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -309,7 +309,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			r5GhWLOpq9pKclALwtwr06vnMOP2QGrIMvCPZs8rSt0=
+			AZCIwIRMVx1ZO+8fLoVxG/AzlxlOYz/mX1x10Kgjwz0=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -330,7 +330,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8W2HqHLJmBI1p/7hoZS/rdJNyvT6SXfBWUpV7IbVjPM=
+			fGHPlzUhf0Nvoy8/GoDttgLlXOd1DYkYGXH+1SVljmg=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
