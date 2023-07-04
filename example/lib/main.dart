@@ -5,6 +5,7 @@ import 'package:demo_plugin/models/options.dart';
 import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/voice_units.dart';
 import 'package:demo_plugin/models/way_point.dart';
+import 'package:demo_plugin_example/demo_android_screen.dart';
 import 'package:demo_plugin_example/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -217,15 +218,15 @@ class _MyAppState extends State<MyApp> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    // ElevatedButton(
+                    //   style: raisedButtonStyle,
+                    //   onPressed: () {
+                    //     _startNavigation();
+                    //   },
+                    //   child: const Text('Start Navigation'),
+                    // ),
                     ElevatedButton(
-                      style: raisedButtonStyle,
-                      onPressed: () {
-                        _startNavigation();
-                      },
-                      child: const Text('Start Navigation'),
-                    ),
-                    ElevatedButton(
-                      style: raisedButtonStyle,
+                      // style: raisedButtonStyle,
                       onPressed: () {
                         Navigator.push(
                             context,
@@ -233,6 +234,16 @@ class _MyAppState extends State<MyApp> {
                                 builder: (_) => const NavigationScreen()));
                       },
                       child: const Text('Push to navigation screen'),
+                    ),
+                    ElevatedButton(
+                      // style: raisedButtonStyle,
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const DemoAndroidScreen()));
+                      },
+                      child: const Text('Push to demo android screen'),
                     ),
                   ],
                 ),

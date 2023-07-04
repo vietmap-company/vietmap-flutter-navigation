@@ -75,7 +75,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.github.vietmap-company:maps-sdk-android:1.0.0'
     implementation 'com.github.vietmap-company:maps-sdk-navigation-ui-android:1.1.6'
-    implementation 'com.github.vietmap-company:maps-sdk-navigation-android:1.1.0'
+    implementation 'com.github.vietmap-company:maps-sdk-navigation-android:1.1.1'
     implementation 'com.github.vietmap-company:vietmap-services-core:1.0.0'
     implementation 'com.github.vietmap-company:vietmap-services-directions-models:1.0.1'
     implementation 'com.github.vietmap-company:vietmap-services-turf-android:1.0.2'

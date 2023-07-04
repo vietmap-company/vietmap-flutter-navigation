@@ -17,6 +17,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.NonNull
 import com.example.demo_plugin.DemoPlugin
 import com.example.demo_plugin.R
+import com.example.models.CurrentCenterPoint
 import com.example.models.VietMapEvents
 import com.example.models.VietMapLocation
 import com.example.models.VietMapRouteProgressEvent
@@ -67,7 +68,8 @@ import com.mapbox.services.android.navigation.v5.offroute.OffRouteListener
 import com.mapbox.services.android.navigation.v5.route.FasterRouteListener
 import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
-import com.mapbox.turf.TurfMeasurement.destination
+import com.mapbox.services.android.navigation.v5.snap.SnapToRoute
+import com.mapbox.services.android.navigation.v5.utils.RouteUtils
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -94,8 +96,8 @@ class FlutterMapViewFactory  :
     FasterRouteListener,
     SpeechAnnouncementListener,
     BannerInstructionsListener,
-    RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener,
-    MapboxMap.OnMoveListener{
+    RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener
+    {
 
     private val activity: Activity
     private val context: Context
@@ -106,10 +108,8 @@ class FlutterMapViewFactory  :
     private val options: MapboxMapOptions
 
     private var mapView: MapView
-    private var navigationMapView: MapView
     private var mapBoxMap: MapboxMap? = null
     private var currentRoute: DirectionsRoute? = null
-    private var navigationView: NavigationView? = null
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
     private val navigationOptions = MapboxNavigationOptions.builder()
@@ -121,8 +121,10 @@ class FlutterMapViewFactory  :
     private var isBuildingRoute = false
     private var isNavigationInProgress = false
     private var isNavigationCanceled = false
-    private var navigationViewModel: NavigationViewModel? = null
-
+    private var isOverviewing = false
+    private var currentCenterPoint: CurrentCenterPoint? = null
+    private val  routeUtils= RouteUtils()
+    private val snapEngine = SnapToRoute()
     constructor(cxt: Context, messenger: BinaryMessenger, viewId: Int, act: Activity, args: Any?) {
 
         Mapbox.getInstance(act.applicationContext)
@@ -141,8 +143,6 @@ class FlutterMapViewFactory  :
             .compassEnabled(false)
             .logoEnabled(true)
         mapView = MapView(context, options)
-        navigationMapView = MapView(context, options)
-        navigationView = NavigationView(context)
         locationEngine = if(simulateRoute) {
             ReplayRouteLocationEngine()
         }else{
@@ -162,7 +162,6 @@ class FlutterMapViewFactory  :
 //        navigationView?.onCreate(null, navigationViewModel)
         methodChannel.setMethodCallHandler(this)
         mapView.getMapAsync(this)
-        navigationMapView.getMapAsync(this)
 
        //navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
 
@@ -216,6 +215,10 @@ class FlutterMapViewFactory  :
             "buildRoute" -> {
                 buildRoute(methodCall, result)
             }
+
+            "buildAndStartNavigation" -> {
+                buildRouteAndStartNavigation(methodCall, result)
+            }
             "clearRoute" -> {
                 clearRoute(methodCall, result)
             }
@@ -238,7 +241,7 @@ class FlutterMapViewFactory  :
                 result.success(durationRemaining)
             }
             "recenter" -> {
-
+                recenter()
             }
             "overview" -> {
                 overViewRoute()
@@ -246,32 +249,86 @@ class FlutterMapViewFactory  :
             else -> result.notImplemented()
         }
     }
-private fun overViewRoute(){
-    val boundsBuilder = LatLngBounds.Builder()
-    boundsBuilder.include(LatLng(originPoint?.latitude()?:0.0, originPoint?.longitude()?:0.0))
-    boundsBuilder.include(LatLng(destinationPoint?.latitude()?:0.0, destinationPoint?.longitude()?:0.0))
-    val bounds: LatLngBounds = boundsBuilder.build()
-    val cameraUpdate = newLatLngBounds(bounds, 100)
-    mapBoxMap?.easeCamera(cameraUpdate, 800)
-}
+
+    private fun recenter() {
+        isOverviewing = false
+        if (currentCenterPoint != null) {
+            moveCamera(
+                LatLng(currentCenterPoint!!.latitude, currentCenterPoint!!.longitude),
+                currentCenterPoint!!.bearing
+            )
+        }
+    }
+
+    private fun overViewRoute() {
+        isOverviewing = true
+        val boundsBuilder = LatLngBounds.Builder()
+        boundsBuilder.include(
+            LatLng(
+                originPoint?.latitude() ?: 0.0,
+                originPoint?.longitude() ?: 0.0
+            )
+        )
+        boundsBuilder.include(
+            LatLng(
+                destinationPoint?.latitude() ?: 0.0,
+                destinationPoint?.longitude() ?: 0.0
+            )
+        )
+        val bounds: LatLngBounds = boundsBuilder
+            .build()
+        val cameraUpdate = newLatLngBounds(bounds, 300)
+        mapBoxMap?.easeCamera(cameraUpdate, 600)
+    }
+
     private fun buildRoute(methodCall: MethodCall, result: MethodChannel.Result) {
         isNavigationCanceled = false
         isNavigationInProgress = false
 
         val arguments = methodCall.arguments as? Map<*, *>
-        if(arguments != null)
+        if (arguments != null)
             setOptions(arguments)
 
         if (mapReady) {
             wayPoints.clear()
             var points = arguments?.get("wayPoints") as HashMap<*, *>
-            for (item in points)
-            {
+            for (item in points) {
                 val point = item.value as HashMap<*, *>
                 val latitude = point["Latitude"] as Double
                 val longitude = point["Longitude"] as Double
                 wayPoints.add(Point.fromLngLat(longitude, latitude))
             }
+            originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
+            destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
+
+            getRoute(context)
+            result.success(true)
+        } else {
+            result.success(false)
+        }
+    }
+
+    private fun buildRouteAndStartNavigation(methodCall: MethodCall, result: MethodChannel.Result) {
+        isNavigationCanceled = false
+        isNavigationInProgress = false
+
+        val arguments = methodCall.arguments as? Map<*, *>
+        if (arguments != null)
+            setOptions(arguments)
+
+        if (mapReady) {
+            wayPoints.clear()
+            var points = arguments?.get("wayPoints") as HashMap<*, *>
+            for (item in points) {
+                val point = item.value as HashMap<*, *>
+                val latitude = point["Latitude"] as Double
+                val longitude = point["Longitude"] as Double
+                wayPoints.add(Point.fromLngLat(longitude, latitude))
+            }
+
+            originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
+            destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
+
             getRoute(context)
             result.success(true)
         } else {
@@ -313,14 +370,20 @@ private fun overViewRoute(){
     }
 
     private fun startNavigation() {
+
 //        navigationView?.initialize(
 //        OnNavigationReadyCallback { return@OnNavigationReadyCallback },
 //        getInitialCameraPosition()
 //    )
 //        navigationView?.onMapReady(mapBoxMap!!)
 //        navigationView?.initializeNavigationMap(navigationMapView, mapBoxMap)
-
+        tilt = 10000.0
+        zoom = 19.0
+        isOverviewing = false
         isNavigationCanceled = false
+        mapBoxMap?.locationComponent?.locationEngine = null
+        mapBoxMap?.locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH
+
         if (currentRoute != null) {
             if (simulateRoute) {
 //                (locationEngine as ReplayRouteLocationEngine).assign(currentRoute)
@@ -328,18 +391,31 @@ private fun overViewRoute(){
                 val mockLocationEngine = ReplayRouteLocationEngine()
                 mockLocationEngine.assign(currentRoute)
                 navigation.locationEngine = mockLocationEngine
-            }else{
-                navigation.locationEngine =
-                    LocationEngineProvider.getBestLocationEngine(context)
-
+            } else {
+                locationEngine?.let {
+                    navigation.locationEngine = it
+                }
             }
+
+
+
 
             navigation.addNavigationEventListener(this)
             navigation.addFasterRouteListener(this)
             navigation.addMilestoneEventListener(this)
             navigation.addOffRouteListener(this)
             navigation.addProgressChangeListener(this)
+            val mapboxNavigation:MapboxNavigation = MapboxNavigation(context)
 
+            mapboxNavigation.startNavigation(currentRoute!!)
+            navigation.snapEngine = snapEngine
+//            mapBoxMap?.addOnMoveListener(object : OnMoveListener {
+//                override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
+//                    println("______________________________MapMoveBegin")
+//                }
+//                override fun onMove(moveGestureDetector: MoveGestureDetector) {}
+//                override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {}
+//            })
             val options =
                 NavigationViewOptions.builder()
                     .progressChangeListener(this)
@@ -356,11 +432,11 @@ private fun overViewRoute(){
                         override fun onMove(moveGestureDetector: MoveGestureDetector) {}
                         override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {}
                     })
+
                     .navigationOptions(navigationOptions)
                     .build()
 
             currentRoute?.let {
-
                 isNavigationInProgress = true
 //                navigationView?.initViewConfig(false)
 //                navigationMapRoute?.updateRouteArrowVisibilityTo(false)
@@ -369,8 +445,11 @@ private fun overViewRoute(){
 //                navigationView?.startNavigation(options)
 //                navigationView?.startCamera(currentRoute)
 //                navigationView?.updateCameraRouteOverview()
+
+
                 navigation.startNavigation(currentRoute!!)
                 PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_RUNNING)
+                recenter()
             }
         }
     }
@@ -388,12 +467,12 @@ private fun overViewRoute(){
         }
 
         if (currentRoute != null) {
-//            navigation.stopNavigation()
-//            navigation.removeFasterRouteListener(this)
-//            navigation.removeMilestoneEventListener(this)
-//            navigation.removeNavigationEventListener(this)
-//            navigation.removeOffRouteListener(this)
-//            navigation.removeProgressChangeListener(this)
+            navigation.stopNavigation()
+            navigation.removeFasterRouteListener(this)
+            navigation.removeMilestoneEventListener(this)
+            navigation.removeNavigationEventListener(this)
+            navigation.removeOffRouteListener(this)
+            navigation.removeProgressChangeListener(this)
         }
 
     }
@@ -481,12 +560,11 @@ private fun overViewRoute(){
             locationEngine = ReplayRouteLocationEngine()
         }
         if (mapStyleURL == null)
-            mapStyleURL = "https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326"
-
+//            mapStyleURL = "https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326"
+            mapStyleURL =
+                "https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm"
         mapBoxMap?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
-            enableLocationComponent(style)
-
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
             routeLineLayer.setProperties(
                 lineWidth(9f),
@@ -497,6 +575,17 @@ private fun overViewRoute(){
             style.addLayer(routeLineLayer)
             initMapRoute()
 
+            mapBoxMap?.addOnMoveListener(object : OnMoveListener {
+                override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
+                    println("______________________________MapMoveBegin")
+                    isOverviewing = true
+                    PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
+                }
+
+                override fun onMove(moveGestureDetector: MoveGestureDetector) {}
+                override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {}
+            })
+            enableLocationComponent(style)
         }
 
         if(longPressDestinationEnabled)
@@ -521,9 +610,16 @@ private fun overViewRoute(){
         }
 
         val lastLocation = mapBoxMap?.locationComponent?.lastKnownLocation
-        if(lastLocation?.longitude != null)
-            wayPoints.add(Point.fromLngLat(lastLocation.longitude, lastLocation.latitude))
+        if(lastLocation?.longitude != null) {
+            wayPoints.add(Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
+
+            )
+
+            originPoint = Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
+        }
         wayPoints.add(Point.fromLngLat(point.longitude, point.latitude))
+
+        destinationPoint = Point.fromLngLat(point.longitude, point.latitude)
         getRoute(context)
 //        var navCam = NavigationCamera(mapBoxMap!!, navigation, mapBoxMap!!.locationComponent)
 //        navCam.showRouteOverview(intArrayOf(20, 20, 20, 20))
@@ -557,13 +653,41 @@ private fun overViewRoute(){
         }
 
         var duration = 3000
-        if(!animateBuildRoute)
+        if (!animateBuildRoute)
             duration = 1
-        mapBoxMap?.animateCamera(CameraUpdateFactory
-            .newCameraPosition(cameraPosition.build()), duration)
+        mapBoxMap?.animateCamera(
+            CameraUpdateFactory
+                .newCameraPosition(cameraPosition.build()), duration
+        )
     }
 
-    private fun addCustomMarker(location: LatLng, @DrawableRes markerIcon: Int, rotationFrom: Double? = null, rotationTo: Double? = null) {
+    @SuppressLint("MissingPermission")
+    private fun moveCamera(location: LatLng, bearing: Float?, tilt: Double, zoom: Double) {
+
+        val cameraPosition = CameraPosition.Builder()
+            .target(location)
+            .zoom(zoom)
+            .tilt(tilt)
+
+        if (bearing != null) {
+            cameraPosition.bearing(bearing.toDouble())
+        }
+
+        var duration = 3000
+        if (!animateBuildRoute)
+            duration = 1
+        mapBoxMap?.animateCamera(
+            CameraUpdateFactory
+                .newCameraPosition(cameraPosition.build()), duration
+        )
+    }
+
+    private fun addCustomMarker(
+        location: LatLng,
+        @DrawableRes markerIcon: Int,
+        rotationFrom: Double? = null,
+        rotationTo: Double? = null
+    ) {
 //        if (initialMarkerView != null) {
 //            markerViewManager.removeMarker(initialMarkerView!!)
 //        }
@@ -618,8 +742,6 @@ private fun overViewRoute(){
 
         PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILDING)
 
-        originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
-        destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
         val builder = NavigationRoute.builder(activity)
             .apikey("95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c")
             .origin(originPoint!!)
@@ -635,15 +757,15 @@ private fun overViewRoute(){
                 }
 
                 currentRoute = response.body()!!.routes()[0]
-                PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT,"${currentRoute?.toJson()}")
+                PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT, "${currentRoute?.toJson()}")
                 moveCameraToOriginOfRoute()
 
                 // Draw the route on the map
-//                if (navigationMapRoute != null) {
-//                    navigationMapRoute?.updateRouteArrowVisibilityTo(false)
-//                } else {
-//                    navigationMapRoute = NavigationMapRoute( mapView, mapBoxMap!!)
-//                }
+                if (navigationMapRoute != null) {
+                    navigationMapRoute?.updateRouteArrowVisibilityTo(false)
+                } else {
+                    navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
+                }
                 navigationMapRoute?.addRoute(currentRoute)
                 isBuildingRoute = false
 
@@ -674,14 +796,12 @@ private fun overViewRoute(){
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         println("-------------------------onActivityCreated")
         mapView.onCreate(savedInstanceState)
-         navigationView?.onCreate(savedInstanceState,null)
 
     }
 
     override fun onActivityStarted(activity: Activity) {
 
         try {
-             navigationView?.onStart()
             mapView.onStart()
         } catch (e: java.lang.Exception) {
             Timber.i(String.format("onActivityStarted, %s", "Error: ${e.message}"))
@@ -689,12 +809,10 @@ private fun overViewRoute(){
     }
 
     override fun onActivityResumed(activity: Activity) {
-         navigationView?.onResume()
         mapView.onResume()
     }
 
     override fun onActivityPaused(activity: Activity) {
-         navigationView?.onPause()
         mapView.onPause()
     }
 
@@ -704,7 +822,6 @@ private fun overViewRoute(){
     }
 
     override fun onActivitySaveInstanceState(@NonNull p0: Activity, @NonNull outState: Bundle) {
-         navigationView?.onSaveInstanceState(outState)
         mapView.onSaveInstanceState(outState)
     }
 
@@ -716,6 +833,7 @@ private fun overViewRoute(){
 
     override fun onProgressChange(location: Location, routeProgress: RouteProgress) {
 
+
         if (!isNavigationCanceled) {
             try {
                 distanceRemaining = routeProgress.distanceRemaining()
@@ -723,29 +841,47 @@ private fun overViewRoute(){
 
                 val progressEvent = VietMapRouteProgressEvent(routeProgress)
                 PluginUtilities.sendEvent(progressEvent)
-                addCustomMarker(LatLng(location.latitude, location.longitude), R.drawable.maplibre_marker_icon_default)
+                addCustomMarker(
+                    LatLng(location.latitude, location.longitude),
+                    R.drawable.maplibre_marker_icon_default
+                )
 
-                moveCamera(LatLng(location.latitude, location.longitude),location.bearing)
+                currentCenterPoint =
+                    CurrentCenterPoint(location.latitude, location.longitude, location.bearing)
 
-                if (simulateRoute && !isDisposed && !isBuildingRoute)
+                if (!isOverviewing) {
+                    moveCamera(LatLng(location.latitude, location.longitude), location.bearing)
+                }
+
+                if(!isDisposed && !isBuildingRoute) {
+                    val snappedLocation: Location =
+                        snapEngine.getSnappedLocation(location, routeProgress)
+                    mapBoxMap?.locationComponent?.forceLocationUpdate(snappedLocation)
+                }
+
+                if (simulateRoute && !isDisposed && !isBuildingRoute) {
                     mapBoxMap?.locationComponent?.forceLocationUpdate(location)
+                }
 
                 if (!isRefreshing) {
                     isRefreshing = true
                 }
             } catch (e: java.lang.Exception) {
-
             }
         }
     }
 
     override fun userOffRoute(location: Location) {
 
-        doOnNewRoute(Point.fromLngLat(location.latitude, location.longitude))
+        doOnNewRoute(Point.fromLngLat(location.longitude, location.latitude))
     }
 
     override fun onMilestoneEvent(routeProgress: RouteProgress, instruction: String, milestone: Milestone) {
 
+        if(routeUtils.isArrivalEvent(routeProgress,milestone)){
+            mapBoxMap?.locationComponent?.locationEngine = locationEngine
+            PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
+        }
         if (!isNavigationCanceled) {
             PluginUtilities.sendEvent(VietMapEvents.MILESTONE_EVENT, instruction)
         }
@@ -761,12 +897,12 @@ private fun overViewRoute(){
 
     override fun onCancelNavigation() {
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_CANCELLED)
-         navigationView?.stopNavigation()
-//        navigation.stopNavigation()
+        navigation.stopNavigation()
 
     }
 
     override fun onNavigationFinished() {
+        mapBoxMap?.locationComponent?.locationEngine = locationEngine
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_FINISHED)
     }
 
@@ -828,6 +964,7 @@ private fun overViewRoute(){
     }
 
     override fun onArrival() {
+        mapBoxMap?.locationComponent?.locationEngine = locationEngine
         PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
     }
 
@@ -887,26 +1024,15 @@ private fun overViewRoute(){
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context)
                 .pulseEnabled(true)
+
                 .build()
             mapBoxMap?.locationComponent?.let { locationComponent ->
-//                try {
                 locationComponent.activateLocationComponent(
                     LocationComponentActivationOptions.builder(context, loadedMapStyle)
                         .locationComponentOptions(customLocationComponentOptions)
                         .locationEngine(locationEngine)
                         .build()
                 )
-//
-//                if (ActivityCompat.checkSelfPermission(
-//                        context,
-//                        Manifest.permission.ACCESS_FINE_LOCATION
-//                    ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-//                        context,
-//                        Manifest.permission.ACCESS_COARSE_LOCATION
-//                    ) == PackageManager.PERMISSION_GRANTED
-//                ) {
-//                    locationComponent.isLocationComponentEnabled = true
-//                }
 
                 locationComponent.setCameraMode(
                     CameraMode.TRACKING_GPS_NORTH,
@@ -921,9 +1047,9 @@ private fun overViewRoute(){
                 locationComponent.renderMode = RenderMode.GPS
                 locationComponent.locationEngine = locationEngine
 
+
             }
 
-//            navigationView?.initializeNavigationMap(mapView, mapBoxMap)
         }
     }
 
@@ -942,17 +1068,5 @@ private fun overViewRoute(){
         DemoPlugin.eventSink = null
     }
 
-
-    override fun onMoveBegin(p0: MoveGestureDetector) {
-        println("On map move begin")
-    }
-
-    override fun onMove(p0: MoveGestureDetector) {
-        println("On map move")
-    }
-
-    override fun onMoveEnd(p0: MoveGestureDetector) {
-        println("On map move end")
-    }
 
 }
