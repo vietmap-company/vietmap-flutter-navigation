@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:demo_plugin/demo_plugin.dart';
 import 'package:demo_plugin/embedded/controller.dart';
 import 'package:demo_plugin/embedded/view.dart';
+import 'package:demo_plugin/models/direction_route.dart';
 import 'package:demo_plugin/models/options.dart';
+import 'package:demo_plugin/models/way_point.dart';
+import 'package:demo_plugin/views/navigation_view.dart';
 import 'package:flutter/material.dart';
 
 class CustomNavigation extends StatefulWidget {
@@ -19,6 +22,10 @@ class _CustomNavigationState extends State<CustomNavigation> {
   late double value = 0.0;
   final _iconSize = 30;
   late Timer _timer;
+  List<WayPoint> wayPoints = [
+    WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
+    WayPoint(name: "Are you arrive", latitude: 10.762528, longitude: 106.653099)
+  ];
 
   @override
   void initState() {
@@ -31,6 +38,11 @@ class _CustomNavigationState extends State<CustomNavigation> {
   void dispose() {
     super.dispose();
     _timer.cancel();
+  }
+
+  void buildRoute() {
+    _controller?.buildRoute(wayPoints: wayPoints);
+    // _controller?.startNavigation(options: _navigationOption);
   }
 
   Future<void> initialize() async {
@@ -69,13 +81,12 @@ class _CustomNavigationState extends State<CustomNavigation> {
   }
 
   Widget _showMap() {
-    return MapNavigationView(
-      onRouteEvent: _onEmbeddedRouteEvent,
-      onCreated: (MapNavigationViewController controller) async {
-        _controller = controller;
-        controller.initialize();
+    return NavigationView(
+      mapOptions: _navigationOption,
+      onMapCreated: (p0) {
+        _controller = p0;
+        buildRoute();
       },
-      options: _navigationOption,
     );
   }
 
@@ -305,13 +316,5 @@ class _CustomNavigationState extends State<CustomNavigation> {
         ],
       ),
     );
-  }
-
-  // Controller
-
-  Future<void> _onEmbeddedRouteEvent(e) async {
-    print("listen data change");
-    print(e.eventType);
-    print(e.data);
   }
 }

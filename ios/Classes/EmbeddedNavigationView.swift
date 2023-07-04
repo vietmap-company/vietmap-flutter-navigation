@@ -130,7 +130,6 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         mapView.delegate = self
         mapView.navigationMapDelegate = self
-        mapView.showsUserHeadingIndicator = true
     }
     
     private func setupMapView()

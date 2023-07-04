@@ -334,7 +334,7 @@ class Intersections {
   Intersections.fromJson(Map<String, dynamic> json) {
     location = json['location'].cast<num>();
     bearings = json['bearings'].cast<num>();
-    entry = json['entry'].cast<bool>();
+    entry = json['entry'] != null ? json['entry'].cast<bool>() : [];
     outIntersection = json['out'];
     inIntersection = json['in'];
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -72,7 +73,13 @@ class _NavigationViewState extends State<NavigationView> {
         if (widget.onRouteBuilding != null) widget.onRouteBuilding!();
         break;
       case MapEvent.routeBuilt:
-        var data = DirectionRoute.fromJson(jsonDecode(e.data));
+        Map<String, dynamic> map = {};
+        if (Platform.isAndroid) {
+          map = jsonDecode(e.data);
+        } else if (Platform.isIOS) {
+          map = jsonDecode(jsonDecode(e.data));
+        }
+        var data = DirectionRoute.fromJson(map);
         if (widget.onRouteBuilt != null) widget.onRouteBuilt!(data);
         break;
       case MapEvent.routeBuildFailed:

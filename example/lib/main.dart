@@ -226,25 +226,29 @@ class _MyAppState extends State<MyApp> {
                     //   },
                     //   child: const Text('Start Navigation'),
                     // ),
-                    ElevatedButton(
-                      // style: raisedButtonStyle,
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const NavigationScreen()));
-                      },
-                      child: const Text('Push to navigation screen'),
+                    Expanded(
+                      child: ElevatedButton(
+                        // style: raisedButtonStyle,
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const NavigationScreen()));
+                        },
+                        child: const Text('Push to navigation screen'),
+                      ),
                     ),
-                    ElevatedButton(
-                      // style: raisedButtonStyle,
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const DemoAndroidScreen()));
-                      },
-                      child: const Text('Push to demo android screen'),
+                    Expanded(
+                      child: ElevatedButton(
+                        // style: raisedButtonStyle,
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const DemoAndroidScreen()));
+                        },
+                        child: const Text('Push to demo android screen'),
+                      ),
                     ),
                   ],
                 ),
