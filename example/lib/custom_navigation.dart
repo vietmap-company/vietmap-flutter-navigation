@@ -42,7 +42,7 @@ class _CustomNavigationState extends State<CustomNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        top: true,
+        top: false,
         child: Center(
           child: Stack(
             children: [
@@ -60,6 +60,7 @@ class _CustomNavigationState extends State<CustomNavigation> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        SizedBox(height: MediaQuery.of(context).viewPadding.top),
         _bannerTopGuide(),
         Expanded(child: _bannerMidGuide()),
         _bannerBottomGuide(),
