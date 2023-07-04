@@ -1,0 +1,127 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+
+import '../embedded/controller.dart';
+import '../embedded/view.dart';
+import '../models/direction_route.dart';
+import '../models/events.dart';
+import '../models/options.dart';
+import '../models/route_event.dart';
+import '../models/route_progress_event.dart';
+
+class NavigationView extends StatefulWidget {
+  const NavigationView(
+      {super.key,
+      required this.mapOptions,
+      required this.onMapCreated,
+      this.onRouteProgressChange,
+      this.onRouteBuilding,
+      this.onRouteBuilt,
+      this.onRouteBuildFailed,
+      this.onNavigationRunning,
+      this.onArrival,
+      this.onNavigationFinished,
+      this.onNavigationCancelled,
+      this.onMapMove,
+      this.onMapMoveEnd,
+      this.onMapReady,
+      this.onMapLongClick,
+      this.onMapClick});
+  final MapOptions mapOptions;
+  final Function(RouteProgressEvent)? onRouteProgressChange;
+  final Function(MapNavigationViewController) onMapCreated;
+  final VoidCallback? onRouteBuilding;
+  final Function(DirectionRoute)? onRouteBuilt;
+  final Function(String?)? onRouteBuildFailed;
+  final VoidCallback? onNavigationRunning;
+  final VoidCallback? onArrival;
+  final VoidCallback? onNavigationFinished;
+  final VoidCallback? onNavigationCancelled;
+  final VoidCallback? onMapMove;
+  final VoidCallback? onMapMoveEnd;
+  final VoidCallback? onMapReady;
+  final Function(double?, double?)? onMapLongClick;
+  final Function(double?, double?)? onMapClick;
+
+  @override
+  State<NavigationView> createState() => _NavigationViewState();
+}
+
+class _NavigationViewState extends State<NavigationView> {
+  @override
+  Widget build(BuildContext context) {
+    return MapNavigationView(
+        options: widget.mapOptions,
+        onRouteEvent: _onEmbeddedRouteEvent,
+        onCreated: (MapNavigationViewController controller) async {
+          widget.onMapCreated(controller);
+          controller.initialize();
+        });
+  }
+
+  Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {
+    switch (e.eventType) {
+      case MapEvent.progressChange:
+        var progressEvent = e.data as RouteProgressEvent;
+        if (widget.onRouteProgressChange != null) {
+          widget.onRouteProgressChange!(progressEvent);
+        }
+        break;
+      case MapEvent.routeBuilding:
+        if (widget.onRouteBuilding != null) widget.onRouteBuilding!();
+        break;
+      case MapEvent.routeBuilt:
+        var data = DirectionRoute.fromJson(jsonDecode(e.data));
+        if (widget.onRouteBuilt != null) widget.onRouteBuilt!(data);
+        break;
+      case MapEvent.routeBuildFailed:
+        String? message = jsonDecode(e.data)['data'];
+        if (widget.onRouteBuildFailed != null) {
+          widget.onRouteBuildFailed!(message);
+        }
+        break;
+      case MapEvent.navigationRunning:
+        if (widget.onNavigationRunning != null) widget.onNavigationRunning!();
+        break;
+      case MapEvent.onArrival:
+        if (widget.onArrival != null) widget.onArrival!();
+        break;
+      case MapEvent.navigationFinished:
+        if (widget.onNavigationFinished != null) widget.onNavigationFinished!();
+        break;
+      case MapEvent.navigationCancelled:
+        if (widget.onNavigationCancelled != null) {
+          widget.onNavigationCancelled!();
+        }
+        break;
+      case MapEvent.milestoneEvent:
+        break;
+      case MapEvent.onMapClick:
+        if (widget.onMapClick != null) {
+          var data = jsonDecode(e.data);
+          print(data);
+          widget.onMapClick!(data['latitude'], data['longitude']);
+        }
+        break;
+      case MapEvent.onMapLongClick:
+        if (widget.onMapLongClick != null) {
+          var data = jsonDecode(e.data);
+          print(data);
+          widget.onMapLongClick!(data['latitude'], data['longitude']);
+        }
+        break;
+      case MapEvent.onMapMoveEnd:
+        if (widget.onMapMoveEnd != null) widget.onMapMoveEnd!();
+        break;
+      case MapEvent.onMapMove:
+        if (widget.onMapMove != null) widget.onMapMove!();
+        break;
+      case MapEvent.mapReady:
+        if (widget.onMapReady != null) widget.onMapReady!();
+        break;
+      default:
+        break;
+    }
+  }
+}

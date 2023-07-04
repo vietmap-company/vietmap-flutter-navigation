@@ -366,7 +366,7 @@ class NavigationFragment : Fragment(), OnNavigationReadyCallback, NavigationList
                 val message = directionsResponse.message()
                 PluginUtilities.sendEvent(
                     VietMapEvents.ROUTE_BUILD_FAILED,
-                    message!!
+                    message!!.replace("\"","'")
                 )
                 //finish()
             }
@@ -376,7 +376,7 @@ class NavigationFragment : Fragment(), OnNavigationReadyCallback, NavigationList
     override fun onFailure(call: Call<DirectionsResponse>, t: Throwable) {
         PluginUtilities.sendEvent(
             VietMapEvents.ROUTE_BUILD_FAILED,
-            t.localizedMessage
+            t.localizedMessage.replace("\"","'")
         )
         //finish()
     }
