@@ -18,6 +18,17 @@ class RouteProgressEvent {
   int? legIndex;
   int? stepIndex;
   bool? isProgressEvent;
+  double? distanceToNextTurn;
+  String? currentModifierType;
+  String? currentModifier;
+
+  /*
+
+    private var distanceToNextTurn: Float? = null
+    private var currentStepInstruction: String? = null
+    private var currentModifier:String? = null
+    private var currentModifierType:String? = null
+  */
 
   RouteProgressEvent(
       {this.arrived,
@@ -32,9 +43,15 @@ class RouteProgressEvent {
       this.remainingLegs,
       this.legIndex,
       this.stepIndex,
-      this.isProgressEvent});
+      this.isProgressEvent,
+      this.currentModifier,
+      this.currentModifierType,
+      this.distanceToNextTurn});
 
   RouteProgressEvent.fromJson(Map<String, dynamic> json) {
+    currentModifier = json['currentModifier'];
+    currentModifierType = json['currentModifierType'];
+    distanceToNextTurn = json['distanceToNextTurn'];
     isProgressEvent = json['arrived'] != null;
     arrived = json['arrived'] == null ? false : json['arrived'] as bool?;
     distance = isNullOrZero(json['distance']) ? 0.0 : json["distance"] + .0;

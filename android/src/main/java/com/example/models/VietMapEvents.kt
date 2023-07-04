@@ -21,5 +21,9 @@ enum class VietMapEvents(val value: String) {
     FAILED_TO_REROUTE("failedToReroute"),
     REROUTE_ALONG("rerouteAlong"),
     ON_MAP_MOVE("onMapMove"),
+    ON_MAP_LONG_CLICK("onMapLongClick"),
+    ON_MAP_MOVE_END("onMapMoveEnd"),
+    ON_MAP_CLICK("onMapClick")
+
 
 }

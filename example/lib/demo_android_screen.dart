@@ -7,6 +7,7 @@ import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/way_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DemoAndroidScreen extends StatefulWidget {
   const DemoAndroidScreen({super.key});
@@ -31,6 +32,7 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
     WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
   ];
+  Widget instructionImage = const SizedBox.shrink();
   String guideDirection = "";
   @override
   void initState() {
@@ -112,6 +114,7 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      instructionImage,
                       Text(
                         _instruction ?? "",
                         style: const TextStyle(
@@ -181,6 +184,8 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
         if (progressEvent.currentStepInstruction != null) {
           setState(() {
             _instruction = progressEvent.currentStepInstruction;
+            _setInstructionImage(progressEvent.currentModifier,
+                progressEvent.currentModifierType);
           });
         }
         break;
@@ -219,5 +224,16 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
         break;
     }
     setState(() {});
+  }
+
+  _setInstructionImage(String? modifier, String? type) {
+    if (modifier != null && type != null) {
+      List<String> data = [
+        type.split(' ').join('_'),
+        modifier.split(' ').join('_')
+      ];
+      String path = 'assets/navigation_symbol/';
+      instructionImage = SvgPicture.asset('$path${data.join('_')}.svg');
+    }
   }
 }
