@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:demo_plugin/demo_plugin.dart';
 import 'package:demo_plugin/embedded/controller.dart';
 import 'package:demo_plugin/embedded/view.dart';
@@ -14,11 +16,21 @@ class CustomNavigation extends StatefulWidget {
 class _CustomNavigationState extends State<CustomNavigation> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
+  late double value = 0.0;
+  final _iconSize = 30;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     initialize();
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   Future<void> initialize() async {
@@ -35,15 +47,10 @@ class _CustomNavigationState extends State<CustomNavigation> {
           child: Stack(
             children: [
               _showMap(),
-              Positioned(
-                  top: MediaQuery.of(context).viewPadding.top,
-                  child: _bannerTopGuide()),
-              Positioned(
-                  bottom: MediaQuery.of(context).viewPadding.bottom,
-                  child: _bannerBottomGuide()),
-              // _bodyNavigate()
+              _bodyNavigate(),
             ],
           ),
+          // child: _test(),
         ),
       ),
     );
@@ -54,15 +61,7 @@ class _CustomNavigationState extends State<CustomNavigation> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         _bannerTopGuide(),
-        Expanded(
-            child: Container(
-          margin: const EdgeInsets.only(right: 10.0),
-          child: const RotatedBox(
-            quarterTurns: 3,
-            child:
-                LinearProgressIndicator(), // Is supposed to extend as far as possible
-          ),
-        )),
+        Expanded(child: _bannerMidGuide()),
         _bannerBottomGuide(),
       ],
     );
@@ -80,64 +79,99 @@ class _CustomNavigationState extends State<CustomNavigation> {
   }
 
   Widget _bannerTopGuide() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: MediaQuery.of(context).size.height * 0.1,
-          width: MediaQuery.of(context).size.width * 0.97,
-          margin: const EdgeInsets.all(5.0),
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          decoration: BoxDecoration(
-              color: Colors.lightBlue, borderRadius: BorderRadius.circular(7)),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.straight,
-                size: 50,
-                color: Colors.white,
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Đường Trần Phú",
-                      style: TextStyle(color: Colors.white, fontSize: 22),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    Row(
-                      children: const [
-                        Text(
-                          "khoảng ",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        Text(
-                          "200m ",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                          softWrap: true,
-                        ),
-                        Text("sau đó", style: TextStyle(color: Colors.white)),
-                        Icon(Icons.turn_right, size: 30, color: Colors.white),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.volume_up_outlined,
-                    size: 30,
-                    color: Colors.white,
-                  ))
-            ],
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.1,
+      width: MediaQuery.of(context).size.width * 0.97,
+      margin: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+      decoration: BoxDecoration(
+          color: Colors.lightBlue, borderRadius: BorderRadius.circular(7)),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.straight,
+            size: 50,
+            color: Colors.white,
           ),
-        ),
-        _currentSpeed()
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Đường Trần Phú",
+                  style: TextStyle(color: Colors.white, fontSize: 22),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                Row(
+                  children: const [
+                    Text(
+                      "khoảng ",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      "200m ",
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      softWrap: true,
+                    ),
+                    Text("sau đó", style: TextStyle(color: Colors.white)),
+                    Icon(Icons.turn_right, size: 30, color: Colors.white),
+                  ],
+                )
+              ],
+            ),
+          ),
+          IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.volume_up_outlined,
+                size: 30,
+                color: Colors.white,
+              ))
+        ],
+      ),
+    );
+  }
+
+  Widget _bannerMidGuide() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _bannerMidLeft(),
+        _bannerMidRight(),
       ],
+    );
+  }
+
+  Widget _bannerMidLeft() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _currentSpeed(),
+        _recenter(),
+      ],
+    );
+  }
+
+  Widget _bannerMidRight() {
+    return Column(
+      children: [
+        Expanded(
+          child: _inProgressRoute(),
+        )
+      ],
+    );
+  }
+
+  Widget _recenter() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5.0, left: 5.0),
+      height: 50,
+      width: 50,
+      decoration:
+          const BoxDecoration(shape: BoxShape.circle, color: Colors.lightBlue),
+      child: IconButton(onPressed: () {}, icon: const Icon(Icons.my_location)),
     );
   }
 
@@ -166,9 +200,50 @@ class _CustomNavigationState extends State<CustomNavigation> {
 
   Widget _inProgressRoute() {
     return Container(
-      width: 25,
-      height: 500,
-      color: Colors.lightBlue,
+      margin: const EdgeInsets.only(right: 5.0, bottom: 5.0),
+      child: Stack(fit: StackFit.loose, children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 13),
+          child: RotatedBox(
+            quarterTurns: 3,
+            child: LinearProgressIndicator(
+              value: value,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.lightBlue),
+              backgroundColor: Colors.black45,
+            ),
+          ),
+        ),
+        LayoutBuilder(builder: (context, constrains) {
+          var padding = constrains.maxHeight * (1 - value) - (_iconSize / 2);
+          var topPadding = padding < 0 ? 0.0 : padding;
+          return Padding(
+            padding: EdgeInsets.only(top: topPadding),
+            child: Icon(
+              Icons.navigation_sharp,
+              size: _iconSize.toDouble(),
+              color: Colors.black54,
+            ),
+          );
+        })
+      ]),
+    );
+  }
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (value >= 1) {
+          setState(() {
+            value = 0;
+          });
+        } else {
+          setState(() {
+            value += 0.01;
+          });
+        }
+      },
     );
   }
 
@@ -218,7 +293,9 @@ class _CustomNavigationState extends State<CustomNavigation> {
             ),
           ),
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pop(context);
+              },
               icon: const Icon(
                 Icons.cancel_sharp,
                 size: 30,
