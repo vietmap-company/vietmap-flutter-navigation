@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:demo_plugin/models/way_point.dart';
 import 'package:flutter/material.dart';
 
 import '../embedded/controller.dart';
@@ -24,6 +25,7 @@ class NavigationView extends StatefulWidget {
       this.onNavigationFinished,
       this.onNavigationCancelled,
       this.onMapMove,
+      this.userOffRoute,
       this.onMapMoveEnd,
       this.onMapReady,
       this.onMapLongClick,
@@ -41,14 +43,22 @@ class NavigationView extends StatefulWidget {
   final VoidCallback? onMapMove;
   final VoidCallback? onMapMoveEnd;
   final VoidCallback? onMapReady;
-  final Function(double?, double?)? onMapLongClick;
-  final Function(double?, double?)? onMapClick;
+  final Function(WayPoint?)? onMapLongClick;
+  final Function(WayPoint?)? onMapClick;
+  final Function(WayPoint?)? userOffRoute;
 
   @override
   State<NavigationView> createState() => _NavigationViewState();
 }
 
 class _NavigationViewState extends State<NavigationView> {
+  @override
+  void initState() {
+    assert(widget.mapOptions.apiKey != '', 'apikey không được để trống');
+    assert(widget.mapOptions.mapStyle != '', 'mapStyle không được để trống');
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MapNavigationView(
@@ -76,7 +86,7 @@ class _NavigationViewState extends State<NavigationView> {
         if (widget.onRouteBuilt != null) widget.onRouteBuilt!(data);
         break;
       case MapEvent.routeBuildFailed:
-        String? message = jsonDecode(e.data)['data'];
+        var message = jsonDecode(e.data);
         if (widget.onRouteBuildFailed != null) {
           widget.onRouteBuildFailed!(message);
         }
@@ -100,15 +110,23 @@ class _NavigationViewState extends State<NavigationView> {
       case MapEvent.onMapClick:
         if (widget.onMapClick != null) {
           var data = jsonDecode(e.data);
-          print(data);
-          widget.onMapClick!(data['latitude'], data['longitude']);
+
+          WayPoint wayPoint = WayPoint(
+              name: 'map_long_click',
+              latitude: data['latitude'],
+              longitude: data['longitude']);
+          widget.onMapClick!(wayPoint);
         }
         break;
       case MapEvent.onMapLongClick:
         if (widget.onMapLongClick != null) {
           var data = jsonDecode(e.data);
-          print(data);
-          widget.onMapLongClick!(data['latitude'], data['longitude']);
+
+          WayPoint wayPoint = WayPoint(
+              name: 'map_long_click',
+              latitude: data['latitude'],
+              longitude: data['longitude']);
+          widget.onMapLongClick!(wayPoint);
         }
         break;
       case MapEvent.onMapMoveEnd:
@@ -119,6 +137,16 @@ class _NavigationViewState extends State<NavigationView> {
         break;
       case MapEvent.mapReady:
         if (widget.onMapReady != null) widget.onMapReady!();
+        break;
+      case MapEvent.userOffRoute:
+        if (widget.userOffRoute != null) {
+          var data = jsonDecode(e.data);
+          WayPoint wayPoint = WayPoint(
+              name: 'user_off_route',
+              latitude: data['latitude'],
+              longitude: data['longitude']);
+          widget.userOffRoute!(wayPoint);
+        }
         break;
       default:
         break;

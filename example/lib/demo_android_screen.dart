@@ -9,6 +9,7 @@ import 'package:demo_plugin/models/way_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DemoAndroidScreen extends StatefulWidget {
   const DemoAndroidScreen({super.key});
@@ -51,9 +52,13 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
     _navigationOption = _demoPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
     _navigationOption.isCustomizeUI = true;
-    //_navigationOption.initialLatitude = 36.1175275;
-    //_navigationOption.initialLongitude = -115.1839524;
-    _demoPlugin.registerRouteEventListener(_onEmbeddedRouteEvent);
+
+    _navigationOption.apiKey =
+        '95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c';
+    _navigationOption.mapStyle =
+        // 'https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326';
+        "https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm";
+    // _demoPlugin.registerRouteEventListener(_onEmbeddedRouteEvent);
     _demoPlugin.setDefaultOptions(_navigationOption);
 
     String? platformVersion;
@@ -102,6 +107,30 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
               mapOptions: _navigationOption,
               onMapCreated: (p0) {
                 _controller = p0;
+              },
+              onMapLongClick: (WayPoint? point) async {
+                wayPoints.clear();
+                var location = await Geolocator.getCurrentPosition();
+
+                wayPoints.add(WayPoint(
+                    name: 'destination',
+                    latitude: location.latitude,
+                    longitude: location.longitude));
+                if (point != null) {
+                  wayPoints.add(point);
+                }
+                _controller?.buildRoute(wayPoints: wayPoints);
+              },
+              onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
+                _setInstructionImage(routeProgressEvent.currentModifier,
+                    routeProgressEvent.currentModifierType);
+              },
+              onArrival: () {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Container(
+                        height: 100,
+                        color: Colors.red,
+                        child: const Text('Bạn đã tới đích'))));
               },
             ),
             // MapNavigationView(
@@ -181,66 +210,16 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
     );
   }
 
-  Future<void> _onEmbeddedRouteEvent(e) async {
-    _distanceRemaining = await _demoPlugin.getDistanceRemaining();
-    _durationRemaining = await _demoPlugin.getDurationRemaining();
-
-    switch (e.eventType) {
-      case MapEvent.progressChange:
-        var progressEvent = e.data as RouteProgressEvent;
-        if (progressEvent.currentStepInstruction != null) {
-          setState(() {
-            _instruction = progressEvent.currentStepInstruction;
-            _setInstructionImage(progressEvent.currentModifier,
-                progressEvent.currentModifierType);
-          });
-        }
-        break;
-      case MapEvent.routeBuilding:
-      case MapEvent.routeBuilt:
-        setState(() {
-          _routeBuilt = true;
-        });
-        break;
-      case MapEvent.routeBuildFailed:
-        setState(() {
-          _routeBuilt = false;
-        });
-        break;
-      case MapEvent.navigationRunning:
-        setState(() {
-          _isNavigating = true;
-        });
-        break;
-      case MapEvent.onArrival:
-        if (!_isMultipleStop) {
-          await Future.delayed(const Duration(seconds: 3));
-          await _controller?.finishNavigation();
-        } else {}
-        break;
-      case MapEvent.navigationFinished:
-      case MapEvent.navigationCancelled:
-        setState(() {
-          _routeBuilt = false;
-          _isNavigating = false;
-        });
-        break;
-      case MapEvent.milestoneEvent:
-        break;
-      default:
-        break;
-    }
-    setState(() {});
-  }
-
   _setInstructionImage(String? modifier, String? type) {
     if (modifier != null && type != null) {
       List<String> data = [
-        type.replaceAll('  ', '_'),
+        type.replaceAll(' ', '_'),
         modifier.replaceAll(' ', '_')
       ];
-      String path = 'assets/navigation_symbol/';
-      instructionImage = SvgPicture.asset('$path${data.join('_')}.svg');
+      String path = 'assets/navigation_symbol/${data.join('_')}.svg';
+      setState(() {
+        instructionImage = SvgPicture.asset(path);
+      });
     }
   }
 }

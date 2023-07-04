@@ -13,6 +13,8 @@ class DemoPlugin {
   static DemoPlugin get instance => _instance;
 
   MapOptions _defaultOptions = MapOptions(
+    apiKey: '',
+    mapStyle: '',
     zoom: 18,
     tilt: 10000,
     bearing: 10000,

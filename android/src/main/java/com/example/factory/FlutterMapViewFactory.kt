@@ -27,7 +27,9 @@ import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.core.constants.Constants
 import com.mapbox.geojson.Point
+import com.mapbox.geojson.utils.PolylineUtils
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -116,25 +118,33 @@ class FlutterMapViewFactory  :
     private val navigationOptions = MapboxNavigationOptions.builder()
         .build()
     private var navigation: MapboxNavigation
-    private var mapReady = false
-    private var isDisposed = false
-    private var isRefreshing = false
-    private var isBuildingRoute = false
-    private var isNavigationInProgress = false
-    private var isNavigationCanceled = false
-    private var isOverviewing = false
-    private var currentCenterPoint: CurrentCenterPoint? = null
-    private val  routeUtils= RouteUtils()
-    private val snapEngine = SnapToRoute()
-    constructor(cxt: Context, messenger: BinaryMessenger, viewId: Int, act: Activity, args: Any?) {
+        private var mapReady = false
+        private var isDisposed = false
+        private var isRefreshing = false
+        private var isBuildingRoute = false
+        private var isNavigationInProgress = false
+        private var isNavigationCanceled = false
+        private var isOverviewing = false
+        private var currentCenterPoint: CurrentCenterPoint? = null
+        private val routeUtils = RouteUtils()
+        private val snapEngine = SnapToRoute()
+        private var apikey: String? = null
 
-        Mapbox.getInstance(act.applicationContext)
-        activity = act
-        activity.application.registerActivityLifecycleCallbacks(this)
-        context = cxt
-        val arguments = args as? Map<*, *>
-        if (arguments != null)
-            setOptions(arguments)
+        constructor(
+            cxt: Context,
+            messenger: BinaryMessenger,
+            viewId: Int,
+            act: Activity,
+            args: Any?
+        ) {
+
+            Mapbox.getInstance(act.applicationContext)
+            activity = act
+            activity.application.registerActivityLifecycleCallbacks(this)
+            context = cxt
+            val arguments = args as? Map<*, *>
+            if (arguments != null)
+                setOptions(arguments)
 
         methodChannel = MethodChannel(messenger, "demo_plugin/${viewId}")
         eventChannel = EventChannel(messenger, "demo_plugin/${viewId}/events")
@@ -264,18 +274,12 @@ class FlutterMapViewFactory  :
     private fun overViewRoute() {
         isOverviewing = true
         val boundsBuilder = LatLngBounds.Builder()
-        boundsBuilder.include(
-            LatLng(
-                originPoint?.latitude() ?: 0.0,
-                originPoint?.longitude() ?: 0.0
+        currentRoute?.let {
+            val path: List<Point> = PolylineUtils.decode(
+                it.geometry()?:"", Constants.PRECISION_6
             )
-        )
-        boundsBuilder.include(
-            LatLng(
-                destinationPoint?.latitude() ?: 0.0,
-                destinationPoint?.longitude() ?: 0.0
-            )
-        )
+            path.forEach { p -> boundsBuilder.include(LatLng(p.latitude(),p.longitude())) }
+        }
         val bounds: LatLngBounds = boundsBuilder
             .build()
         val cameraUpdate = newLatLngBounds(bounds, 300)
@@ -382,7 +386,6 @@ class FlutterMapViewFactory  :
         zoom = 19.0
         isOverviewing = false
         isNavigationCanceled = false
-        mapBoxMap?.locationComponent?.locationEngine = null
         mapBoxMap?.locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH
 
         if (currentRoute != null) {
@@ -398,6 +401,7 @@ class FlutterMapViewFactory  :
                 }
             }
 
+            mapBoxMap?.locationComponent?.locationEngine = null
 
 
 
@@ -462,6 +466,9 @@ class FlutterMapViewFactory  :
         tilt = 0.0
         isNavigationCanceled = true
 
+        destinationPoint?.let {
+            moveCamera(LatLng(it.latitude(), it.longitude()),null)
+        }
         if (!isOffRouted) {
             isNavigationInProgress = false
             moveCameraToOriginOfRoute()
@@ -499,31 +506,32 @@ class FlutterMapViewFactory  :
         }
 
         val language = arguments["language"] as? String
-        if(language != null)
-            navigationLanguage = Locale(language)
+        if (language != null) navigationLanguage = Locale(language)
 
         val units = arguments["units"] as? String
 
-        if(units != null)
-        {
-            if(units == "imperial")
-                navigationVoiceUnits = DirectionsCriteria.IMPERIAL
-            else if(units == "metric")
-                navigationVoiceUnits = DirectionsCriteria.METRIC
+        if (units != null) {
+            if (units == "imperial") navigationVoiceUnits = DirectionsCriteria.IMPERIAL
+            else if (units == "metric") navigationVoiceUnits = DirectionsCriteria.METRIC
         }
+        val styleUrl = arguments["mapStyle"] as? String
 
-        mapStyleURL = arguments["mapStyleURL"] as? String
+        if (styleUrl != null&&styleUrl!="") {
+            mapStyleURL = styleUrl
+        }
+        val apik = arguments["apikey"] as? String
+        if (apik != null&&apik!="") {
+            apikey = apik
+        }
 
         initialLatitude = arguments["initialLatitude"] as? Double
         initialLongitude = arguments["initialLongitude"] as? Double
 
         val zm = arguments["zoom"] as? Double
-        if(zm != null)
-            zoom = zm
+        if (zm != null) zoom = zm
 
         val br = arguments["bearing"] as? Double
-        if(br != null)
-            bearing = br
+        if (br != null) bearing = br
 
         val tt = arguments["tilt"] as? Double
         if(tt != null)
@@ -590,14 +598,14 @@ class FlutterMapViewFactory  :
             enableLocationComponent(style)
         }
 
-        if(longPressDestinationEnabled)
-            mapBoxMap?.addOnMapLongClickListener(this);
-            mapBoxMap?.addOnMapClickListener(this);
+        if (longPressDestinationEnabled)
+            mapBoxMap?.addOnMapLongClickListener(this)
+        mapBoxMap?.addOnMapClickListener(this)
 
 //        markerViewManager = MarkerViewManager(mapView, mapBoxMap)
 
-        if(initialLatitude != null && initialLongitude != null)
-            moveCamera(LatLng(initialLatitude!!, initialLongitude!!),null)
+        if (initialLatitude != null && initialLongitude != null)
+            moveCamera(LatLng(initialLatitude!!, initialLongitude!!), null)
 
         PluginUtilities.sendEvent(VietMapEvents.MAP_READY)
     }
@@ -616,18 +624,6 @@ class FlutterMapViewFactory  :
             "{\"latitude\":${point.latitude},\"longitude\":${point.longitude}}"
         )
 
-        val lastLocation = mapBoxMap?.locationComponent?.lastKnownLocation
-        if(lastLocation?.longitude != null) {
-            wayPoints.add(Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
-
-            )
-
-            originPoint = Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
-        }
-        wayPoints.add(Point.fromLngLat(point.longitude, point.latitude))
-
-        destinationPoint = Point.fromLngLat(point.longitude, point.latitude)
-        getRoute(context)
 //        var navCam = NavigationCamera(mapBoxMap!!, navigation, mapBoxMap!!.locationComponent)
 //        navCam.showRouteOverview(intArrayOf(20, 20, 20, 20))
         return false
@@ -739,22 +735,40 @@ class FlutterMapViewFactory  :
 //        }
     }
 
+        private fun buildRoute(point: LatLng) {
 
-    private fun getRoute(context: Context) {
+            val lastLocation = mapBoxMap?.locationComponent?.lastKnownLocation
+            if (lastLocation?.longitude != null) {
+                wayPoints.add(
+                    Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
 
-        if (!PluginUtilities.isNetworkAvailable(context)) {
-            PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, "No Internet Connection")
-            return
+                )
+
+                originPoint = Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
+            }
+            wayPoints.add(Point.fromLngLat(point.longitude, point.latitude))
+
+            destinationPoint = Point.fromLngLat(point.longitude, point.latitude)
+            getRoute(context)
         }
 
-        PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILDING)
+        private fun getRoute(context: Context) {
 
-        val builder = NavigationRoute.builder(activity)
-            .apikey("95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c")
-            .origin(originPoint!!)
-            .destination(destinationPoint!!)
-            .alternatives(true)
-            .build()
+            if (!PluginUtilities.isNetworkAvailable(context)) {
+                PluginUtilities.sendEvent(
+                    VietMapEvents.ROUTE_BUILD_FAILED,
+                    "No Internet Connection"
+                )
+                return
+            }
+
+            PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILDING)
+
+            val builder = NavigationRoute.builder(activity).apikey(apikey ?: "")
+                .origin(originPoint!!)
+                .destination(destinationPoint!!)
+                .alternatives(true)
+                .build()
         builder.getRoute(object : Callback<DirectionsResponse> {
             override fun onResponse(call: Call<DirectionsResponse?>, response: Response<DirectionsResponse?>) {
 
@@ -764,8 +778,10 @@ class FlutterMapViewFactory  :
                 }
 
                 currentRoute = response.body()!!.routes()[0]
+                val data = currentRoute?.toJson()
+                println(data)
                 PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT, "${currentRoute?.toJson()}")
-                moveCameraToOriginOfRoute()
+//                moveCameraToOriginOfRoute()
 
                 // Draw the route on the map
                 if (navigationMapRoute != null) {
@@ -775,7 +791,7 @@ class FlutterMapViewFactory  :
                 }
                 navigationMapRoute?.addRoute(currentRoute)
                 isBuildingRoute = false
-
+                overViewRoute()
                 //Start Navigation again from new Point, if it was already in Progress
                 if (isNavigationInProgress) {
                     startNavigation()
@@ -882,7 +898,8 @@ class FlutterMapViewFactory  :
     }
 
     override fun userOffRoute(location: Location) {
-
+PluginUtilities.sendEvent(VietMapEvents.USER_OFF_ROUTE,
+    "{\"latitude\":${location.latitude},\"longitude\":${location.longitude}}")
         doOnNewRoute(Point.fromLngLat(location.longitude, location.latitude))
     }
 
@@ -891,6 +908,9 @@ class FlutterMapViewFactory  :
         if (routeUtils.isArrivalEvent(routeProgress, milestone) && isNavigationInProgress) {
             mapBoxMap?.locationComponent?.locationEngine = locationEngine
             PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
+
+            mapBoxMap?.locationComponent?.locationEngine = locationEngine
+            finishNavigation()
         }
         if (!isNavigationCanceled) {
             PluginUtilities.sendEvent(VietMapEvents.MILESTONE_EVENT, instruction)

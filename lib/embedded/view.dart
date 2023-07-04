@@ -71,8 +71,6 @@ class MapNavigationView extends StatelessWidget {
   }
 
   void _onPlatformViewCreated(int id) {
-    print("---------------------------_onPlatformViewCreated$id");
-    print("$onCreated");
     if (onCreated == null) {
       return;
     }

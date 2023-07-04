@@ -86,9 +86,6 @@ class _MapViewState extends State<VietMapView> {
   }
 
   Future<void> _onEmbeddedRouteEvent(e) async {
-    print("listen data change");
-    print(e.eventType);
-    print(e.data);
   }
 
   void _startNavigation() {

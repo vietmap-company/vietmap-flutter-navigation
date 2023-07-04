@@ -16,6 +16,8 @@ class MapOptions {
       this.initialLongitude,
       this.language,
       this.zoom,
+      required this.apiKey,
+      required this.mapStyle,
       this.bearing,
       this.tilt,
       this.alternatives,
@@ -36,6 +38,12 @@ class MapOptions {
       this.showEndOfRouteFeedback = true,
       this.isCustomizeUI = false});
 
+  /// Vietmap routing api key, contact vietmap.vn to get a key
+  String apiKey;
+
+  /// Vietmap map style url, contact vietmap.vn to get a map style url
+  String mapStyle;
+
   /// The initial Latitude of the Map View
   double? initialLatitude;
 
@@ -47,8 +55,6 @@ class MapOptions {
   /// affect any road names contained in that property or other properties
   /// such as RouteStep.name. Defaults to 'en' if an unsupported language
   /// is specified. The languages in this link are supported:
-  ///  https://docs.mapbox.com/android/navigation/overview/localization/ or
-  /// https://docs.mapbox.com/ios/api/navigation/0.14.1/localization-and-internationalization.html
   String? language;
 
   /// Zoom controls the scale of the map and consumes any value between 0
@@ -146,6 +152,8 @@ class MapOptions {
       }
     }
 
+    addIfNonNull('apikey', apiKey);
+    addIfNonNull('mapStyle', mapStyle);
     addIfNonNull('initialLatitude', initialLatitude);
     addIfNonNull('initialLongitude', initialLongitude);
     addIfNonNull('language', language);
