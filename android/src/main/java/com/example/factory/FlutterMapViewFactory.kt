@@ -57,11 +57,15 @@ import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener
 import com.mapbox.services.android.navigation.ui.v5.listeners.RouteListener
 import com.mapbox.services.android.navigation.ui.v5.listeners.SpeechAnnouncementListener
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
+import com.mapbox.services.android.navigation.ui.v5.voice.NavigationSpeechPlayer
 import com.mapbox.services.android.navigation.ui.v5.voice.SpeechAnnouncement
+import com.mapbox.services.android.navigation.ui.v5.voice.SpeechPlayer
+import com.mapbox.services.android.navigation.ui.v5.voice.SpeechPlayerProvider
 import com.mapbox.services.android.navigation.v5.location.engine.LocationEngineProvider
 import com.mapbox.services.android.navigation.v5.location.replay.ReplayRouteLocationEngine
 import com.mapbox.services.android.navigation.v5.milestone.Milestone
 import com.mapbox.services.android.navigation.v5.milestone.MilestoneEventListener
+import com.mapbox.services.android.navigation.v5.milestone.VoiceInstructionMilestone
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigationOptions
 import com.mapbox.services.android.navigation.v5.navigation.NavigationEventListener
@@ -99,8 +103,7 @@ class FlutterMapViewFactory  :
     SpeechAnnouncementListener,
     BannerInstructionsListener,
     RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener,
-    MapboxMap.OnMapClickListener
-    {
+    MapboxMap.OnMapClickListener {
 
     private val activity: Activity
     private val context: Context
@@ -118,27 +121,28 @@ class FlutterMapViewFactory  :
     private val navigationOptions = MapboxNavigationOptions.builder()
         .build()
     private var navigation: MapboxNavigation
-        private var mapReady = false
-        private var isDisposed = false
-        private var isRefreshing = false
-        private var isBuildingRoute = false
-        private var isNavigationInProgress = false
-        private var isNavigationCanceled = false
-        private var isOverviewing = false
-        private var currentCenterPoint: CurrentCenterPoint? = null
-        private val routeUtils = RouteUtils()
-        private val snapEngine = SnapToRoute()
-        private var apikey: String? = null
+    private var mapReady = false
+    private var isDisposed = false
+    private var isRefreshing = false
+    private var isBuildingRoute = false
+    private var isNavigationInProgress = false
+    private var isNavigationCanceled = false
+    private var isOverviewing = false
+    private var currentCenterPoint: CurrentCenterPoint? = null
+    private val routeUtils = RouteUtils()
+    private val snapEngine = SnapToRoute()
+    private var apikey: String? = null
+    private var speechPlayer: SpeechPlayer? = null
 
-        constructor(
-            cxt: Context,
-            messenger: BinaryMessenger,
-            viewId: Int,
-            act: Activity,
-            args: Any?
-        ) {
+    constructor(
+        cxt: Context,
+        messenger: BinaryMessenger,
+        viewId: Int,
+        act: Activity,
+        args: Any?
+    ) {
 
-            Mapbox.getInstance(act.applicationContext)
+        Mapbox.getInstance(act.applicationContext)
             activity = act
             activity.application.registerActivityLifecycleCallbacks(this)
             context = cxt
@@ -164,18 +168,10 @@ class FlutterMapViewFactory  :
             navigationOptions,
             locationEngine!!
         )
-
-//        navigationViewModel = NavigationViewModel(activity.application)
-//        navigationViewModel?.initializeLocationEngine()
-//        navigationViewModel?.initializeNavigation(context, navigationOptions, locationEngine)
-//        navigationViewModel?.initializeRouter()
-////            navigationViewModel?.initializeLocationEngineFrom(options)
-//        navigationView?.onCreate(null, navigationViewModel)
         methodChannel.setMethodCallHandler(this)
         mapView.getMapAsync(this)
 
-       //navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
-
+        configSpeechPlayer()
     }
 
     companion object {
@@ -198,8 +194,6 @@ class FlutterMapViewFactory  :
 
         var alternatives = true
 
-        var allowsUTurnAtWayPoints = false
-        var enableRefresh = false
         var voiceInstructionsEnabled = true
         var bannerInstructionsEnabled = true
         var longPressDestinationEnabled = true
@@ -208,6 +202,21 @@ class FlutterMapViewFactory  :
 
         var originPoint: Point? = null
         var destinationPoint: Point? = null
+    }
+
+
+    private fun playVoiceAnnouncement(milestone: Milestone?) {
+        if (milestone is VoiceInstructionMilestone) {
+            var announcement = SpeechAnnouncement.builder()
+                .voiceInstructionMilestone(milestone as VoiceInstructionMilestone?).build()
+            speechPlayer!!.play(announcement)
+        }
+    }
+
+    private fun configSpeechPlayer() {
+
+        var speechPlayerProvider = SpeechPlayerProvider(context, "vi", true);
+        this.speechPlayer = NavigationSpeechPlayer(speechPlayerProvider)
     }
 
     override fun getView(): View {
@@ -235,12 +244,6 @@ class FlutterMapViewFactory  :
             }
             "startNavigation" -> {
                 startNavigation(methodCall, result)
-                /*
-                val navigationIntent = Intent(activity, NavigationFragmentActivity::class.java)
-                navigationIntent.putExtra("waypoints", wayPoints as Serializable)
-                activity.startActivity(navigationIntent)
-
-                 */
             }
             "finishNavigation" -> {
                 finishNavigation(methodCall, result)
@@ -256,6 +259,10 @@ class FlutterMapViewFactory  :
             }
             "overview" -> {
                 overViewRoute()
+            }
+            "mute" -> {
+                speechPlayer!!.isMuted = methodCall.argument<Boolean>("isMuted")?:false
+                result.success(speechPlayer!!.isMuted)
             }
             else -> result.notImplemented()
         }
@@ -306,7 +313,7 @@ class FlutterMapViewFactory  :
             originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
             destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
 
-            getRoute(context)
+            getRoute(context,false)
             result.success(true)
         } else {
             result.success(false)
@@ -334,7 +341,7 @@ class FlutterMapViewFactory  :
             originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
             destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
 
-            getRoute(context)
+            getRoute(context,true)
             result.success(true)
         } else {
             result.success(false)
@@ -364,9 +371,7 @@ class FlutterMapViewFactory  :
     }
 
     private fun finishNavigation(methodCall: MethodCall, result: MethodChannel.Result) {
-
         finishNavigation()
-
         if (currentRoute != null) {
             result.success(true)
         } else {
@@ -375,13 +380,6 @@ class FlutterMapViewFactory  :
     }
 
     private fun startNavigation() {
-
-//        navigationView?.initialize(
-//        OnNavigationReadyCallback { return@OnNavigationReadyCallback },
-//        getInitialCameraPosition()
-//    )
-//        navigationView?.onMapReady(mapBoxMap!!)
-//        navigationView?.initializeNavigationMap(navigationMapView, mapBoxMap)
         tilt = 10000.0
         zoom = 19.0
         isOverviewing = false
@@ -390,8 +388,6 @@ class FlutterMapViewFactory  :
 
         if (currentRoute != null) {
             if (simulateRoute) {
-//                (locationEngine as ReplayRouteLocationEngine).assign(currentRoute)
-//                navigation.locationEngine = locationEngine as ReplayRouteLocationEngine
                 val mockLocationEngine = ReplayRouteLocationEngine()
                 mockLocationEngine.assign(currentRoute)
                 navigation.locationEngine = mockLocationEngine
@@ -400,58 +396,18 @@ class FlutterMapViewFactory  :
                     navigation.locationEngine = it
                 }
             }
-
             mapBoxMap?.locationComponent?.locationEngine = null
-
-
-
             navigation.addNavigationEventListener(this)
             navigation.addFasterRouteListener(this)
             navigation.addMilestoneEventListener(this)
             navigation.addOffRouteListener(this)
             navigation.addProgressChangeListener(this)
-            val mapboxNavigation:MapboxNavigation = MapboxNavigation(context)
-
-            mapboxNavigation.startNavigation(currentRoute!!)
+//            val mapboxNavigation = MapboxNavigation(context)
+//
+//            mapboxNavigation.startNavigation(currentRoute!!)
             navigation.snapEngine = snapEngine
-//            mapBoxMap?.addOnMoveListener(object : OnMoveListener {
-//                override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
-//                    println("______________________________MapMoveBegin")
-//                }
-//                override fun onMove(moveGestureDetector: MoveGestureDetector) {}
-//                override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {}
-//            })
-            val options =
-                NavigationViewOptions.builder()
-                    .progressChangeListener(this)
-                    .milestoneEventListener(this)
-                    .navigationListener(this)
-                    .speechAnnouncementListener(this)
-                    .bannerInstructionsListener(this)
-                    .routeListener(this)
-                    .locationEngine(locationEngine)
-                    .directionsRoute(currentRoute)
-                    .shouldSimulateRoute(simulateRoute)
-                    .onMoveListener(object : OnMoveListener {
-                        override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {}
-                        override fun onMove(moveGestureDetector: MoveGestureDetector) {}
-                        override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {}
-                    })
-
-                    .navigationOptions(navigationOptions)
-                    .build()
-
             currentRoute?.let {
                 isNavigationInProgress = true
-//                navigationView?.initViewConfig(false)
-//                navigationMapRoute?.updateRouteArrowVisibilityTo(false)
-//                navigationMapRoute?.updateRouteVisibilityTo(false)
-//                navigationView?.retrieveNavigationMapboxMap()?.removeRoute()
-//                navigationView?.startNavigation(options)
-//                navigationView?.startCamera(currentRoute)
-//                navigationView?.updateCameraRouteOverview()
-
-
                 navigation.startNavigation(currentRoute!!)
                 PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_RUNNING)
                 recenter()
@@ -550,8 +506,10 @@ class FlutterMapViewFactory  :
             alternatives = altRoute
 
         val voiceEnabled = arguments["voiceInstructionsEnabled"] as? Boolean
-        if(voiceEnabled != null)
+        if(voiceEnabled != null) {
             voiceInstructionsEnabled = voiceEnabled
+            speechPlayer!!.isMuted = voiceEnabled
+        }
 
         val bannerEnabled = arguments["bannerInstructionsEnabled"] as? Boolean
         if(bannerEnabled != null)
@@ -691,48 +649,26 @@ class FlutterMapViewFactory  :
         rotationFrom: Double? = null,
         rotationTo: Double? = null
     ) {
-//        if (initialMarkerView != null) {
-//            markerViewManager.removeMarker(initialMarkerView!!)
-//        }
-
         val markerView = ImageView(context)
         markerView.setImageResource(markerIcon)
         markerView.layoutParams = ViewGroup.LayoutParams(100, 100)
 
         rotationTo?.let {
             markerView.rotation = rotationTo.toFloat()
-            /*rotationFrom?.let {
-                val rotate = RotateAnimation(rotationFrom.toFloat(), rotationTo.toFloat(), Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-                rotate.duration = 800
-                rotate.interpolator = LinearInterpolator()
-                rotate.isFillEnabled = true
-                //rotate.fillAfter = true
-                markerView.startAnimation(rotate)
-            }*/
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             markerView.elevation = 16.0f
         }
-//        initialMarkerView = MarkerView(location, markerView)
-//        initialMarkerView?.let {
-//            markerViewManager.addMarker(it)
-//        }
     }
 
     private fun addLocationMarker(location: LatLng, @DrawableRes markerIcon: Int) {
-//        if (locationMarkerView != null) {
-//            markerViewManager.removeMarker(locationMarkerView!!)
-//        }
 
         val markerView = ImageView(context)
         markerView.setImageResource(markerIcon)
         markerView.layoutParams = ViewGroup.LayoutParams(100, 100)
 
-//        locationMarkerView = MarkerView(location, markerView)
-//        locationMarkerView?.let {
-//            markerViewManager.addMarker(it)
-//        }
+
     }
 
         private fun buildRoute(point: LatLng) {
@@ -749,10 +685,10 @@ class FlutterMapViewFactory  :
             wayPoints.add(Point.fromLngLat(point.longitude, point.latitude))
 
             destinationPoint = Point.fromLngLat(point.longitude, point.latitude)
-            getRoute(context)
+            getRoute(context,false)
         }
 
-        private fun getRoute(context: Context) {
+        private fun getRoute(context: Context,isStartNavigation:Boolean) {
 
             if (!PluginUtilities.isNetworkAvailable(context)) {
                 PluginUtilities.sendEvent(
@@ -793,7 +729,7 @@ class FlutterMapViewFactory  :
                 isBuildingRoute = false
                 overViewRoute()
                 //Start Navigation again from new Point, if it was already in Progress
-                if (isNavigationInProgress) {
+                if (isNavigationInProgress||isStartNavigation) {
                     startNavigation()
                 }
             }
@@ -854,6 +790,8 @@ class FlutterMapViewFactory  :
     override fun onActivityDestroyed(activity: Activity) {
         // navigationView?.onDestroy()
         //mapView.onDestroy()
+
+        speechPlayer!!.onDestroy()
     }
 
 
@@ -898,13 +836,16 @@ class FlutterMapViewFactory  :
     }
 
     override fun userOffRoute(location: Location) {
-PluginUtilities.sendEvent(VietMapEvents.USER_OFF_ROUTE,
-    "{\"latitude\":${location.latitude},\"longitude\":${location.longitude}}")
+        speechPlayer!!.onOffRoute()
+        PluginUtilities.sendEvent(
+            VietMapEvents.USER_OFF_ROUTE,
+            "{\"latitude\":${location.latitude},\"longitude\":${location.longitude}}"
+        )
         doOnNewRoute(Point.fromLngLat(location.longitude, location.latitude))
     }
 
     override fun onMilestoneEvent(routeProgress: RouteProgress, instruction: String, milestone: Milestone) {
-
+        playVoiceAnnouncement(milestone)
         if (routeUtils.isArrivalEvent(routeProgress, milestone) && isNavigationInProgress) {
             mapBoxMap?.locationComponent?.locationEngine = locationEngine
             PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
@@ -1033,7 +974,7 @@ PluginUtilities.sendEvent(VietMapEvents.USER_OFF_ROUTE,
 
             originPoint = offRoutePoint
             isNavigationInProgress = true
-            getRoute(context)
+            getRoute(context,false)
         }
     }
 
@@ -1088,6 +1029,8 @@ PluginUtilities.sendEvent(VietMapEvents.USER_OFF_ROUTE,
         mapReady = false
         mapView.onStop()
         mapView.onDestroy()
+
+        speechPlayer!!.onDestroy()
     }
 
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
