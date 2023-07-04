@@ -131,6 +131,8 @@ class _MyAppState extends State<MyApp> {
       WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
     ];
     options = MapOptions(
+      apiKey: '',
+      mapStyle: '',
       isCustomizeUI: isCustomizeUI,
       zoom: 19,
       tilt: 10000,
@@ -148,7 +150,6 @@ class _MyAppState extends State<MyApp> {
       language: 'vi',
     );
     var result = DemoPlugin.instance.startNavigation(wayPoints, options!);
-    print(result);
   }
 
   @override

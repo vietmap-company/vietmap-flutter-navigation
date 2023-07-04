@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:demo_plugin/models/events.dart';
+import 'package:demo_plugin/models/method_channel_event.dart';
 import 'package:demo_plugin/models/navmode.dart';
 import 'package:demo_plugin/models/options.dart';
 import 'package:demo_plugin/models/route_event.dart';
@@ -32,17 +33,17 @@ class MapNavigationViewController {
 
   ///Current Device OS Version
   Future<String> get platformVersion => _methodChannel
-      .invokeMethod('getPlatformVersion')
+      .invokeMethod(MethodChannelEvent.getPlatformVersion)
       .then<String>((dynamic result) => result);
 
   ///Total distance remaining in meters along route.
   Future<double> get distanceRemaining => _methodChannel
-      .invokeMethod<double>('getDistanceRemaining')
+      .invokeMethod<double>(MethodChannelEvent.getDistanceRemaining)
       .then<double>((dynamic result) => result);
 
   ///Total seconds remaining on all legs.
   Future<double> get durationRemaining => _methodChannel
-      .invokeMethod<double>('getDurationRemaining')
+      .invokeMethod<double>(MethodChannelEvent.getDurationRemaining)
       .then<double>((dynamic result) => result);
 
   ///Build the Route Used for the Navigation
@@ -81,7 +82,7 @@ class MapNavigationViewController {
     args["wayPoints"] = wayPointMap;
 
     return await _methodChannel
-        .invokeMethod('buildRoute', args)
+        .invokeMethod(MethodChannelEvent.buildRoute, args)
         .then<bool>((dynamic result) => result);
   }
 
@@ -91,46 +92,87 @@ class MapNavigationViewController {
   }
 
   /// Clear the built route and resets the map
-  Future<bool?> clearRoute() async {
-    return _methodChannel.invokeMethod('clearRoute', null);
+  Future<void> clearRoute() async {
+    return _methodChannel.invokeMethod(MethodChannelEvent.clearRoute, null);
   }
 
   /// Starts Free Drive Mode
-  Future<bool?> startFreeDrive({MapOptions? options}) async {
-    Map<String, dynamic>? args;
-    if (options != null) args = options.toMap();
-    return _methodChannel.invokeMethod('startFreeDrive', args);
-  }
+  // Future<bool?> startFreeDrive({MapOptions? options}) async {
+  //   Map<String, dynamic>? args;
+  //   if (options != null) args = options.toMap();
+  //   return _methodChannel.invokeMethod(MethodChannelEvent.startFreeDrive, args);
+  // }
 
   /// Starts the Navigation
   Future<bool?> startNavigation({MapOptions? options}) async {
     Map<String, dynamic>? args;
     if (options != null) args = options.toMap();
-    log('heree');
-    _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
-    final result = await _methodChannel.invokeMethod('startNavigation', args);
+
+    final result = await _methodChannel.invokeMethod(
+        MethodChannelEvent.startNavigation, args);
     if (result is bool) return result;
     log(result.toString());
     return result;
   }
 
-  Future<bool?> recenter({MapOptions? options}) async {
+  Future<void> recenter({MapOptions? options}) async {
     Map<String, dynamic>? args;
     if (options != null) args = options.toMap();
-    _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
-    return _methodChannel.invokeMethod('recenter', args);
+
+    return _methodChannel.invokeMethod(MethodChannelEvent.recenter, args);
   }
 
-  Future<bool?> overview({MapOptions? options}) async {
+  Future<void> overview({MapOptions? options}) async {
     Map<String, dynamic>? args;
     if (options != null) args = options.toMap();
-    _routeEventSubscription = _streamRouteEvent!.listen(_onProgressData);
-    return _methodChannel.invokeMethod('overview', args);
+
+    return _methodChannel.invokeMethod(MethodChannelEvent.overview, args);
+  }
+
+  Future<bool?> mute(bool isMute) async {
+    return _methodChannel
+        .invokeMethod(MethodChannelEvent.mute, {'isMute': isMute});
+  }
+
+  Future<bool> buildAndStartNavigation(
+      {required List<WayPoint> wayPoints, MapOptions? options}) async {
+    assert(wayPoints.length > 1);
+    if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
+      assert(options!.mode != MapNavigationMode.drivingWithTraffic,
+          "Error: Cannot use drivingWithTraffic Mode when you have more than 3 Stops");
+    }
+    List<Map<String, Object?>> pointList = [];
+
+    for (int i = 0; i < wayPoints.length; i++) {
+      var wayPoint = wayPoints[i];
+      assert(wayPoint.name != null);
+      assert(wayPoint.latitude != null);
+      assert(wayPoint.longitude != null);
+
+      final pointMap = <String, dynamic>{
+        "Order": i,
+        "Name": wayPoint.name,
+        "Latitude": wayPoint.latitude,
+        "Longitude": wayPoint.longitude,
+      };
+      pointList.add(pointMap);
+    }
+    var i = 0;
+    var wayPointMap = {for (var e in pointList) i++: e};
+
+    Map<String, dynamic> args = <String, dynamic>{};
+    if (options != null) args = options.toMap();
+    args["wayPoints"] = wayPointMap;
+
+    return await _methodChannel
+        .invokeMethod(MethodChannelEvent.buildAndStartNavigation, args)
+        .then<bool>((dynamic result) => result);
   }
 
   ///Ends Navigation and Closes the Navigation View
   Future<bool?> finishNavigation() async {
-    var success = await _methodChannel.invokeMethod('finishNavigation', null);
+    var success = await _methodChannel.invokeMethod(
+        MethodChannelEvent.finishNavigation, null);
     return success;
   }
 
@@ -160,7 +202,6 @@ class MapNavigationViewController {
 
   RouteEvent _parseRouteEvent(String jsonString) {
     RouteEvent event;
-    print(jsonString);
     var map = json.decode(jsonString);
     var progressEvent = RouteProgressEvent.fromJson(map);
     if (progressEvent.isProgressEvent!) {
