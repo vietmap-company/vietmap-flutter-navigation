@@ -363,7 +363,7 @@ class NavigationActivity : AppCompatActivity(),
                     if (directionsResponse != null) {
                         if (!directionsResponse.routes().isEmpty()) buildAndStartNavigation(directionsResponse.routes()[0]) else {
                             val message = directionsResponse.message()
-                            sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, message!!)
+                            sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, message!!.replace("\"","'"))
                             finish()
                         }
                     }

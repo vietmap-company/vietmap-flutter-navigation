@@ -96,7 +96,8 @@ class FlutterMapViewFactory  :
     FasterRouteListener,
     SpeechAnnouncementListener,
     BannerInstructionsListener,
-    RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener
+    RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener,
+    MapboxMap.OnMapClickListener
     {
 
     private val activity: Activity
@@ -577,19 +578,21 @@ class FlutterMapViewFactory  :
 
             mapBoxMap?.addOnMoveListener(object : OnMoveListener {
                 override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
-                    println("______________________________MapMoveBegin")
                     isOverviewing = true
                     PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
                 }
 
                 override fun onMove(moveGestureDetector: MoveGestureDetector) {}
-                override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {}
+                override fun onMoveEnd(moveGestureDetector: MoveGestureDetector) {
+                    PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE_END)
+                }
             })
             enableLocationComponent(style)
         }
 
         if(longPressDestinationEnabled)
             mapBoxMap?.addOnMapLongClickListener(this);
+            mapBoxMap?.addOnMapClickListener(this);
 
 //        markerViewManager = MarkerViewManager(mapView, mapBoxMap)
 
@@ -608,6 +611,10 @@ class FlutterMapViewFactory  :
         if (wayPoints.size === 2) {
             wayPoints.clear()
         }
+        PluginUtilities.sendEvent(
+            VietMapEvents.ON_MAP_LONG_CLICK,
+            "{\"latitude\":${point.latitude},\"longitude\":${point.longitude}}"
+        )
 
         val lastLocation = mapBoxMap?.locationComponent?.lastKnownLocation
         if(lastLocation?.longitude != null) {
@@ -777,7 +784,10 @@ class FlutterMapViewFactory  :
 
             override fun onFailure(call: Call<DirectionsResponse?>, throwable: Throwable) {
                 isBuildingRoute = false
-                PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, "${throwable.message}")
+                PluginUtilities.sendEvent(
+                    VietMapEvents.ROUTE_BUILD_FAILED,
+                    "${throwable.message?.replace("\"", "'")}"
+                )
             }
         })
     }
@@ -878,7 +888,7 @@ class FlutterMapViewFactory  :
 
     override fun onMilestoneEvent(routeProgress: RouteProgress, instruction: String, milestone: Milestone) {
 
-        if(routeUtils.isArrivalEvent(routeProgress,milestone)){
+        if (routeUtils.isArrivalEvent(routeProgress, milestone) && isNavigationInProgress) {
             mapBoxMap?.locationComponent?.locationEngine = locationEngine
             PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
         }
@@ -1060,13 +1070,22 @@ class FlutterMapViewFactory  :
         mapView.onDestroy()
     }
 
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-        DemoPlugin.eventSink = events
+        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            DemoPlugin.eventSink = events
+        }
+
+        override fun onCancel(arguments: Any?) {
+            DemoPlugin.eventSink = null
+        }
+
+        override fun onMapClick(point: LatLng): Boolean {
+
+            PluginUtilities.sendEvent(
+                VietMapEvents.ON_MAP_CLICK,
+                "{\"latitude\":${point.latitude},\"longitude\":${point.longitude}}"
+            )
+            return true
+        }
+
+
     }
-
-    override fun onCancel(arguments: Any?) {
-        DemoPlugin.eventSink = null
-    }
-
-
-}

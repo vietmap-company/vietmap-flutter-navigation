@@ -18,5 +18,9 @@ enum MapEvent {
   bannerInstruction,
   onArrival,
   failedToReroute,
-  rerouteAlong
+  rerouteAlong,
+  onMapMove,
+  onMapMoveEnd,
+  onMapLongClick,
+  onMapClick
 }

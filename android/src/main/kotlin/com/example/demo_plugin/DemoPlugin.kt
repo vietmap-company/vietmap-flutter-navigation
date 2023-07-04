@@ -273,7 +273,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
                         buildAndStartNavigation(directionsResponse.routes()[0])
                     else {
                         val message = directionsResponse.message()
-                        PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, message!!)
+                        PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, message!!.replace("\"","'"))
 //                finish()
                     }
                 }

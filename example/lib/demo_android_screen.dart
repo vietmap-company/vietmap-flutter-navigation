@@ -1,6 +1,7 @@
 import 'package:demo_plugin/demo_plugin.dart';
 import 'package:demo_plugin/embedded/controller.dart';
 import 'package:demo_plugin/embedded/view.dart';
+import 'package:demo_plugin/views/navigation_view.dart';
 import 'package:demo_plugin/models/events.dart';
 import 'package:demo_plugin/models/options.dart';
 import 'package:demo_plugin/models/route_progress_event.dart';
@@ -97,13 +98,19 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            MapNavigationView(
-                options: _navigationOption,
-                onRouteEvent: _onEmbeddedRouteEvent,
-                onCreated: (MapNavigationViewController controller) async {
-                  _controller = controller;
-                  controller.initialize();
-                }),
+            NavigationView(
+              mapOptions: _navigationOption,
+              onMapCreated: (p0) {
+                _controller = p0;
+              },
+            ),
+            // MapNavigationView(
+            //     options: _navigationOption,
+            //     onRouteEvent: _onEmbeddedRouteEvent,
+            //     onCreated: (MapNavigationViewController controller) async {
+            //       _controller = controller;
+            //       controller.initialize();
+            //     }),
             Positioned(
                 top: 0,
                 left: 0,
@@ -229,8 +236,8 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   _setInstructionImage(String? modifier, String? type) {
     if (modifier != null && type != null) {
       List<String> data = [
-        type.split(' ').join('_'),
-        modifier.split(' ').join('_')
+        type.replaceAll('  ', '_'),
+        modifier.replaceAll(' ', '_')
       ];
       String path = 'assets/navigation_symbol/';
       instructionImage = SvgPicture.asset('$path${data.join('_')}.svg');
