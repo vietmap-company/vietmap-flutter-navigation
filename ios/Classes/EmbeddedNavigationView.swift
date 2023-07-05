@@ -315,7 +315,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         _distanceRemaining = routeProgress.distanceRemaining
         _durationRemaining = routeProgress.durationRemaining
         sendEvent(eventType: MapEventType.navigationRunning)
-        sendEvent(eventType: MapEventType.progressChange, data: encodeRouteProgress(routeProgress: routeProgress))
+        let routeProgressData = encodeRouteProgress(routeProgress: routeProgress)
+        sendEvent(eventType: MapEventType.progressChange, data: routeProgressData)
     }
     
     @objc func rerouted(_ notification: NSNotification) {

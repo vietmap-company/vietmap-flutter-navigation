@@ -203,13 +203,7 @@ class MapNavigationViewController {
   RouteEvent _parseRouteEvent(String jsonString) {
     RouteEvent event;
     var map = json.decode(jsonString);
-    var progressEvent = RouteProgressEvent.fromJson(map);
-    if (progressEvent.isProgressEvent!) {
-      event =
-          RouteEvent(eventType: MapEvent.progressChange, data: progressEvent);
-    } else {
-      event = RouteEvent.fromJson(map);
-    }
+    event = RouteEvent.fromJson(map);
     return event;
   }
 }
