@@ -13,11 +13,13 @@ import 'dart:async';
 import 'package:demo_plugin/embedded/view.dart';
 import 'package:flutter/services.dart';
 import 'package:demo_plugin/demo_plugin.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() {
   runApp(const MaterialApp(
     title: 'Plugin example app',
     home: MyApp(),
+    debugShowCheckedModeBanner: false,
   ));
 }
 
@@ -155,6 +157,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: EasyLoading.init(),
+      debugShowCheckedModeBanner: false,
       home: Builder(builder: (context) {
         return Scaffold(
           appBar: AppBar(

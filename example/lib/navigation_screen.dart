@@ -187,14 +187,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
               )
             ],
           ),
-          ElevatedButton(
-            onPressed: _inFreeDrive
-                ? null
-                : () async {
-                    _inFreeDrive = await _controller?.startFreeDrive() ?? false;
-                  },
-            child: const Text("Free Drive "),
-          ),
           const Center(
             child: Padding(
               padding: EdgeInsets.all(10),
