@@ -191,7 +191,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             onPressed: _inFreeDrive
                 ? null
                 : () async {
-                    _inFreeDrive = await _controller?.startFreeDrive() ?? false;
+                    // _inFreeDrive = await _controller?.startFreeDrive() ?? false;
                   },
             child: const Text("Free Drive "),
           ),

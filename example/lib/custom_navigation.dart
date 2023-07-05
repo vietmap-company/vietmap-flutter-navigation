@@ -18,6 +18,7 @@ class CustomNavigation extends StatefulWidget {
 
 class _CustomNavigationState extends State<CustomNavigation> {
   MapNavigationViewController? _controller;
+  late DirectionRoute? directionRoute;
   late MapOptions _navigationOption;
   late double value = 0.0;
   final _iconSize = 30;
@@ -48,6 +49,10 @@ class _CustomNavigationState extends State<CustomNavigation> {
   Future<void> initialize() async {
     if (!mounted) return;
     _navigationOption = DemoPlugin.instance.getDefaultOptions();
+    _navigationOption.apiKey =
+        "89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944";
+    _navigationOption.mapStyle =
+        "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
   }
 
   @override
@@ -86,6 +91,12 @@ class _CustomNavigationState extends State<CustomNavigation> {
       onMapCreated: (p0) {
         _controller = p0;
         buildRoute();
+      },
+      onRouteBuilt: (DirectionRoute route) {
+        directionRoute = route;
+      },
+      onNavigationRunning: () {
+        print("here");
       },
     );
   }
@@ -135,7 +146,9 @@ class _CustomNavigationState extends State<CustomNavigation> {
             ),
           ),
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                _controller?.startNavigation(options: _navigationOption);
+              },
               icon: const Icon(
                 Icons.volume_up_outlined,
                 size: 30,
@@ -183,7 +196,11 @@ class _CustomNavigationState extends State<CustomNavigation> {
       width: 50,
       decoration:
           const BoxDecoration(shape: BoxShape.circle, color: Colors.lightBlue),
-      child: IconButton(onPressed: () {}, icon: const Icon(Icons.my_location)),
+      child: IconButton(
+          onPressed: () {
+            _controller?.recenter();
+          },
+          icon: const Icon(Icons.my_location)),
     );
   }
 
@@ -270,7 +287,9 @@ class _CustomNavigationState extends State<CustomNavigation> {
       child: Row(
         children: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                _controller?.overview();
+              },
               icon: const Icon(
                 Icons.fork_left,
                 size: 30,

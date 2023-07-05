@@ -42,18 +42,13 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     }
     
     var routeController: RouteController?
-    
     var arguments: NSDictionary?
     var wayPoints = [Waypoint]()
     var routeResponse: Route?
     var selectedRouteIndex = 0
     var routeOptions: NavigationRouteOptions?
-//    var navigationService: NavigationService!
-
     var locationManager = CLLocationManager()
-
-//    private let passiveLocationManager = PassiveLocationManager()
-//    private lazy var passiveLocationProvider = PassiveLocationProvider(locationManager: passiveLocationManager)
+    var coordinates: [CLLocationCoordinate2D]?
 
     init(messenger: FlutterBinaryMessenger, frame: CGRect, viewId: Int64, args: Any?)
     {
@@ -107,10 +102,15 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             {
                 strongSelf.startNavigationEmbedded(arguments: arguments, result: result)
             }
-            else if(call.method == "reCenter")
+            else if(call.method == "recenter")
             {
                 //used to recenter map from user action during navigation
                 strongSelf.navigationMapView.recenterMap()
+            }
+            else if(call.method == "overview")
+            {
+                //used to recenter map from user action during navigation
+                strongSelf.navigationMapView.setOverheadCameraView(from: strongSelf._wayPoints.first!.coordinate, along: strongSelf.coordinates ?? [], for: strongSelf.overheadInsets)
             }
             else
             {
@@ -171,7 +171,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         guard let strongSelf = self else { return }
         guard let current = routes.first else { return }
         strongSelf.routeResponse = current
-        strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: strongSelf.encodeRoute(route: current))
+        strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: encodeRoute(route: current))
         strongSelf.routes = routes
         strongSelf._routes = routes
         strongSelf._wayPoints = current.routeOptions.waypoints
@@ -244,8 +244,9 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
                 strongSelf._routes = result
                 strongSelf._wayPoints = response.routeOptions.waypoints
                 strongSelf.routeResponse = response
+                strongSelf.coordinates = response.coordinates
                 strongSelf.navigationMapView.setOverheadCameraView(from: strongSelf._wayPoints.first!.coordinate, along: response.coordinates!, for: strongSelf.overheadInsets)
-                strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: strongSelf.encodeRoute(route: response))
+                strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: encodeRoute(route: response))
             } else {
                 // Handle failure case
                 flutterResult(false)
@@ -309,11 +310,12 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         let routeProgress = notification.userInfo![RouteControllerNotificationUserInfoKey.routeProgressKey] as! RouteProgress
         let location = notification.userInfo![RouteControllerNotificationUserInfoKey.locationKey] as! CLLocation
         // Update the user puck
-        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, fromDistance: 120, pitch: 60, heading: location.course)
+        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, altitude: 120, pitch: 60, heading: location.course)
         navigationMapView.updateCourseTracking(location: location, camera: camera, animated: true)
         _distanceRemaining = routeProgress.distanceRemaining
         _durationRemaining = routeProgress.durationRemaining
         sendEvent(eventType: MapEventType.navigationRunning)
+        sendEvent(eventType: MapEventType.progressChange, data: encodeRouteProgress(routeProgress: routeProgress))
     }
     
     @objc func rerouted(_ notification: NSNotification) {
@@ -380,7 +382,15 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
 
 extension FlutterMapNavigationView: RouteControllerDelegate {
     public func routeController(_ routeController: RouteController, didArriveAt waypoint: Waypoint) -> Bool {
-        return false
+        sendEvent(eventType: MapEventType.onArrival)
+        return true
+    }
+    
+    public override func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
+        if(canceled)
+        {
+           sendEvent(eventType: MapEventType.navigationCancelled)
+        }
     }
 }
 
