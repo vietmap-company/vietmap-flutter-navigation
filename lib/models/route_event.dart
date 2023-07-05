@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'events.dart';
 import 'route_progress_event.dart';
 
@@ -25,7 +26,12 @@ class RouteEvent {
     try {
       var dataJson = json['data'];
       if (eventType == MapEvent.progressChange) {
-        data = RouteProgressEvent.fromJson(dataJson);
+        if (Platform.isAndroid) {
+          data = RouteProgressEvent.fromJson(dataJson);
+        }
+        if (Platform.isIOS) {
+          data = RouteProgressEvent.fromJson(jsonDecode(dataJson));
+        }
       } else {
         data = jsonEncode(dataJson);
       }
