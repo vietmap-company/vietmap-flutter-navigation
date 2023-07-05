@@ -8,8 +8,8 @@ import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
 class VietMapRouteProgressEvent(progress: RouteProgress) {
 
     var arrived: Boolean? = null
-    private var distance: Float? = null
-    private var duration: Double? = null
+    private var distanceRemaining: Float? = null
+    private var durationRemaining: Double? = null
     private var distanceTraveled: Float? = null
     private var currentLegDistanceTraveled: Float? = null
     private var currentLegDistanceRemaining: Float? = null
@@ -32,8 +32,8 @@ class VietMapRouteProgressEvent(progress: RouteProgress) {
         currentModifierType= bannerInstructionsList?.get(0)?.primary()?.type()
         // val util = RouteUtils()
         // arrived = util.isArrivalEvent(progress) && util.isLastLeg(progress)
-        distance = progress.distanceRemaining().toFloat()
-        duration = progress.durationRemaining()
+        distanceRemaining = progress.distanceRemaining().toFloat()
+        durationRemaining = progress.durationRemaining()
         distanceTraveled = progress.distanceTraveled().toFloat()
         legIndex = progress.currentLegProgress()?.stepIndex()
         // stepIndex = progress.stepIndex
@@ -55,8 +55,8 @@ class VietMapRouteProgressEvent(progress: RouteProgress) {
 
     private fun toJsonObject(): JsonObject {
         val json = JsonObject()
-        addProperty(json, "distance", distance)
-        addProperty(json, "duration", duration)
+        addProperty(json, "distanceRemaining", distanceRemaining)
+        addProperty(json, "durationRemaining", durationRemaining)
         addProperty(json, "distanceTraveled", distanceTraveled)
         addProperty(json, "legIndex", legIndex)
         addProperty(json, "currentLegDistanceRemaining", currentLegDistanceRemaining)

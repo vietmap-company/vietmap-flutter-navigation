@@ -6,34 +6,41 @@ import '../helpers.dart';
 ///With every new valid location update, a new route progress will be generated using the latest information.
 class RouteProgressEvent {
   bool? arrived;
-  double? distance;
-  double? duration;
+  // Khoảng cách còn lại (total)
+  double? distanceRemaining;
+  // Thời gian ước tính còn lại (total)
+  double? durationRemaining;
+  // Khoảng cách đã đi được
   double? distanceTraveled;
+  // Khoảng cách
   double? currentLegDistanceTraveled;
   double? currentLegDistanceRemaining;
+  // Chỉ dẫn 
   String? currentStepInstruction;
+  
   RouteLeg? currentLeg;
+  
   RouteLeg? priorLeg;
+  
   List<RouteLeg>? remainingLegs;
+  
   int? legIndex;
+  
   int? stepIndex;
+  
   bool? isProgressEvent;
+  
   double? distanceToNextTurn;
+  
   String? currentModifierType;
+  
   String? currentModifier;
 
-  /*
-
-    private var distanceToNextTurn: Float? = null
-    private var currentStepInstruction: String? = null
-    private var currentModifier:String? = null
-    private var currentModifierType:String? = null
-  */
-
+  
   RouteProgressEvent(
       {this.arrived,
-      this.distance,
-      this.duration,
+      this.distanceRemaining,
+      this.durationRemaining,
       this.distanceTraveled,
       this.currentLegDistanceTraveled,
       this.currentLegDistanceRemaining,
@@ -54,8 +61,12 @@ class RouteProgressEvent {
     distanceToNextTurn = json['distanceToNextTurn'];
     isProgressEvent = json['arrived'] != null;
     arrived = json['arrived'] == null ? false : json['arrived'] as bool?;
-    distance = isNullOrZero(json['distance']) ? 0.0 : json["distance"] + .0;
-    duration = isNullOrZero(json['duration']) ? 0.0 : json["duration"] + .0;
+    distanceRemaining = isNullOrZero(json['distanceRemaining'])
+        ? 0.0
+        : json["distanceRemaining"] + .0;
+    durationRemaining = isNullOrZero(json['durationRemaining'])
+        ? 0.0
+        : json["durationRemaining"] + .0;
     distanceTraveled = isNullOrZero(json['distanceTraveled'])
         ? 0.0
         : json["distanceTraveled"] + .0;

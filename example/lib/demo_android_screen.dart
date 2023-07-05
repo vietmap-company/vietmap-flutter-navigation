@@ -2,14 +2,26 @@ import 'package:demo_plugin/demo_plugin.dart';
 import 'package:demo_plugin/embedded/controller.dart';
 import 'package:demo_plugin/embedded/view.dart';
 import 'package:demo_plugin/views/navigation_view.dart';
+import 'package:demo_plugin/views/banner_instruction.dart';
+import 'package:demo_plugin/views/bottom_action.dart';
 import 'package:demo_plugin/models/events.dart';
 import 'package:demo_plugin/models/options.dart';
 import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/way_point.dart';
+import 'package:demo_plugin_example/components/bottom_sheet_address_info.dart';
+import 'package:demo_plugin_example/data/models/vietmap_reverse_model.dart';
+import 'package:demo_plugin_example/data/repository/vietmap_api_repository.dart';
+import 'package:demo_plugin_example/domain/repository/vietmap_api_repositories.dart';
+import 'package:demo_plugin_example/domain/usecase/get_location_from_latlng_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
+
+import 'components/floating_search_bar.dart';
+import 'data/models/vietmap_place_model.dart';
+import 'domain/usecase/get_place_detail_usecase.dart';
 
 class DemoAndroidScreen extends StatefulWidget {
   const DemoAndroidScreen({super.key});
@@ -19,23 +31,22 @@ class DemoAndroidScreen extends StatefulWidget {
 }
 
 class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
-  bool isCustomizeUI = false;
-  bool _isMultipleStop = false;
-  double? _distanceRemaining, _durationRemaining;
   MapNavigationViewController? _controller;
-  bool _routeBuilt = false;
-  bool _isNavigating = false;
-  bool _inFreeDrive = false;
-  String _platformVersion = 'Unknown';
   late MapOptions _navigationOption;
   final _demoPlugin = DemoPlugin();
-  String? _instruction;
+
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
     WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
   ];
   Widget instructionImage = const SizedBox.shrink();
   String guideDirection = "";
+  Widget recenterButton = const SizedBox.shrink();
+  RouteProgressEvent? routeProgressEvent;
+  bool _isRouteBuilt = false;
+  bool _isRunning = false;
+  VietmapReverseModel? _reverseModel;
+  FocusNode focusNode = FocusNode();
   @override
   void initState() {
     super.initState();
@@ -54,48 +65,15 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
     _navigationOption.isCustomizeUI = true;
 
     _navigationOption.apiKey =
-        '95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c';
+        '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
-        // 'https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326';
-        "https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm";
-    // _demoPlugin.registerRouteEventListener(_onEmbeddedRouteEvent);
+        // "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
+        'https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm';
+
     _demoPlugin.setDefaultOptions(_navigationOption);
-
-    String? platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await _demoPlugin.getPlatformVersion();
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    setState(() {
-      _platformVersion = platformVersion ?? '';
-    });
   }
 
   MapOptions? options;
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _demoPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,24 +86,53 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
               onMapCreated: (p0) {
                 _controller = p0;
               },
+              onMapMove: () => _showRecenterButton(),
+              onRouteBuilt: (p0) {
+                setState(() {
+                  EasyLoading.dismiss();
+                  _isRouteBuilt = true;
+                });
+              },
               onMapLongClick: (WayPoint? point) async {
-                wayPoints.clear();
-                var location = await Geolocator.getCurrentPosition();
-
-                wayPoints.add(WayPoint(
-                    name: 'destination',
-                    latitude: location.latitude,
-                    longitude: location.longitude));
-                if (point != null) {
-                  wayPoints.add(point);
+                EasyLoading.show();
+                var data =
+                    await GetLocationFromLatLngUseCase(VietmapApiRepositories())
+                        .call(LocationPoint(
+                            lat: point?.latitude ?? 0,
+                            long: point?.longitude ?? 0));
+                EasyLoading.dismiss();
+                data.fold((l) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Có lỗi xảy ra')));
+                }, (r) => _showBottomSheetInfo(r));
+              },
+              onMapClick: (WayPoint? point) async {
+                if (focusNode.hasFocus) {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  return;
                 }
-                _controller?.buildRoute(wayPoints: wayPoints);
+                EasyLoading.show();
+                var data =
+                    await GetLocationFromLatLngUseCase(VietmapApiRepositories())
+                        .call(LocationPoint(
+                            lat: point?.latitude ?? 0,
+                            long: point?.longitude ?? 0));
+                EasyLoading.dismiss();
+                data.fold((l) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content:
+                          Text('Không tìm thấy địa điểm gần vị trí bạn chọn')));
+                }, (r) => _showBottomSheetInfo(r));
               },
               onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
+                setState(() {
+                  this.routeProgressEvent = routeProgressEvent;
+                });
                 _setInstructionImage(routeProgressEvent.currentModifier,
                     routeProgressEvent.currentModifierType);
               },
               onArrival: () {
+                _isRunning = false;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Container(
                         height: 100,
@@ -133,81 +140,108 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                         child: const Text('Bạn đã tới đích'))));
               },
             ),
-            // MapNavigationView(
-            //     options: _navigationOption,
-            //     onRouteEvent: _onEmbeddedRouteEvent,
-            //     onCreated: (MapNavigationViewController controller) async {
-            //       _controller = controller;
-            //       controller.initialize();
-            //     }),
             Positioned(
                 top: 0,
                 left: 0,
-                child: Container(
-                  decoration: const BoxDecoration(color: Colors.white),
-                  width: MediaQuery.of(context).size.width,
-                  height: 100,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      instructionImage,
-                      Text(
-                        _instruction ?? "",
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+                child: BannerInstructionView(
+                  routeProgressEvent: routeProgressEvent,
+                  instructionIcon: instructionImage,
                 )),
             Positioned(
                 bottom: 0,
-                child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 100,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: Wrap(
-                      children: [
-                        ElevatedButton(
-                            onPressed: () {
-                              _controller?.recenter();
-                            },
-                            child: const Text("Recenter")),
-                        ElevatedButton(
-                            onPressed: () {
-                              _controller?.overview();
-                            },
-                            child: const Text("Overview")),
-                        ElevatedButton(
-                            onPressed: () {
-                              _controller?.buildRoute(
-                                  wayPoints: wayPoints,
-                                  options: _navigationOption);
-                            },
-                            child: const Text("BuildRoute")),
-                        ElevatedButton(
-                            onPressed: () {
-                              _controller?.startNavigation();
-                            },
-                            child: const Text("Start navigation")),
-                        ElevatedButton(
-                          onPressed: _isNavigating
-                              ? () {
-                                  setState(() {
-                                    _isNavigating = false;
-                                  });
-                                  _controller?.finishNavigation();
-                                }
-                              : null,
-                          child: const Text('Cancel '),
-                        )
-                      ],
-                    )))
+                child: BottomActionView(
+                  recenterButton: recenterButton,
+                  controller: _controller,
+                  onOverviewCallback: _showRecenterButton,
+                  onStopNavigationCallback: _onStopNavigation,
+                  routeProgressEvent: routeProgressEvent,
+                )),
+            _isRunning
+                ? const SizedBox.shrink()
+                : Positioned(
+                    top: 30,
+                    child: FloatingSearchBar(
+                      focusNode: focusNode,
+                      onSearchItemClick: (p0) async {
+                        EasyLoading.show();
+                        VietmapPlaceModel? data;
+                        var res = await GetPlaceDetailUseCase(
+                                VietmapApiRepositories())
+                            .call(p0.refId ?? '');
+                        res.fold((l) {
+                          EasyLoading.dismiss();
+                          return;
+                        }, (r) {
+                          data = r;
+                        });
+                        wayPoints.clear();
+                        var location = await Geolocator.getCurrentPosition();
+
+                        wayPoints.add(WayPoint(
+                            name: 'destination',
+                            latitude: location.latitude,
+                            longitude: location.longitude));
+                        if (data?.lat != null) {
+                          wayPoints.add(WayPoint(
+                              name: '',
+                              latitude: data?.lat,
+                              longitude: data?.lng));
+                        }
+                        _controller?.buildRoute(wayPoints: wayPoints);
+                      },
+                    )),
+            _isRouteBuilt && !_isRunning
+                ? Positioned(
+                    bottom: 20,
+                    left: MediaQuery.of(context).size.width / 2 - 25,
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side:
+                                        const BorderSide(color: Colors.blue)))),
+                        onPressed: () {
+                          _isRunning = true;
+                          _controller?.startNavigation();
+                        },
+                        child: const Text('Bắt đầu')),
+                  )
+                : const SizedBox.shrink()
           ],
         ),
       ),
     );
+  }
+
+  _showRecenterButton() {
+    recenterButton = TextButton(
+        onPressed: () {
+          _controller?.recenter();
+          recenterButton = const SizedBox.shrink();
+        },
+        child: Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: Colors.white,
+                border: Border.all(color: Colors.black45, width: 1)),
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.keyboard_double_arrow_up_sharp,
+                  color: Colors.lightBlue,
+                  size: 35,
+                ),
+                Text(
+                  'Về giữa',
+                  style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                )
+              ],
+            )));
+    setState(() {});
   }
 
   _setInstructionImage(String? modifier, String? type) {
@@ -218,8 +252,60 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
       ];
       String path = 'assets/navigation_symbol/${data.join('_')}.svg';
       setState(() {
-        instructionImage = SvgPicture.asset(path);
+        instructionImage = SvgPicture.asset(path, color: Colors.white);
       });
     }
+  }
+
+  _onStopNavigation() {
+    setState(() {
+      routeProgressEvent = null;
+      _isRunning = false;
+    });
+  }
+
+  _showBottomSheetInfo(VietmapReverseModel data) {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (_) => AddressInfo(
+              data: data,
+              buildRoute: () async {
+                EasyLoading.show();
+                wayPoints.clear();
+                var location = await Geolocator.getCurrentPosition();
+
+                wayPoints.add(WayPoint(
+                    name: 'destination',
+                    latitude: location.latitude,
+                    longitude: location.longitude));
+                if (data.lat != null) {
+                  wayPoints.add(WayPoint(
+                      name: '', latitude: data.lat, longitude: data.lng));
+                }
+                _controller?.buildRoute(wayPoints: wayPoints);
+                if (!mounted) return;
+                Navigator.pop(context);
+              },
+              buildAndStartRoute: () async {
+                EasyLoading.show();
+                wayPoints.clear();
+                var location = await Geolocator.getCurrentPosition();
+                wayPoints.add(WayPoint(
+                    name: 'destination',
+                    latitude: location.latitude,
+                    longitude: location.longitude));
+                if (data.lat != null) {
+                  wayPoints.add(WayPoint(
+                      name: '', latitude: data.lat, longitude: data.lng));
+                }
+                _controller?.buildAndStartNavigation(wayPoints: wayPoints);
+                setState(() {
+                  _isRunning = true;
+                });
+                if (!mounted) return;
+                Navigator.pop(context);
+              },
+            ));
   }
 }

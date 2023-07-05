@@ -261,8 +261,10 @@ class FlutterMapViewFactory  :
                 overViewRoute()
             }
             "mute" -> {
-                speechPlayer!!.isMuted = methodCall.argument<Boolean>("isMuted")?:false
-                result.success(speechPlayer!!.isMuted)
+                speechPlayer?.let {
+                    speechPlayer!!.isMuted = methodCall.argument<Boolean>("isMuted") ?: false
+                    result.success(speechPlayer!!.isMuted)
+                }
             }
             else -> result.notImplemented()
         }
@@ -456,8 +458,6 @@ class FlutterMapViewFactory  :
 
         val simulated = arguments["simulateRoute"] as? Boolean
         if (simulated != null) {
-            println(simulated)
-            println("----------------------------------------")
             simulateRoute = simulated
         }
 
@@ -508,7 +508,10 @@ class FlutterMapViewFactory  :
         val voiceEnabled = arguments["voiceInstructionsEnabled"] as? Boolean
         if(voiceEnabled != null) {
             voiceInstructionsEnabled = voiceEnabled
-            speechPlayer!!.isMuted = voiceEnabled
+            speechPlayer?.let {
+
+                speechPlayer!!.isMuted = voiceEnabled
+            }
         }
 
         val bannerEnabled = arguments["bannerInstructionsEnabled"] as? Boolean
@@ -526,10 +529,6 @@ class FlutterMapViewFactory  :
         if (simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
-        if (mapStyleURL == null)
-//            mapStyleURL = "https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326"
-            mapStyleURL =
-                "https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm"
         mapBoxMap?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
@@ -672,7 +671,6 @@ class FlutterMapViewFactory  :
     }
 
         private fun buildRoute(point: LatLng) {
-
             val lastLocation = mapBoxMap?.locationComponent?.lastKnownLocation
             if (lastLocation?.longitude != null) {
                 wayPoints.add(

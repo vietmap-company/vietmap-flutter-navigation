@@ -546,9 +546,6 @@ MapboxMap.OnMoveListener {
         if (FlutterMapViewFactoryv2.simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
-        if (FlutterMapViewFactoryv2.mapStyleURL == null)
-            FlutterMapViewFactoryv2.mapStyleURL = "https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326"
-
         mapBoxMap?.setStyle(FlutterMapViewFactoryv2.mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             enableLocationComponent(style)
