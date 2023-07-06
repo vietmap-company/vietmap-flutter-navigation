@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:demo_plugin/extension.dart';
 import 'package:demo_plugin/models/events.dart';
 import 'package:demo_plugin/models/method_channel_event.dart';
 import 'package:demo_plugin/models/navmode.dart';
@@ -12,6 +13,8 @@ import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/way_point.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
+enum DrivingProfile { drivingTraffic, cycling, walking, motorcycle }
 
 /// Controller for a single Map Navigation instance running on the host platform.
 class MapNavigationViewController {
@@ -135,7 +138,9 @@ class MapNavigationViewController {
   }
 
   Future<bool> buildAndStartNavigation(
-      {required List<WayPoint> wayPoints, MapOptions? options}) async {
+      {required List<WayPoint> wayPoints,
+      MapOptions? options,
+      required DrivingProfile profile}) async {
     assert(wayPoints.length > 1);
     if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,
@@ -163,6 +168,7 @@ class MapNavigationViewController {
     Map<String, dynamic> args = <String, dynamic>{};
     if (options != null) args = options.toMap();
     args["wayPoints"] = wayPointMap;
+    args['profile'] = profile.getValue();
 
     return await _methodChannel
         .invokeMethod(MethodChannelEvent.buildAndStartNavigation, args)

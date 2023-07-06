@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:demo_plugin/demo_plugin.dart';
 import 'package:demo_plugin/embedded/controller.dart';
 import 'package:demo_plugin/embedded/view.dart';
@@ -45,7 +47,6 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   RouteProgressEvent? routeProgressEvent;
   bool _isRouteBuilt = false;
   bool _isRunning = false;
-  VietmapReverseModel? _reverseModel;
   FocusNode focusNode = FocusNode();
   @override
   void initState() {
@@ -67,8 +68,8 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
     _navigationOption.apiKey =
         '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
-        // "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
-        'https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm';
+        "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
+    // 'https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm';
 
     _demoPlugin.setDefaultOptions(_navigationOption);
   }
@@ -176,7 +177,6 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                         });
                         wayPoints.clear();
                         var location = await Geolocator.getCurrentPosition();
-
                         wayPoints.add(WayPoint(
                             name: 'destination',
                             latitude: location.latitude,
@@ -299,7 +299,9 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                   wayPoints.add(WayPoint(
                       name: '', latitude: data.lat, longitude: data.lng));
                 }
-                _controller?.buildAndStartNavigation(wayPoints: wayPoints);
+                _controller?.buildAndStartNavigation(
+                    wayPoints: wayPoints,
+                    profile: DrivingProfile.drivingTraffic);
                 setState(() {
                   _isRunning = true;
                 });
