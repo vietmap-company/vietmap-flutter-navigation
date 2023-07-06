@@ -71,7 +71,7 @@ class BottomActionView extends StatelessWidget {
                         children: [
                           Text(
                               _calculateTotalDistance(
-                                  routeProgressEvent?.currentLeg?.distance),
+                                  routeProgressEvent?.distanceRemaining),
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black45)),
                           const SizedBox(width: 10),
@@ -115,14 +115,14 @@ class BottomActionView extends StatelessWidget {
   }
 
   _calculateEstimatedArrivalTime() {
-    var data = routeProgressEvent?.currentLeg?.expectedTravelTime ?? 0;
+    var data = routeProgressEvent?.durationRemaining ?? 0;
     DateTime dateTime = DateTime.now();
     DateTime estimateArriveTime = dateTime.add(Duration(seconds: data.round()));
     return '${estimateArriveTime.hour}:${estimateArriveTime.minute}';
   }
 
   _getTimeArriveRemaining() {
-    var data = routeProgressEvent?.currentLeg?.expectedTravelTime ?? 0;
+    var data = routeProgressEvent?.durationRemaining ?? 0;
     if (data < 60) return '${data.round()} giây';
     if (data < 3600) return '${(data / 60).round()} phút';
     var hour = (data / 3600).round();

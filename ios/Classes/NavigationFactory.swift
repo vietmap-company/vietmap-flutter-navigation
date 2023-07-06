@@ -123,7 +123,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         _navigationViewController?.mapView?.showsUserHeadingIndicator = true
     }
     
-    private func getNavigationLocationManager(simulated: Bool) -> NavigationLocationManager {
+    func getNavigationLocationManager(simulated: Bool) -> NavigationLocationManager {
         guard let route = _routes?.first else { return NavigationLocationManager() }
         let simulatedLocationManager = SimulatedLocationManager(route: route)
         simulatedLocationManager.speedMultiplier = 2

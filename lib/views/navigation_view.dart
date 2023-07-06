@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:demo_plugin/helpers.dart';
 import 'package:demo_plugin/models/way_point.dart';
 import 'package:flutter/material.dart';
 
@@ -74,21 +75,18 @@ class _NavigationViewState extends State<NavigationView> {
   Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {
     switch (e.eventType) {
       case MapEvent.progressChange:
-        var progressEvent = e.data as RouteProgressEvent;
-        if (widget.onRouteProgressChange != null) {
-          widget.onRouteProgressChange!(progressEvent);
+        if (e.data != null) {
+          var progressEvent = e.data as RouteProgressEvent;
+          if (widget.onRouteProgressChange != null) {
+            widget.onRouteProgressChange!(progressEvent);
+          }
         }
         break;
       case MapEvent.routeBuilding:
         if (widget.onRouteBuilding != null) widget.onRouteBuilding!();
         break;
       case MapEvent.routeBuilt:
-        Map<String, dynamic> map = {};
-        if (Platform.isAndroid) {
-          map = jsonDecode(e.data);
-        } else if (Platform.isIOS) {
-          map = jsonDecode(jsonDecode(e.data));
-        }
+        Map<String, dynamic> map = decodeJson(data: e.data);
         var data = DirectionRoute.fromJson(map);
         if (widget.onRouteBuilt != null) widget.onRouteBuilt!(data);
         break;
@@ -116,8 +114,7 @@ class _NavigationViewState extends State<NavigationView> {
         break;
       case MapEvent.onMapClick:
         if (widget.onMapClick != null) {
-          var data = jsonDecode(e.data);
-
+          var data = decodeJson(data: e.data);
           WayPoint wayPoint = WayPoint(
               name: 'map_long_click',
               latitude: data['latitude'],
@@ -127,8 +124,7 @@ class _NavigationViewState extends State<NavigationView> {
         break;
       case MapEvent.onMapLongClick:
         if (widget.onMapLongClick != null) {
-          var data = jsonDecode(e.data);
-
+          var data = decodeJson(data: e.data);
           WayPoint wayPoint = WayPoint(
               name: 'map_long_click',
               latitude: data['latitude'],

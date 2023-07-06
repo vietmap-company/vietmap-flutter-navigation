@@ -220,3 +220,19 @@ func convertStep(steps: [MapboxDirections.RouteStep]) -> Array<Any> {
     
     return result
 }
+
+// MARK: encode long click, click, reroute
+func encodeLocation(location: CLLocationCoordinate2D) -> String {
+    // TODO: Add parameter on routeDictionary.
+    let routeDictionary: [String: Any] = [
+        "latitude": location.latitude,
+        "longitude": location.longitude
+    ]
+
+    if let jsonData = try? JSONSerialization.data(withJSONObject: routeDictionary, options: []) {
+        if let jsonData = String(data: jsonData, encoding: .utf8) {
+            return jsonData
+        }
+    }
+    return "{}"
+}

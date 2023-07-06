@@ -25,5 +25,9 @@ enum MapEventType: String, Codable
     case onArrival
     case failedToReroute
     case rerouteAlong
+    case onMapMove
+    case onMapMoveEnd
+    case onMapLongClick
+    case onMapClick
 }
 

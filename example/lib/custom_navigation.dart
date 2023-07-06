@@ -5,9 +5,11 @@ import 'package:demo_plugin/embedded/controller.dart';
 import 'package:demo_plugin/embedded/view.dart';
 import 'package:demo_plugin/models/direction_route.dart';
 import 'package:demo_plugin/models/options.dart';
+import 'package:demo_plugin/models/route_progress_event.dart';
 import 'package:demo_plugin/models/way_point.dart';
 import 'package:demo_plugin/views/navigation_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomNavigation extends StatefulWidget {
   const CustomNavigation({super.key});
@@ -17,12 +19,13 @@ class CustomNavigation extends StatefulWidget {
 }
 
 class _CustomNavigationState extends State<CustomNavigation> {
+  Widget instructionImage = const SizedBox.shrink();
   MapNavigationViewController? _controller;
-  late DirectionRoute? directionRoute;
+  DirectionRoute? directionRoute;
+  RouteProgressEvent? routeProgress;
   late MapOptions _navigationOption;
-  late double value = 0.0;
+  double value = 0.0;
   final _iconSize = 30;
-  late Timer _timer;
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
     WayPoint(name: "Are you arrive", latitude: 10.762528, longitude: 106.653099)
@@ -32,13 +35,6 @@ class _CustomNavigationState extends State<CustomNavigation> {
   void initState() {
     super.initState();
     initialize();
-    startTimer();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _timer.cancel();
   }
 
   void buildRoute() {
@@ -49,9 +45,9 @@ class _CustomNavigationState extends State<CustomNavigation> {
   Future<void> initialize() async {
     if (!mounted) return;
     _navigationOption = DemoPlugin.instance.getDefaultOptions();
-    _navigationOption.apiKey =
+    _navigationOption?.apiKey =
         "89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944";
-    _navigationOption.mapStyle =
+    _navigationOption?.mapStyle =
         "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
   }
 
@@ -60,16 +56,25 @@ class _CustomNavigationState extends State<CustomNavigation> {
     return Scaffold(
       body: SafeArea(
         top: false,
-        child: Center(
-          child: Stack(
-            children: [
-              _showMap(),
-              _bodyNavigate(),
-            ],
-          ),
-          // child: _test(),
-        ),
+        child: Center(child: _buildSearchRoute()),
       ),
+    );
+  }
+
+  Widget _buildSearchRoute() {
+    return Stack(
+      children: [
+        _showMap(),
+      ],
+    );
+  }
+
+  Widget _buildNavigation() {
+    return Stack(
+      children: [
+        _showMap(),
+        _bodyNavigate(),
+      ],
     );
   }
 
@@ -95,10 +100,27 @@ class _CustomNavigationState extends State<CustomNavigation> {
       onRouteBuilt: (DirectionRoute route) {
         directionRoute = route;
       },
-      onNavigationRunning: () {
-        print("here");
+      onRouteProgressChange: (RouteProgressEvent routeProgress) {
+        this.routeProgress = routeProgress;
+        _setInstructionImage(
+            routeProgress.currentModifier, routeProgress.currentModifierType);
+        value = (1 -
+            ((routeProgress.distanceRemaining?.toDouble() ?? 0.0)) /
+                (directionRoute?.distance?.toDouble() ?? 1));
+        setState(() {});
       },
     );
+  }
+
+  _setInstructionImage(String? modifier, String? type) {
+    if (modifier != null && type != null && modifier != '' && type != '') {
+      List<String> data = [
+        type.replaceAll(' ', '_'),
+        modifier.replaceAll(' ', '_')
+      ];
+      String path = 'assets/navigation_symbol/${data.join('_')}.svg';
+      instructionImage = SvgPicture.asset(path, color: Colors.white);
+    }
   }
 
   Widget _bannerTopGuide() {
@@ -111,35 +133,32 @@ class _CustomNavigationState extends State<CustomNavigation> {
           color: Colors.lightBlue, borderRadius: BorderRadius.circular(7)),
       child: Row(
         children: [
-          const Icon(
-            Icons.straight,
-            size: 50,
-            color: Colors.white,
-          ),
+          instructionImage,
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Đường Trần Phú",
-                  style: TextStyle(color: Colors.white, fontSize: 22),
+                Text(
+                  routeProgress?.currentStepInstruction ?? '',
+                  style: const TextStyle(color: Colors.white, fontSize: 22),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
                 Row(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "khoảng ",
                       style: TextStyle(color: Colors.white),
                     ),
                     Text(
-                      "200m ",
-                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      _calculateTotalDistance(
+                          routeProgress?.distanceToNextTurn),
+                      style: const TextStyle(color: Colors.white, fontSize: 20),
                       softWrap: true,
                     ),
-                    Text("sau đó", style: TextStyle(color: Colors.white)),
-                    Icon(Icons.turn_right, size: 30, color: Colors.white),
+                    const Text("sau đó", style: TextStyle(color: Colors.white)),
+                    const Icon(Icons.turn_right, size: 30, color: Colors.white),
                   ],
                 )
               ],
@@ -258,24 +277,6 @@ class _CustomNavigationState extends State<CustomNavigation> {
     );
   }
 
-  void startTimer() {
-    const oneSec = Duration(seconds: 1);
-    _timer = Timer.periodic(
-      oneSec,
-      (Timer timer) {
-        if (value >= 1) {
-          setState(() {
-            value = 0;
-          });
-        } else {
-          setState(() {
-            value += 0.01;
-          });
-        }
-      },
-    );
-  }
-
   Widget _bannerBottomGuide() {
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
@@ -291,7 +292,7 @@ class _CustomNavigationState extends State<CustomNavigation> {
                 _controller?.overview();
               },
               icon: const Icon(
-                Icons.fork_left,
+                Icons.route,
                 size: 30,
                 color: Colors.white,
               )),
@@ -300,22 +301,23 @@ class _CustomNavigationState extends State<CustomNavigation> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  "1,7 km",
+                Text(
+                  _calculateTotalDistance(routeProgress?.distanceRemaining),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 22),
+                  style: const TextStyle(color: Colors.white, fontSize: 22),
                 ),
                 RichText(
-                  text: const TextSpan(
-                    text: "3 phút",
-                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  text: TextSpan(
+                    text: _calculateEstimatedArrivalTime(),
+                    style: const TextStyle(color: Colors.white, fontSize: 17),
                     children: <TextSpan>[
-                      TextSpan(
+                      const TextSpan(
                           text: " - ",
                           style: TextStyle(color: Colors.white, fontSize: 17)),
                       TextSpan(
-                          text: "17:32",
-                          style: TextStyle(color: Colors.white, fontSize: 17)),
+                          text: _getTimeArriveRemaining(),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 17)),
                     ],
                   ),
                   textAlign: TextAlign.center,
@@ -335,5 +337,27 @@ class _CustomNavigationState extends State<CustomNavigation> {
         ],
       ),
     );
+  }
+
+  _calculateEstimatedArrivalTime() {
+    var data = routeProgress?.durationRemaining ?? 0;
+    DateTime dateTime = DateTime.now();
+    DateTime estimateArriveTime = dateTime.add(Duration(seconds: data.round()));
+    return '${estimateArriveTime.hour}:${estimateArriveTime.minute}';
+  }
+
+  _getTimeArriveRemaining() {
+    var data = routeProgress?.durationRemaining ?? 0;
+    if (data < 60) return '${data.round()} giây';
+    if (data < 3600) return '${(data / 60).round()} phút';
+    var hour = (data / 3600).round();
+    var minute = ((data - hour * 3600) / 60).round();
+    return '$hour giờ, $minute phút';
+  }
+
+  _calculateTotalDistance(double? distance) {
+    var data = distance ?? 0;
+    if (data < 1000) return '${data.round()} mét ';
+    return '${(data / 1000).toStringAsFixed(2)} km';
   }
 }

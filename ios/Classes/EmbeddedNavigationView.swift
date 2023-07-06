@@ -92,7 +92,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "finishNavigation")
             {
-                strongSelf.endNavigation(result: result)
+//                strongSelf.endNavigation(result: result)
+                strongSelf.cancelNavigation()
             }
             else if(call.method == "startFreeDrive")
             {
@@ -111,6 +112,10 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             {
                 //used to recenter map from user action during navigation
                 strongSelf.navigationMapView.setOverheadCameraView(from: strongSelf._wayPoints.first!.coordinate, along: strongSelf.coordinates ?? [], for: strongSelf.overheadInsets)
+            }
+            else if(call.method == "navigationCancelled")
+            {
+                strongSelf.cancelNavigation()
             }
             else
             {
@@ -156,11 +161,19 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
 
         if _longPressDestinationEnabled
         {
-            let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-            gesture.delegate = self
-            navigationMapView?.addGestureRecognizer(gesture)
+            let longClick = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+            longClick.delegate = self
+            navigationMapView?.addGestureRecognizer(longClick)
         }
-
+        
+        let onClick = UITapGestureRecognizer(target: self, action: #selector(handlePress(_:)))
+        onClick.delegate = self
+        navigationMapView?.addGestureRecognizer(onClick)
+        
+        let gestureRecognizers = navigationMapView.gestureRecognizers
+        for gestureRecognizer in gestureRecognizers ?? [] where !(gestureRecognizer is UILongPressGestureRecognizer) && !(gestureRecognizer is UITapGestureRecognizer) {
+            gestureRecognizer.addTarget(self, action: #selector(handlePanGesture(_:)))
+        }
     }
 
     func moveCameraToCoordinates(latitude: Double, longitude: Double) {
@@ -175,6 +188,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         strongSelf.routes = routes
         strongSelf._routes = routes
         strongSelf._wayPoints = current.routeOptions.waypoints
+        strongSelf.coordinates = current.coordinates
     }
 
     fileprivate lazy var defaultFailure: RouteRequestFailure = { [weak self] (error) in
@@ -287,7 +301,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         isEmbeddedNavigation = true
         guard let response = self.routeResponse else { return }
         
-        routeController = RouteController(along: response, locationManager: NavigationLocationManager())
+        routeController = RouteController(along: response, locationManager: self.getNavigationLocationManager(simulated: false))
         routeController?.delegate = self
         routeController?.reroutesProactively = true
         routeController?.resume()
@@ -323,6 +337,14 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         self.navigationMapView.showRoutes([(routeController?.routeProgress.route)!])
         self.navigationMapView.tracksUserCourse = true
         self.navigationMapView.recenterMap()
+        if let userInfo = notification.object as? RouteController {
+            sendEvent(eventType: MapEventType.userOffRoute, data: encodeLocation(location: (userInfo.locationManager.location?.coordinate)!))
+        }
+    }
+        
+    func cancelNavigation() {
+        routeController?.endNavigation()
+        sendEvent(eventType: MapEventType.navigationCancelled)
     }
 }
 
@@ -339,20 +361,38 @@ extension FlutterMapNavigationView : NavigationMapViewDelegate {
 }
 
 extension FlutterMapNavigationView : MGLMapViewDelegate {
-    
+    public func mapViewDidFinishLoadingMap(_ mapView: MGLMapView) {
+        sendEvent(eventType: MapEventType.mapReady)
+    }
 }
 
 extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
+        return false
     }
 
     @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .ended else { return }
         let location = navigationMapView.convert(gesture.location(in: navigationMapView), toCoordinateFrom: navigationMapView)
-        requestRoute(destination: location)
+        sendEvent(eventType: MapEventType.onMapLongClick, data: encodeLocation(location: location))
     }
+    
+    @objc func handlePress(_ gesture: UITapGestureRecognizer) {
+        guard gesture.state == .ended else { return }
+        let location = navigationMapView.convert(gesture.location(in: navigationMapView), toCoordinateFrom: navigationMapView)
+        sendEvent(eventType: MapEventType.onMapClick, data: encodeLocation(location: location))
+    }
+    
+    @objc func handlePanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
+       if gestureRecognizer.state == .began {
+          
+       } else if gestureRecognizer.state == .changed {
+           sendEvent(eventType: MapEventType.onMapMove)
+       } else if gestureRecognizer.state == .ended {
+           sendEvent(eventType: MapEventType.onMapMoveEnd)
+       }
+   }
 
     func requestRoute(destination: CLLocationCoordinate2D) {
         sendEvent(eventType: MapEventType.routeBuilding)
@@ -391,6 +431,7 @@ extension FlutterMapNavigationView: RouteControllerDelegate {
         if(canceled)
         {
            sendEvent(eventType: MapEventType.navigationCancelled)
+           sendEvent(eventType: MapEventType.navigationFinished)
         }
     }
 }
