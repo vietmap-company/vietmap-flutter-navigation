@@ -101,7 +101,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "startNavigation")
             {
-                strongSelf.startNavigationEmbedded(arguments: arguments, result: result)
+                strongSelf.startNavigationEmbedded(result: result)
             }
             else if(call.method == "recenter")
             {
@@ -116,6 +116,14 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             else if(call.method == "navigationCancelled")
             {
                 strongSelf.cancelNavigation()
+            }
+            else if(call.method == "buildAndStartNavigation")
+            {
+                strongSelf.buildAndStartNavigation(arguments: arguments, flutterResult: result)
+            }
+            else if(call.method == "mute")
+            {
+                strongSelf.mute(arguments: arguments, result: result)
             }
             else
             {
@@ -196,11 +204,12 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         strongSelf._routes = nil //clear routes from the map
     }
     
-    func buildRoute(arguments: NSDictionary?, flutterResult: @escaping FlutterResult)
+    func buildRoute(arguments: NSDictionary?, flutterResult: @escaping FlutterResult, startNavigation: Bool = false)
     {
         sendEvent(eventType: MapEventType.routeBuilding)
 
         guard let oWayPoints = arguments?["wayPoints"] as? NSDictionary else {return}
+        guard let profile = arguments?["profile"] as? String else {return}
 
         for item in oWayPoints as NSDictionary
         {
@@ -216,25 +225,26 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         }
 
         parseFlutterArguments(arguments: arguments)
-        
-        if(_wayPoints.count > 3 && arguments?["mode"] == nil)
-        {
-            _navigationMode = "driving"
-        }
 
         var mode: MBDirectionsProfileIdentifier = .automobileAvoidingTraffic
 
+        _navigationMode = profile
+        
         if (_navigationMode == "cycling")
         {
             mode = .cycling
         }
-        else if(_navigationMode == "driving")
+        else if(_navigationMode == "driving-traffic")
         {
-            mode = .automobile
+            mode = .automobileAvoidingTraffic
         }
         else if(_navigationMode == "walking")
         {
             mode = .walking
+        }
+        else if(_navigationMode == "motorcycle")
+        {
+            mode = .automobile
         }
 
         let routeOptions = NavigationRouteOptions(waypoints: _wayPoints, profileIdentifier: mode)
@@ -261,12 +271,20 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
                 strongSelf.coordinates = response.coordinates
                 strongSelf.navigationMapView.setOverheadCameraView(from: strongSelf._wayPoints.first!.coordinate, along: response.coordinates!, for: strongSelf.overheadInsets)
                 strongSelf.sendEvent(eventType: MapEventType.routeBuilt, data: encodeRoute(route: response))
+                flutterResult(true)
+                if startNavigation {
+                    strongSelf.startNavigationEmbedded(result: flutterResult)
+                }
             } else {
                 // Handle failure case
                 flutterResult(false)
                 strongSelf.sendEvent(eventType: MapEventType.routeBuildFailed)
             }
         }
+    }
+    
+    func buildAndStartNavigation(arguments: NSDictionary?, flutterResult: @escaping FlutterResult) {
+        buildRoute(arguments: arguments, flutterResult: flutterResult, startNavigation: true)
     }
     
     @objc var overheadInsets: UIEdgeInsets {
@@ -297,7 +315,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         }
     }
     
-    func startNavigationEmbedded(arguments: NSDictionary?, result: @escaping FlutterResult) {
+    func startNavigationEmbedded(result: @escaping FlutterResult) {
         isEmbeddedNavigation = true
         guard let response = self.routeResponse else { return }
         
@@ -345,6 +363,11 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     func cancelNavigation() {
         routeController?.endNavigation()
         sendEvent(eventType: MapEventType.navigationCancelled)
+    }
+    
+    func mute(arguments: NSDictionary?, result: @escaping FlutterResult) {
+        guard let muted = arguments?["isMute"] as? Bool else {return}
+        NavigationSettings.shared.voiceMuted = muted
     }
 }
 
