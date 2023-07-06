@@ -2,10 +2,12 @@ package com.example.factory
 
 //import com.mapbox.services.android.navigation.ui.v5.LocationEngineConductor
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
@@ -15,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.annotation.NonNull
+import androidx.core.app.ActivityCompat
 import com.example.demo_plugin.DemoPlugin
 import com.example.demo_plugin.R
 import com.example.models.CurrentCenterPoint
@@ -22,6 +25,8 @@ import com.example.models.VietMapEvents
 import com.example.models.VietMapLocation
 import com.example.models.VietMapRouteProgressEvent
 import com.example.utilities.PluginUtilities
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
@@ -66,10 +71,8 @@ import com.mapbox.services.android.navigation.v5.location.replay.ReplayRouteLoca
 import com.mapbox.services.android.navigation.v5.milestone.Milestone
 import com.mapbox.services.android.navigation.v5.milestone.MilestoneEventListener
 import com.mapbox.services.android.navigation.v5.milestone.VoiceInstructionMilestone
-import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
-import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigationOptions
-import com.mapbox.services.android.navigation.v5.navigation.NavigationEventListener
-import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
+import com.mapbox.services.android.navigation.v5.navigation.*
+import com.mapbox.services.android.navigation.v5.offroute.OffRouteDetector
 import com.mapbox.services.android.navigation.v5.offroute.OffRouteListener
 import com.mapbox.services.android.navigation.v5.route.FasterRouteListener
 import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener
@@ -118,7 +121,18 @@ class FlutterMapViewFactory  :
     private var currentRoute: DirectionsRoute? = null
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
-    private val navigationOptions = MapboxNavigationOptions.builder()
+    private val navigationOptions = MapboxNavigationOptions
+        .builder().maxTurnCompletionOffset(10.0)
+        .maneuverZoneRadius(40.0).maximumDistanceOffRoute(10.0)
+        .deadReckoningTimeInterval(1.0).maxManipulatedCourseAngle(25.0)
+        .userLocationSnapDistance(10.0).secondsBeforeReroute(3)
+        .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
+        .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
+        .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
+        .isFromNavigationUi(false).isDebugLoggingEnabled(false)
+        .roundingIncrement(NavigationConstants.ROUNDING_INCREMENT_FIFTY)
+        .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED)
+        .locationAcceptableAccuracyInMetersThreshold(100)
         .build()
     private var navigation: MapboxNavigation
     private var mapReady = false
@@ -134,6 +148,7 @@ class FlutterMapViewFactory  :
     private var apikey: String? = null
     private var speechPlayer: SpeechPlayer? = null
 
+    private var fusedLocationClient: FusedLocationProviderClient? = null
     constructor(
         cxt: Context,
         messenger: BinaryMessenger,
@@ -154,6 +169,7 @@ class FlutterMapViewFactory  :
         eventChannel = EventChannel(messenger, "demo_plugin/${viewId}/events")
         eventChannel.setStreamHandler(this)
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
         options = MapboxMapOptions.createFromAttributes(context)
             .compassEnabled(false)
             .logoEnabled(true)
@@ -179,7 +195,7 @@ class FlutterMapViewFactory  :
         //Config
         var initialLatitude: Double? = null
         var initialLongitude: Double? = null
-
+        var profile: String = "driving-traffic"
         val wayPoints: MutableList<Point> = mutableListOf()
         var navigationMode = DirectionsCriteria.PROFILE_DRIVING_TRAFFIC
         var simulateRoute = false
@@ -221,13 +237,6 @@ class FlutterMapViewFactory  :
 
     override fun getView(): View {
         return mapView
-//        return if (isNavigationInProgress) {
-//            println("getting navigation view")
-//            navigationView!!
-//        } else {
-//            println("getting map view")
-//            mapView
-//        }
     }
     override fun onMethodCall(methodCall: MethodCall, result: MethodChannel.Result) {
         when (methodCall.method) {
@@ -312,17 +321,21 @@ class FlutterMapViewFactory  :
                 val longitude = point["Longitude"] as Double
                 wayPoints.add(Point.fromLngLat(longitude, latitude))
             }
+            var profile: String = arguments?.get("profile") as? String ?: "driving-traffic"
             originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
             destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
 
-            getRoute(context,false)
+            fetchRouteWithBearing(false, profile)
             result.success(true)
         } else {
             result.success(false)
         }
     }
 
-    private fun buildRouteAndStartNavigation(methodCall: MethodCall, result: MethodChannel.Result) {
+    private fun buildRouteAndStartNavigation(
+        methodCall: MethodCall,
+        result: MethodChannel.Result
+    ) {
         isNavigationCanceled = false
         isNavigationInProgress = false
 
@@ -340,10 +353,11 @@ class FlutterMapViewFactory  :
                 wayPoints.add(Point.fromLngLat(longitude, latitude))
             }
 
+            var profile: String = arguments?.get("profile") as? String? ?: "driving-traffic"
             originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
             destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
 
-            getRoute(context,true)
+            fetchRouteWithBearing(true, profile)
             result.success(true)
         } else {
             result.success(false)
@@ -404,6 +418,10 @@ class FlutterMapViewFactory  :
             navigation.addMilestoneEventListener(this)
             navigation.addOffRouteListener(this)
             navigation.addProgressChangeListener(this)
+            val offRouteEngine: OffRouteDetector = OffRouteDetector()
+
+
+//            navigation.offRouteEngine =
 //            val mapboxNavigation = MapboxNavigation(context)
 //
 //            mapboxNavigation.startNavigation(currentRoute!!)
@@ -683,29 +701,43 @@ class FlutterMapViewFactory  :
             wayPoints.add(Point.fromLngLat(point.longitude, point.latitude))
 
             destinationPoint = Point.fromLngLat(point.longitude, point.latitude)
-            getRoute(context,false)
+            fetchRouteWithBearing(false, profile)
         }
 
-        private fun getRoute(context: Context,isStartNavigation:Boolean) {
+    private fun getRoute(
+        context: Context,
+        isStartNavigation: Boolean,
+        bearing: Float?,
+        profile: String
+    ) {
 
-            if (!PluginUtilities.isNetworkAvailable(context)) {
-                PluginUtilities.sendEvent(
-                    VietMapEvents.ROUTE_BUILD_FAILED,
-                    "No Internet Connection"
-                )
-                return
-            }
+        if (!PluginUtilities.isNetworkAvailable(context)) {
+            PluginUtilities.sendEvent(
+                VietMapEvents.ROUTE_BUILD_FAILED,
+                "No Internet Connection"
+            )
+            return
+        }
 
-            PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILDING)
-
-            val builder = NavigationRoute.builder(activity).apikey(apikey ?: "")
-                .origin(originPoint!!)
-                .destination(destinationPoint!!)
-                .alternatives(true)
-                .build()
+        println("Location bearing--------------==========$bearing")
+        PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILDING)
+        val br = bearing ?: 0.0
+        val builder = NavigationRoute.builder(activity).apikey(apikey ?: "")
+            .origin(originPoint!!, 60.0, br.toDouble())
+            .destination(destinationPoint!!)
+            .alternatives(true)
+            ///driving-traffic
+            ///cycling
+            ///walking
+            ///motorcycle
+            .profile(profile)
+            .build()
         builder.getRoute(object : Callback<DirectionsResponse> {
-            override fun onResponse(call: Call<DirectionsResponse?>, response: Response<DirectionsResponse?>) {
-
+            override fun onResponse(
+                call: Call<DirectionsResponse?>,
+                response: Response<DirectionsResponse?>
+            ) {
+                println(call.request().url())
                 if (response.body() == null || response.body()!!.routes().size < 1) {
                     PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, "No routes found")
                     return
@@ -954,25 +986,50 @@ class FlutterMapViewFactory  :
 
                 finishNavigation(isOffRouted = true)
 
-                moveCamera(LatLng(it.latitude(), it.longitude()),null)
+                moveCamera(LatLng(it.latitude(), it.longitude()), null)
 
-                PluginUtilities.sendEvent(VietMapEvents.USER_OFF_ROUTE,
+                PluginUtilities.sendEvent(
+                    VietMapEvents.USER_OFF_ROUTE,
                     VietMapLocation(
                         latitude = it.latitude(),
                         longitude = it.longitude()
-                    ).toString())
+                    ).toString()
+                )
 
             }
 
-            PluginUtilities.sendEvent(VietMapEvents.USER_OFF_ROUTE,
+            PluginUtilities.sendEvent(
+                VietMapEvents.USER_OFF_ROUTE,
                 VietMapLocation(
                     latitude = offRoutePoint?.latitude(),
                     longitude = offRoutePoint?.longitude()
-                ).toString())
+                ).toString()
+            )
 
             originPoint = offRoutePoint
             isNavigationInProgress = true
-            getRoute(context,false)
+            fetchRouteWithBearing(false, profile)
+        }
+    }
+
+    private fun fetchRouteWithBearing(isStartNavigation: Boolean, profile: String) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener(
+                activity
+            ) { location: Location? ->
+                if (location != null) {
+                    getRoute(context, isStartNavigation, location.bearing, profile)
+                }
+            }
+        } else {
+            getRoute(context, isStartNavigation, null, profile)
         }
     }
 
