@@ -127,7 +127,7 @@ Các hàm thường sử dụng
 
           /// Hàm tìm đường và bắt đầu dẫn đường khi tìm được đường đi
             _controller?.buildAndStartNavigation(
-                wayPoints: wayPoints,
+                wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
                 profile: DrivingProfile.drivingTraffic);
           
           /// Hàm về giữa
