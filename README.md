@@ -4,15 +4,19 @@ Vietmap Flutter navigation
 ## Lưu ý:
 Key được Vietmap cung cấp trong tài liệu này là key thử nghiệm, Vietmap có thể thu hồi bất cứ lúc nào.
 
-Liên hệ [vietmap.vn](https://vietmap.vn) để đăng kí key và sử dụng.
-### 89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944
+Liên hệ [vietmap.vn](https://vietmap.vn) để đăng kí key hợp lệ.
 
+```
+ 89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944
+```
 ## Getting Started
 
 Thêm thư viện vào file pubspec.yaml
 ```yaml
   vietmap_flutter_navigation: latest_version
 ```
+
+Kiểm tra phiên bản của thư viện tại [https://pub.dev/packages/vietmap_flutter_navigation](https://pub.dev/packages/vietmap_flutter_navigation)
 
 ### Android config
 
@@ -41,8 +45,7 @@ allprojects {
 
 ### iOS config
 Thêm đoạn code sau vào file Info.plist
-```plist
-
+```
 	<key>VietMapAPIBaseURL</key>
 	<string>https://maps.vietmap.vn/api/navigations/route/</string>
 	<key>VietMapAccessToken</key>
