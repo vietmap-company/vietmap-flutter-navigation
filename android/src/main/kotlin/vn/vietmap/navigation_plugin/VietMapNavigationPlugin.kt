@@ -11,7 +11,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.*
 import io.flutter.plugin.platform.PlatformViewRegistry
 
-/** DemoPlugin */
+/** VietMapNavigationPlugin */
 class VietMapNavigationPlugin : FlutterPlugin , ActivityAware,EventChannel.StreamHandler
     {
     /// The MethodChannel that will the communication between Flutter and native Android
@@ -25,9 +25,9 @@ class VietMapNavigationPlugin : FlutterPlugin , ActivityAware,EventChannel.Strea
     private lateinit var currentContext: Context
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         val messenger = flutterPluginBinding.binaryMessenger
-        channel = MethodChannel(messenger, "demo_plugin")
+        channel = MethodChannel(messenger, "navigation_plugin")
 
-        progressEventChannel = EventChannel(messenger, "demo_plugin/events")
+        progressEventChannel = EventChannel(messenger, "navigation_plugin/events")
         progressEventChannel.setStreamHandler(this)
 
         platformViewRegistry = flutterPluginBinding.platformViewRegistry

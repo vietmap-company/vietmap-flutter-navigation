@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/embedded/view.dart';
 import 'package:vietmap_flutter_navigation/models/direction_route.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -44,7 +45,7 @@ class _CustomNavigationState extends State<CustomNavigation> {
 
   Future<void> initialize() async {
     if (!mounted) return;
-    _navigationOption = DemoPlugin.instance.getDefaultOptions();
+    _navigationOption = VietMapNavigationPlugin.instance.getDefaultOptions();
     _navigationOption?.apiKey =
         "89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944";
     _navigationOption?.mapStyle =

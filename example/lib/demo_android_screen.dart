@@ -1,8 +1,9 @@
 import 'dart:developer';
 
-import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/embedded/view.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 import 'package:vietmap_flutter_navigation/views/banner_instruction.dart';
 import 'package:vietmap_flutter_navigation/views/bottom_action.dart';
@@ -35,7 +36,7 @@ class DemoAndroidScreen extends StatefulWidget {
 class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
-  final _demoPlugin = DemoPlugin();
+  final _demoPlugin = VietMapNavigationPlugin();
 
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),

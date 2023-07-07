@@ -7,7 +7,7 @@ import 'package:vietmap_flutter_navigation/models/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'demo_plugin_platform_interface.dart';
+import 'navigation_plugin_platform_interface.dart';
 import 'models/navmode.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
@@ -18,10 +18,10 @@ import 'models/way_point.dart';
 class MethodChannelDemoPlugin extends DemoPluginPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final methodChannel = const MethodChannel('demo_plugin');
+  final methodChannel = const MethodChannel('navigation_plugin');
 
   @visibleForTesting
-  final eventChannel = const EventChannel('demo_plugin/events');
+  final eventChannel = const EventChannel('navigation_plugin/events');
 
   late StreamSubscription<RouteEvent> _routeEventSubscription;
   late ValueSetter<RouteEvent>? _onRouteEvent;

@@ -57,8 +57,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         self.arguments = args as! NSDictionary?
 
         self.messenger = messenger
-        self.channel = FlutterMethodChannel(name: "demo_plugin/\(viewId)", binaryMessenger: messenger)
-        self.eventChannel = FlutterEventChannel(name: "demo_plugin/\(viewId)/events", binaryMessenger: messenger)
+        self.channel = FlutterMethodChannel(name: "navigation_plugin/\(viewId)", binaryMessenger: messenger)
+        self.eventChannel = FlutterEventChannel(name: "navigation_plugin/\(viewId)/events", binaryMessenger: messenger)
 
         super.init()
 

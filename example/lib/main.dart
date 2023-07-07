@@ -12,8 +12,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:vietmap_flutter_navigation/embedded/view.dart';
 import 'package:flutter/services.dart';
-import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -32,7 +33,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  final _demoPlugin = DemoPlugin();
+  final _demoPlugin = VietMapNavigationPlugin();
   final _toLatLngController = TextEditingController();
   final _fromLatLngController = TextEditingController();
   bool isCustomizeUI = false;
@@ -58,17 +59,17 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    _navigationOption = DemoPlugin.instance.getDefaultOptions();
+    _navigationOption = VietMapNavigationPlugin.instance.getDefaultOptions();
     _navigationOption.simulateRoute = true;
     //_navigationOption.initialLatitude = 36.1175275;
     //_navigationOption.initialLongitude = -115.1839524;
-    DemoPlugin.instance.registerRouteEventListener(_onEmbeddedRouteEvent);
-    DemoPlugin.instance.setDefaultOptions(_navigationOption);
+    VietMapNavigationPlugin.instance.registerRouteEventListener(_onEmbeddedRouteEvent);
+    VietMapNavigationPlugin.instance.setDefaultOptions(_navigationOption);
 
     String? platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await DemoPlugin.instance.getPlatformVersion();
+      platformVersion = await VietMapNavigationPlugin.instance.getPlatformVersion();
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -151,7 +152,7 @@ class _MyAppState extends State<MyApp> {
       longPressDestinationEnabled: false,
       language: 'vi',
     );
-    var result = DemoPlugin.instance.startNavigation(wayPoints, options!);
+    var result = VietMapNavigationPlugin.instance.startNavigation(wayPoints, options!);
   }
 
   @override
@@ -290,8 +291,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _onEmbeddedRouteEvent(e) async {
-    _distanceRemaining = await DemoPlugin.instance.getDistanceRemaining();
-    _durationRemaining = await DemoPlugin.instance.getDurationRemaining();
+    _distanceRemaining = await VietMapNavigationPlugin.instance.getDistanceRemaining();
+    _durationRemaining = await VietMapNavigationPlugin.instance.getDurationRemaining();
 
     switch (e.eventType) {
       case MapEvent.progressChange:

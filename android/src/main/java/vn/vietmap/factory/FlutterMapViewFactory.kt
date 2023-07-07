@@ -164,8 +164,8 @@ class FlutterMapViewFactory  :
             if (arguments != null)
                 setOptions(arguments)
 
-        methodChannel = MethodChannel(messenger, "demo_plugin/${viewId}")
-        eventChannel = EventChannel(messenger, "demo_plugin/${viewId}/events")
+        methodChannel = MethodChannel(messenger, "navigation_plugin/${viewId}")
+        eventChannel = EventChannel(messenger, "navigation_plugin/${viewId}/events")
         eventChannel.setStreamHandler(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)

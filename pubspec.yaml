@@ -40,7 +40,7 @@ flutter:
         package: vn.vietmap.navigation_plugin
         pluginClass: VietMapNavigationPlugin
       ios:
-        pluginClass: DemoPlugin
+        pluginClass: VietMapNavigationPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
