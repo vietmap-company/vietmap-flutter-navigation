@@ -1,11 +1,11 @@
-import 'package:demo_plugin/models/options.dart';
-import 'package:demo_plugin/models/route_event.dart';
-import 'package:demo_plugin/models/way_point.dart';
+import 'package:vietmap_flutter_navigation/models/options.dart';
+import 'package:vietmap_flutter_navigation/models/route_event.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/src/foundation/basic_types.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:demo_plugin/demo_plugin.dart';
-import 'package:demo_plugin/demo_plugin_platform_interface.dart';
-import 'package:demo_plugin/demo_plugin_method_channel.dart';
+import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+import 'package:vietmap_flutter_navigation/demo_plugin_platform_interface.dart';
+import 'package:vietmap_flutter_navigation/demo_plugin_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockDemoPluginPlatform

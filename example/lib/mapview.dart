@@ -1,7 +1,7 @@
-import 'package:demo_plugin/demo_plugin.dart';
-import 'package:demo_plugin/embedded/controller.dart';
-import 'package:demo_plugin/embedded/view.dart';
-import 'package:demo_plugin/models/options.dart';
+import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+import 'package:vietmap_flutter_navigation/embedded/controller.dart';
+import 'package:vietmap_flutter_navigation/embedded/view.dart';
+import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:flutter/material.dart';
 
 class VietMapView extends StatefulWidget {
@@ -85,8 +85,7 @@ class _MapViewState extends State<VietMapView> {
     );
   }
 
-  Future<void> _onEmbeddedRouteEvent(e) async {
-  }
+  Future<void> _onEmbeddedRouteEvent(e) async {}
 
   void _startNavigation() {
     _controller?.startNavigation(options: _navigationOption);

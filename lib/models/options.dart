@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
-import 'package:demo_plugin/models/voice_units.dart';
+import 'package:vietmap_flutter_navigation/models/voice_units.dart';
 import 'package:flutter/widgets.dart';
 
 import 'navmode.dart';

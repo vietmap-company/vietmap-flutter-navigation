@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:demo_plugin/models/options.dart';
-import 'package:demo_plugin/models/route_event.dart';
+import 'package:vietmap_flutter_navigation/models/options.dart';
+import 'package:vietmap_flutter_navigation/models/route_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

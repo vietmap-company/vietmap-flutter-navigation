@@ -16,7 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  demo_plugin:
+  vietmap_flutter_navigation:
     # When depending on this package from a real application you should use:
     #   demo_plugin: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints

@@ -1,7 +1,8 @@
-name: demo_plugin
-description: A new Flutter project.
-version: 0.0.1
-homepage:
+name: vietmap_flutter_navigation
+description: Vietmap flutter navigation
+version: 0.0.1-beta-4
+homepage: https://vietmap.vn
+repository: https://github.com/vietmap-company/vietmap-flutter-navigation
 
 environment:
   sdk: '>=2.19.0 <4.0.0'
@@ -36,8 +37,8 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.demo_plugin
-        pluginClass: DemoPlugin
+        package: vn.vietmap.navigation_plugin
+        pluginClass: VietMapNavigationPlugin
       ios:
         pluginClass: DemoPlugin
 
