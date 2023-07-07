@@ -1,6 +1,6 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'demo_plugin_method_channel.dart';
+import 'navigation_plugin_method_channel.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
 import 'models/way_point.dart';

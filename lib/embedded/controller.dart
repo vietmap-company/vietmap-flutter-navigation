@@ -26,10 +26,10 @@ class MapNavigationViewController {
   late StreamSubscription<RouteEvent> _routeEventSubscription;
 
   MapNavigationViewController(int id, ValueSetter<RouteEvent>? eventNotifier) {
-    _methodChannel = MethodChannel('demo_plugin/$id');
+    _methodChannel = MethodChannel('navigation_plugin/$id');
     _methodChannel.setMethodCallHandler(_handleMethod);
 
-    _eventChannel = EventChannel('demo_plugin/$id/events');
+    _eventChannel = EventChannel('navigation_plugin/$id/events');
     _routeEventNotifier = eventNotifier;
   }
 

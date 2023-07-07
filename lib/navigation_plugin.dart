@@ -1,4 +1,4 @@
-import 'demo_plugin_platform_interface.dart';
+import 'navigation_plugin_platform_interface.dart';
 import 'models/navmode.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
@@ -6,11 +6,11 @@ import 'models/voice_units.dart';
 import 'models/way_point.dart';
 import 'package:flutter/widgets.dart';
 
-class DemoPlugin {
-  static final DemoPlugin _instance = DemoPlugin();
+class VietMapNavigationPlugin {
+  static final VietMapNavigationPlugin _instance = VietMapNavigationPlugin();
 
   /// get current instance of this class
-  static DemoPlugin get instance => _instance;
+  static VietMapNavigationPlugin get instance => _instance;
 
   MapOptions _defaultOptions = MapOptions(
     apiKey: '',

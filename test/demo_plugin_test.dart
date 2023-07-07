@@ -3,9 +3,9 @@ import 'package:vietmap_flutter_navigation/models/route_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/src/foundation/basic_types.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vietmap_flutter_navigation/demo_plugin.dart';
-import 'package:vietmap_flutter_navigation/demo_plugin_platform_interface.dart';
-import 'package:vietmap_flutter_navigation/demo_plugin_method_channel.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin_platform_interface.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockDemoPluginPlatform
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    DemoPlugin demoPlugin = DemoPlugin();
+    VietMapNavigationPlugin demoPlugin = VietMapNavigationPlugin();
     MockDemoPluginPlatform fakePlatform = MockDemoPluginPlatform();
     DemoPluginPlatform.instance = fakePlatform;
 

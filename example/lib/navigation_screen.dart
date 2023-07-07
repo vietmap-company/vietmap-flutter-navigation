@@ -1,4 +1,4 @@
-import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/embedded/view.dart';
 import 'package:vietmap_flutter_navigation/models/events.dart';
@@ -7,6 +7,7 @@ import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
@@ -25,7 +26,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   bool _inFreeDrive = false;
   String _platformVersion = 'Unknown';
   late MapOptions _navigationOption;
-  final _demoPlugin = DemoPlugin();
+  final _demoPlugin = VietMapNavigationPlugin();
   String? _instruction;
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),

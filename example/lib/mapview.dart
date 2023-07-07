@@ -1,8 +1,9 @@
-import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/embedded/view.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:flutter/material.dart';
+import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 
 class VietMapView extends StatefulWidget {
   const VietMapView({super.key});
@@ -37,7 +38,7 @@ class _MapViewState extends State<VietMapView> {
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
-    _navigationOption = DemoPlugin.instance.getDefaultOptions();
+    _navigationOption = VietMapNavigationPlugin.instance.getDefaultOptions();
   }
 
   @override

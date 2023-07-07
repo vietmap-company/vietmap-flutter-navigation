@@ -61,7 +61,7 @@ class DemoAndroidScreen extends StatefulWidget {
 class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
-  final _demoPlugin = DemoPlugin();
+  final _demoPlugin = VietMapNavigationPlugin();
 
   List<WayPoint> wayPoints = [
     WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
