@@ -41,7 +41,7 @@ class VietMapNavigationPlugin : FlutterPlugin , ActivityAware,EventChannel.Strea
         var platformViewRegistry: PlatformViewRegistry? = null
         var binaryMessenger: BinaryMessenger? = null
 
-        var viewId = "DemoPluginView"
+        var viewId = "VietMapNavigationPluginView"
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {

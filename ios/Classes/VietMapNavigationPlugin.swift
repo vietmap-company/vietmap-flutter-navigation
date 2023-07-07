@@ -11,7 +11,7 @@ public class VietMapNavigationPlugin:  NavigationFactory, FlutterPlugin {
         eventChannel.setStreamHandler(instance)
         
         let viewFactory = FlutterMapNavigationViewFactory(messenger: registrar.messenger())
-        registrar.register(viewFactory, withId: "DemoPluginView")
+        registrar.register(viewFactory, withId: "VietMapNavigationPluginView")
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

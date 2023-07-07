@@ -25,7 +25,7 @@ class MapNavigationView extends StatelessWidget {
   final OnNavigationViewCreatedCallBack? onCreated;
   final ValueSetter<RouteEvent>? onRouteEvent;
 
-  static const String viewType = 'DemoPluginView';
+  static const String viewType = 'VietMapNavigationPluginView';
 
   const MapNavigationView(
       {super.key, required this.options, this.onCreated, this.onRouteEvent});
