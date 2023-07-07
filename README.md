@@ -10,9 +10,10 @@ Vietmap Flutter navigation
 
 Thêm thư viện vào file pubspec.yaml
 ```yaml
-
-  vietmap_flutter_navigation: 
-    git: https://github.com/vietmap-company/vietmap-flutter-navigation
+  vietmap_flutter_navigation:
+    git:
+      url: https://github.com/vietmap-company/vietmap-flutter-navigation
+      ref: beta-2
 ```
 
 ### Android config
