@@ -55,14 +55,16 @@ Thêm đoạn code sau vào file Info.plist
 
 ```dart
 
-class DemoAndroidScreen extends StatefulWidget {
-  const DemoAndroidScreen({super.key});
+class VietmapNavigationScreen extends StatefulWidget {
+  const VietmapNavigationScreen({super.key, this.to, this.from});
 
+  final LatLng? to;
+  final LatLng? from;
   @override
-  State<DemoAndroidScreen> createState() => _DemoAndroidScreenState();
+  State<VietmapNavigationScreen> createState() => _VietmapNavigationScreenState();
 }
 
-class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
+class _VietmapNavigationScreenState extends State<VietmapNavigationScreen> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
   final _demoPlugin = DemoPlugin();
@@ -94,11 +96,12 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
     _navigationOption = _demoPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
     _navigationOption.isCustomizeUI = true;
-    // This is demo key, to get a valid key, contact https://vietmap.vn/maps-api
+
     _navigationOption.apiKey =
         '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
         "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
+    // 'https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm';
 
     _demoPlugin.setDefaultOptions(_navigationOption);
   }
@@ -109,12 +112,30 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
+        top: false,
         child: Stack(
           children: [
             NavigationView(
               mapOptions: _navigationOption,
               onMapCreated: (p0) {
                 _controller = p0;
+
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                  await Future.delayed(const Duration(milliseconds: 1000));
+                  var listWaypoint = <WayPoint>[];
+                  listWaypoint.add(WayPoint(
+                      name: '',
+                      latitude: widget.from?.latitude,
+                      longitude: widget.from?.longitude));
+
+                  listWaypoint.add(WayPoint(
+                      name: '',
+                      latitude: widget.to?.latitude,
+                      longitude: widget.to?.longitude));
+                  _controller?.buildAndStartNavigation(
+                      wayPoints: listWaypoint,
+                      profile: DrivingProfile.drivingTraffic);
+                });
               },
               onMapMove: () => _showRecenterButton(),
               onRouteBuilt: (p0) {
@@ -122,37 +143,6 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                   EasyLoading.dismiss();
                   _isRouteBuilt = true;
                 });
-              },
-              onMapLongClick: (WayPoint? point) async {
-                EasyLoading.show();
-                var data =
-                    await GetLocationFromLatLngUseCase(VietmapApiRepositories())
-                        .call(LocationPoint(
-                            lat: point?.latitude ?? 0,
-                            long: point?.longitude ?? 0));
-                EasyLoading.dismiss();
-                data.fold((l) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Có lỗi xảy ra')));
-                }, (r) => _showBottomSheetInfo(r));
-              },
-              onMapClick: (WayPoint? point) async {
-                if (focusNode.hasFocus) {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  return;
-                }
-                EasyLoading.show();
-                var data =
-                    await GetLocationFromLatLngUseCase(VietmapApiRepositories())
-                        .call(LocationPoint(
-                            lat: point?.latitude ?? 0,
-                            long: point?.longitude ?? 0));
-                EasyLoading.dismiss();
-                data.fold((l) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content:
-                          Text('Không tìm thấy địa điểm gần vị trí bạn chọn')));
-                }, (r) => _showBottomSheetInfo(r));
               },
               onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
                 setState(() {
@@ -171,7 +161,7 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
               },
             ),
             Positioned(
-                top: 0,
+                top: MediaQuery.of(context).viewPadding.top,
                 left: 0,
                 child: BannerInstructionView(
                   routeProgressEvent: routeProgressEvent,
@@ -186,58 +176,6 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                   onStopNavigationCallback: _onStopNavigation,
                   routeProgressEvent: routeProgressEvent,
                 )),
-            _isRunning
-                ? const SizedBox.shrink()
-                : Positioned(
-                    top: 30,
-                    child: FloatingSearchBar(
-                      focusNode: focusNode,
-                      onSearchItemClick: (p0) async {
-                        EasyLoading.show();
-                        VietmapPlaceModel? data;
-                        var res = await GetPlaceDetailUseCase(
-                                VietmapApiRepositories())
-                            .call(p0.refId ?? '');
-                        res.fold((l) {
-                          EasyLoading.dismiss();
-                          return;
-                        }, (r) {
-                          data = r;
-                        });
-                        wayPoints.clear();
-                        var location = await Geolocator.getCurrentPosition();
-                        wayPoints.add(WayPoint(
-                            name: 'destination',
-                            latitude: location.latitude,
-                            longitude: location.longitude));
-                        if (data?.lat != null) {
-                          wayPoints.add(WayPoint(
-                              name: '',
-                              latitude: data?.lat,
-                              longitude: data?.lng));
-                        }
-                        _controller?.buildRoute(wayPoints: wayPoints);
-                      },
-                    )),
-            _isRouteBuilt && !_isRunning
-                ? Positioned(
-                    bottom: 20,
-                    left: MediaQuery.of(context).size.width / 2 - 25,
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                    side:
-                                        const BorderSide(color: Colors.blue)))),
-                        onPressed: () {
-                          _isRunning = true;
-                          _controller?.startNavigation();
-                        },
-                        child: const Text('Bắt đầu')),
-                  )
-                : const SizedBox.shrink()
           ],
         ),
       ),
@@ -287,58 +225,11 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   }
 
   _onStopNavigation() {
+    Navigator.pop(context);
     setState(() {
       routeProgressEvent = null;
       _isRunning = false;
     });
   }
-
-  _showBottomSheetInfo(VietmapReverseModel data) {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (_) => AddressInfo(
-              data: data,
-              buildRoute: () async {
-                EasyLoading.show();
-                wayPoints.clear();
-                var location = await Geolocator.getCurrentPosition();
-
-                wayPoints.add(WayPoint(
-                    name: 'destination',
-                    latitude: location.latitude,
-                    longitude: location.longitude));
-                if (data.lat != null) {
-                  wayPoints.add(WayPoint(
-                      name: '', latitude: data.lat, longitude: data.lng));
-                }
-                _controller?.buildRoute(wayPoints: wayPoints);
-                if (!mounted) return;
-                Navigator.pop(context);
-              },
-              buildAndStartRoute: () async {
-                EasyLoading.show();
-                wayPoints.clear();
-                var location = await Geolocator.getCurrentPosition();
-                wayPoints.add(WayPoint(
-                    name: 'destination',
-                    latitude: location.latitude,
-                    longitude: location.longitude));
-                if (data.lat != null) {
-                  wayPoints.add(WayPoint(
-                      name: '', latitude: data.lat, longitude: data.lng));
-                }
-                _controller?.buildAndStartNavigation(
-                    wayPoints: wayPoints,
-                    profile: DrivingProfile.drivingTraffic);
-                setState(() {
-                  _isRunning = true;
-                });
-                if (!mounted) return;
-                Navigator.pop(context);
-              },
-            ));
-  }
 }
-
 ```
