@@ -55,22 +55,48 @@ Thêm đoạn code sau vào file Info.plist
 ```
 ### Demo code
 
+
+Cấu hình dẫn đường
+```dart
+  late MapOptions _navigationOption;
+  final _vietmapNavigationPlugin = VietMapNavigationPlugin();
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    if (!mounted) return;
+    _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
+    _navigationOption.simulateRoute = false;
+    _navigationOption.isCustomizeUI = true;
+
+    _navigationOption.apiKey =
+        '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
+    _navigationOption.mapStyle =
+        "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
+
+    _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
+  }
+```
+
 Hiển thị Navigation view, bao gồm bản đồ và đường đi, điều hướng dẫn đường
 ```dart
-            NavigationView(
-              mapOptions: _navigationOption,
-              onMapCreated: (controller) {
-                _controller = controller;
-              },
+          NavigationView(
+            mapOptions: _navigationOption,
+            onMapCreated: (controller) {
+              _controller = controller;
+            },
 
-              onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
-                setState(() {
-                  this.routeProgressEvent = routeProgressEvent;
-                });
-                _setInstructionImage(routeProgressEvent.currentModifier,
-                    routeProgressEvent.currentModifierType);
-              },
-            ),
+            onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
+              setState(() {
+                this.routeProgressEvent = routeProgressEvent;
+              });
+              _setInstructionImage(routeProgressEvent.currentModifier,
+                  routeProgressEvent.currentModifierType);
+            },
+          ),
 ```
 
 
@@ -90,6 +116,31 @@ Thêm các nút như xem tổng quan đường đi, về giữa để điều h�
               onStopNavigationCallback: _onStopNavigation,
               routeProgressEvent: routeProgressEvent,
             )
+```
+Các hàm thường sử dụng
+```dart
+          /// Tìm đường mới từ 2 điểm
+            _controller?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
+
+          /// Bắt đầu dẫn đường, gọi sau khi đã gọi hàm buildRoute phía trên
+            _controller?.startNavigation();
+
+          /// Hàm tìm đường và bắt đầu dẫn đường khi tìm được đường đi
+            _controller?.buildAndStartNavigation(
+                wayPoints: wayPoints,
+                profile: DrivingProfile.drivingTraffic);
+          
+          /// Hàm về giữa
+          _controller?.recenter();
+
+          /// Hàm xem tổng quát đường đi
+          _controller?.overview();
+
+          /// Hàm tắt tiếng khi dẫn đường
+          _controller?.mute();
+
+          /// Hàm kết thúc dẫn đường
+          _controller?.finishNavigation();
 ```
 Code mẫu màn hình dẫn đường
 ```dart
