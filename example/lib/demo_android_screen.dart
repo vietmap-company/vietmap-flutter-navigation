@@ -177,6 +177,12 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                         });
                         wayPoints.clear();
                         var location = await Geolocator.getCurrentPosition();
+
+                        print('-----------------------------------------');
+                        print(location.heading);
+                        print('Location bearing');
+                        log(location.heading.toString());
+                        print('-----------------------------------------');
                         wayPoints.add(WayPoint(
                             name: 'destination',
                             latitude: location.latitude,
@@ -276,6 +282,11 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                 wayPoints.clear();
                 var location = await Geolocator.getCurrentPosition();
 
+                print('-----------------------------------------');
+                print(location.heading);
+                print('Location bearing');
+                log(location.heading.toString());
+                print('-----------------------------------------');
                 wayPoints.add(WayPoint(
                     name: 'destination',
                     latitude: location.latitude,

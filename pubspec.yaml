@@ -37,8 +37,8 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.demo_plugin
-        pluginClass: DemoPlugin
+        package: vn.vietmap.navigation_plugin
+        pluginClass: VietMapNavigationPlugin
       ios:
         pluginClass: DemoPlugin
 
