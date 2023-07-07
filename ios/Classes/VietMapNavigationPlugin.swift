@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import VietMap
 
-public class DemoPlugin:  NavigationFactory, FlutterPlugin {
+public class VietMapNavigationPlugin:  NavigationFactory, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "navigation_plugin", binaryMessenger: registrar.messenger())
         let eventChannel = FlutterEventChannel(name: "navigation_plugin/events", binaryMessenger: registrar.messenger())
