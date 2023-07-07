@@ -1,4 +1,4 @@
-# demo_plugin
+# Vietmap Flutter navigation
 
 Vietmap Flutter navigation
 

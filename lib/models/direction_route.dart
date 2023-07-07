@@ -21,7 +21,7 @@ class DirectionRoute {
       this.voiceLocale});
 
   DirectionRoute.fromJson(Map<String, dynamic> json) {
-    print(json);
+
     routeIndex = json['routeIndex'];
     distance = json['distance'];
     duration = json['duration'];

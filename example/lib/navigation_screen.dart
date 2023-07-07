@@ -122,7 +122,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
               Expanded(
                 child: CheckboxListTile(
                     value: _navigationOption.simulateRoute,
-                    title: Text('SimulateRoute'),
+                    title: const Text('SimulateRoute'),
                     onChanged: (value) {
                       setState(() {
                         _navigationOption.simulateRoute = value;

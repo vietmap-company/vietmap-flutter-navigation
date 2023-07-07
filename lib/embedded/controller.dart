@@ -9,7 +9,6 @@ import 'package:vietmap_flutter_navigation/models/method_channel_event.dart';
 import 'package:vietmap_flutter_navigation/models/navmode.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:vietmap_flutter_navigation/models/route_event.dart';
-import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
