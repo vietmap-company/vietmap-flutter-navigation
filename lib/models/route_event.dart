@@ -35,6 +35,8 @@ class RouteEvent {
       } else {
         data = jsonEncode(dataJson);
       }
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
   }
 }

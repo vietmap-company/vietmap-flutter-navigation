@@ -1,14 +1,17 @@
 # Vietmap Flutter navigation
 
 Vietmap Flutter navigation
+## Lưu ý:
+Key được Vietmap cung cấp trong tài liệu này là key thử nghiệm, Vietmap có thể thu hồi bất cứ lúc nào.
+
+Liên hệ [vietmap.vn](https://vietmap.vn) để đăng kí key và sử dụng.
+### 89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944
 
 ## Getting Started
 
 Thêm thư viện vào file pubspec.yaml
 ```yaml
-
-  vietmap_flutter_navigation: 
-    git: https://github.com/vietmap-company/vietmap-flutter-navigation
+  vietmap_flutter_navigation: latest_version
 ```
 
 ### Android config
@@ -49,23 +52,62 @@ Thêm đoạn code sau vào file Info.plist
 ```
 ### Demo code
 
+Hiển thị Navigation view, bao gồm bản đồ và đường đi, điều hướng dẫn đường
+```dart
+            NavigationView(
+              mapOptions: _navigationOption,
+              onMapCreated: (controller) {
+                _controller = controller;
+              },
+
+              onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
+                setState(() {
+                  this.routeProgressEvent = routeProgressEvent;
+                });
+                _setInstructionImage(routeProgressEvent.currentModifier,
+                    routeProgressEvent.currentModifierType);
+              },
+            ),
+```
+
+
+Thêm banner widget chỉ dẫn điều hướng 
+```dart
+            BannerInstructionView(
+              routeProgressEvent: routeProgressEvent,
+              instructionIcon: instructionImage,
+            )
+```
+Thêm các nút như xem tổng quan đường đi, về giữa để điều hướng dẫn đường
+```dart
+            BottomActionView(
+              recenterButton: recenterButton,
+              controller: _controller,
+              onOverviewCallback: _showRecenterButton,
+              onStopNavigationCallback: _onStopNavigation,
+              routeProgressEvent: routeProgressEvent,
+            )
+```
+Code mẫu màn hình dẫn đường
 ```dart
 
-class DemoAndroidScreen extends StatefulWidget {
-  const DemoAndroidScreen({super.key});
+class VietMapNavigationScreen extends StatefulWidget {
+  const VietMapNavigationScreen({super.key});
 
   @override
-  State<DemoAndroidScreen> createState() => _DemoAndroidScreenState();
+  State<VietMapNavigationScreen> createState() =>
+      _VietMapNavigationScreenState();
 }
 
-class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
+class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
-  final _demoPlugin = VietMapNavigationPlugin();
+  final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
   List<WayPoint> wayPoints = [
-    WayPoint(name: "You are here", latitude: 10.759091, longitude: 106.675817),
-    WayPoint(name: "You are here", latitude: 10.762528, longitude: 106.653099)
+    WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
+    WayPoint(
+        name: "destination point", latitude: 10.762528, longitude: 106.653099)
   ];
   Widget instructionImage = const SizedBox.shrink();
   String guideDirection = "";
@@ -82,21 +124,18 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   }
 
   Future<void> initialize() async {
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    _navigationOption = _demoPlugin.getDefaultOptions();
+    _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
     _navigationOption.isCustomizeUI = true;
-    // This is demo key, to get a valid key, contact https://vietmap.vn/maps-api
+
     _navigationOption.apiKey =
         '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
         "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
 
-    _demoPlugin.setDefaultOptions(_navigationOption);
+    _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 
   MapOptions? options;
@@ -283,6 +322,7 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   }
 
   _onStopNavigation() {
+    Navigator.pop(context);
     setState(() {
       routeProgressEvent = null;
       _isRunning = false;
@@ -300,6 +340,11 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
                 wayPoints.clear();
                 var location = await Geolocator.getCurrentPosition();
 
+                print('-----------------------------------------');
+                print(location.heading);
+                print('Location bearing');
+                log(location.heading.toString());
+                print('-----------------------------------------');
                 wayPoints.add(WayPoint(
                     name: 'destination',
                     latitude: location.latitude,
