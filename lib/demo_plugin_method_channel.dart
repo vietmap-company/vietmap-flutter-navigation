@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:demo_plugin/models/events.dart';
+import 'package:vietmap_flutter_navigation/models/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 

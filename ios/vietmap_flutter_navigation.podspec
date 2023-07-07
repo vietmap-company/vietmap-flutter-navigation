@@ -3,11 +3,11 @@
 # Run `pod lib lint demo_plugin.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'demo_plugin'
+  s.name             = 'vietmap_flutter_navigation'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter project.'
+  s.summary          = 'Vietmap flutter navigation.'
   s.description      = <<-DESC
-A new Flutter project.
+Vietmap flutter navigation.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }

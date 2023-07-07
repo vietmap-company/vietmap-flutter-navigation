@@ -1,18 +1,18 @@
-import 'package:demo_plugin/embedded/controller.dart';
-import 'package:demo_plugin/models/events.dart';
-import 'package:demo_plugin/models/navmode.dart';
-import 'package:demo_plugin/models/options.dart';
-import 'package:demo_plugin/models/route_progress_event.dart';
-import 'package:demo_plugin/models/voice_units.dart';
-import 'package:demo_plugin/models/way_point.dart';
+import 'package:vietmap_flutter_navigation/embedded/controller.dart';
+import 'package:vietmap_flutter_navigation/models/events.dart';
+import 'package:vietmap_flutter_navigation/models/navmode.dart';
+import 'package:vietmap_flutter_navigation/models/options.dart';
+import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
+import 'package:vietmap_flutter_navigation/models/voice_units.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:demo_plugin_example/demo_android_screen.dart';
 import 'package:demo_plugin_example/custom_navigation.dart';
 import 'package:demo_plugin_example/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:demo_plugin/embedded/view.dart';
+import 'package:vietmap_flutter_navigation/embedded/view.dart';
 import 'package:flutter/services.dart';
-import 'package:demo_plugin/demo_plugin.dart';
+import 'package:vietmap_flutter_navigation/demo_plugin.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() {

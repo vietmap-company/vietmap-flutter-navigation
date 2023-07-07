@@ -257,7 +257,7 @@ class DemoPlugin : FlutterPlugin, MethodCallHandler , ActivityAware,EventChannel
 
     private fun fetchRoute(origin: Point, destination: Point) {
         val builder = NavigationRoute.builder(currentContext)
-            .apikey("95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c")
+            .apikey("89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944")
             .origin(origin)
             .destination(destination)
             .alternatives(true)

@@ -1,15 +1,15 @@
 import 'dart:developer';
 
-import 'package:demo_plugin/demo_plugin.dart';
-import 'package:demo_plugin/embedded/controller.dart';
-import 'package:demo_plugin/embedded/view.dart';
-import 'package:demo_plugin/views/navigation_view.dart';
-import 'package:demo_plugin/views/banner_instruction.dart';
-import 'package:demo_plugin/views/bottom_action.dart';
-import 'package:demo_plugin/models/events.dart';
-import 'package:demo_plugin/models/options.dart';
-import 'package:demo_plugin/models/route_progress_event.dart';
-import 'package:demo_plugin/models/way_point.dart';
+import 'package:vietmap_flutter_navigation/demo_plugin.dart';
+import 'package:vietmap_flutter_navigation/embedded/controller.dart';
+import 'package:vietmap_flutter_navigation/embedded/view.dart';
+import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
+import 'package:vietmap_flutter_navigation/views/banner_instruction.dart';
+import 'package:vietmap_flutter_navigation/views/bottom_action.dart';
+import 'package:vietmap_flutter_navigation/models/events.dart';
+import 'package:vietmap_flutter_navigation/models/options.dart';
+import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:demo_plugin_example/components/bottom_sheet_address_info.dart';
 import 'package:demo_plugin_example/data/models/vietmap_reverse_model.dart';
 import 'package:demo_plugin_example/data/repository/vietmap_api_repository.dart';
@@ -258,6 +258,7 @@ class _DemoAndroidScreenState extends State<DemoAndroidScreen> {
   }
 
   _onStopNavigation() {
+    Navigator.pop(context);
     setState(() {
       routeProgressEvent = null;
       _isRunning = false;

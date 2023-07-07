@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:demo_plugin/extension.dart';
-import 'package:demo_plugin/models/events.dart';
-import 'package:demo_plugin/models/method_channel_event.dart';
-import 'package:demo_plugin/models/navmode.dart';
-import 'package:demo_plugin/models/options.dart';
-import 'package:demo_plugin/models/route_event.dart';
-import 'package:demo_plugin/models/route_progress_event.dart';
-import 'package:demo_plugin/models/way_point.dart';
+import 'package:vietmap_flutter_navigation/extension.dart';
+import 'package:vietmap_flutter_navigation/models/events.dart';
+import 'package:vietmap_flutter_navigation/models/method_channel_event.dart';
+import 'package:vietmap_flutter_navigation/models/navmode.dart';
+import 'package:vietmap_flutter_navigation/models/options.dart';
+import 'package:vietmap_flutter_navigation/models/route_event.dart';
+import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -55,9 +55,7 @@ class MapNavigationViewController {
   /// [options] options used to generate the route and used while navigating
   ///
   Future<bool> buildRoute(
-      {required List<WayPoint> wayPoints,
-      MapOptions? options,
-      DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
+      {required List<WayPoint> wayPoints, MapOptions? options}) async {
     assert(wayPoints.length > 1);
     if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,
@@ -85,7 +83,6 @@ class MapNavigationViewController {
     Map<String, dynamic> args = <String, dynamic>{};
     if (options != null) args = options.toMap();
     args["wayPoints"] = wayPointMap;
-    args['profile'] = profile.getValue();
 
     return await _methodChannel
         .invokeMethod(MethodChannelEvent.buildRoute, args)
@@ -143,7 +140,7 @@ class MapNavigationViewController {
   Future<bool> buildAndStartNavigation(
       {required List<WayPoint> wayPoints,
       MapOptions? options,
-      DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
+      required DrivingProfile profile}) async {
     assert(wayPoints.length > 1);
     if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,

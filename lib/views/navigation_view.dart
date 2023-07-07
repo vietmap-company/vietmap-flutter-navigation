@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:demo_plugin/helpers.dart';
-import 'package:demo_plugin/models/way_point.dart';
+import 'package:vietmap_flutter_navigation/helpers.dart';
+import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
 
 import '../embedded/controller.dart';
