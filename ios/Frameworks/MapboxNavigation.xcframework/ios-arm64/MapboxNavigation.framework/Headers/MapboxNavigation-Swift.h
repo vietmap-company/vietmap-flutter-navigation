@@ -265,11 +265,11 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @import CoreFoundation;
 @import CoreLocation;
 @import Foundation;
-@import Mapbox;
 @import MapboxCoreNavigation;
 @import MapboxDirections;
 @import ObjectiveC;
 @import UIKit;
+@import VietMap;
 #endif
 
 #endif

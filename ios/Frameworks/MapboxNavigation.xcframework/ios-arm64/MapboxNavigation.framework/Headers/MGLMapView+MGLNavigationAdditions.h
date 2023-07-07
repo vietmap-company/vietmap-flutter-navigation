@@ -1,4 +1,4 @@
-#import <Mapbox/Mapbox.h>
+#import <VietMap/VietMap.h>
 
 @interface MGLMapView (MGLNavigationAdditions)
 
