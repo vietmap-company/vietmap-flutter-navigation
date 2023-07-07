@@ -54,7 +54,9 @@ class MapNavigationViewController {
   /// [options] options used to generate the route and used while navigating
   ///
   Future<bool> buildRoute(
-      {required List<WayPoint> wayPoints, MapOptions? options}) async {
+      {required List<WayPoint> wayPoints,
+      MapOptions? options,
+      DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
     assert(wayPoints.length > 1);
     if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,
@@ -83,6 +85,7 @@ class MapNavigationViewController {
     if (options != null) args = options.toMap();
     args["wayPoints"] = wayPointMap;
 
+    args['profile'] = profile.getValue();
     return await _methodChannel
         .invokeMethod(MethodChannelEvent.buildRoute, args)
         .then<bool>((dynamic result) => result);
@@ -139,7 +142,7 @@ class MapNavigationViewController {
   Future<bool> buildAndStartNavigation(
       {required List<WayPoint> wayPoints,
       MapOptions? options,
-      required DrivingProfile profile}) async {
+      DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
     assert(wayPoints.length > 1);
     if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,

@@ -38,11 +38,11 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		rrtppovUyzhqyDmITX15Q6eWfiM=
+		1ycKi5rtz6+2e3HReMRhUDmmacM=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		7JzwdOx8GlGw2dHYU6wzxpDZ+gE=
+		bwDnztOJV2sueus6OidtqXqk+jU=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		Dtcpb6CBFfICJ6y8FzvY/+aCrYM=
+		w15nh4f5j55FORZ6xI0wVo1FRZU=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		J/T9qwb93wInWiH6XG6WGkeBY58=
+		dmCF5WhCBnmtB9UWG9c23oxcu3Q=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -281,14 +281,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XCqpgfTB/pjnd9wOg/HHTdEO2Yp46NMdKA3QzCcwSk4=
+			WQIv+jeOb6oZ9nuj5W5V5zxE75Q9LtPq3iYDtaiccyk=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3eDKbX+hHd4cQlRx/0hXtbM/jzFGas7hZPBB8MOJPL8=
+			aPsGGSHVs2Go2bWlPAkDpKIrAxAu/GNeCngaL9Ev4Xg=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -309,7 +309,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			AZCIwIRMVx1ZO+8fLoVxG/AzlxlOYz/mX1x10Kgjwz0=
+			NqZtPEUs1mMkgiMpERF1iJqxayqwprVlLhj4N1Ig2R8=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -330,7 +330,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			fGHPlzUhf0Nvoy8/GoDttgLlXOd1DYkYGXH+1SVljmg=
+			GYptIi86xURu1+6QoHYZd2HaW7pd7WSgtxtAJzFV+5E=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

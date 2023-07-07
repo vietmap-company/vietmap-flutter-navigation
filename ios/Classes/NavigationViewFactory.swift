@@ -7,10 +7,6 @@
 
 import Flutter
 import UIKit
-import Mapbox
-import MapboxDirections
-import MapboxCoreNavigation
-import MapboxNavigation
 
 public class FlutterMapNavigationViewFactory : NSObject, FlutterPlatformViewFactory
 {

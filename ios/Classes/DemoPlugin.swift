@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import Mapbox
+import VietMap
 
 public class DemoPlugin:  NavigationFactory, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
