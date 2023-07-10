@@ -103,6 +103,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 });
               },
               onMapLongClick: (WayPoint? point) async {
+                if (_isRunning) return;
                 EasyLoading.show();
                 var data =
                     await GetLocationFromLatLngUseCase(VietmapApiRepositories())
@@ -116,6 +117,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 }, (r) => _showBottomSheetInfo(r));
               },
               onMapClick: (WayPoint? point) async {
+                if (_isRunning) return;
                 if (focusNode.hasFocus) {
                   FocusScope.of(context).requestFocus(FocusNode());
                   return;

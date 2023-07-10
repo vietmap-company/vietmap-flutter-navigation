@@ -56,6 +56,7 @@ class MapNavigationView extends StatelessWidget {
           )
             ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
             ..addOnPlatformViewCreatedListener(_onPlatformViewCreated)
+            
             ..create();
         },
       );

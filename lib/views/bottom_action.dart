@@ -125,7 +125,7 @@ class BottomActionView extends StatelessWidget {
     var data = routeProgressEvent?.durationRemaining ?? 0;
     if (data < 60) return '${data.round()} giây';
     if (data < 3600) return '${(data / 60).round()} phút';
-    var hour = (data / 3600).round();
+    var hour = (data / 3600).floor();
     var minute = ((data - hour * 3600) / 60).round();
     return '$hour giờ, $minute phút';
   }

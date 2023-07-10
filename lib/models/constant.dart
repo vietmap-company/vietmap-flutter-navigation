@@ -21,5 +21,7 @@ const Map<String, String> translationGuide = {
   'turn_slight_right': 'Rẽ chếch về phải',
   'turn_slight_left': 'Rẽ chếch về trái',
   'end_of_road_right': 'Rẽ phải ở cuối đường',
-  'end_of_road_left': 'Rẽ trái ở cuối đường'
+  'end_of_road_left': 'Rẽ trái ở cuối đường',
+  'end_of_road_straight': 'Đi thẳng ở cuối đường',
+  'end_of_road_uturn': 'Quay đầu ở cuối đường',
 };
