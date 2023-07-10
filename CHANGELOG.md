@@ -5,3 +5,6 @@
 
 ## 0.0.3
 - Fix calculate arrival time
+
+## 0.0.4
+- Fix build route and follow location iOS
