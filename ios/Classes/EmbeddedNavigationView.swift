@@ -143,6 +143,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         mapView.delegate = self
         mapView.navigationMapDelegate = self
+        mapView.userTrackingMode = .follow
     }
     
     private func setupMapView()
@@ -206,6 +207,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     
     func buildRoute(arguments: NSDictionary?, flutterResult: @escaping FlutterResult, startNavigation: Bool = false)
     {
+        _wayPoints.removeAll()
         sendEvent(eventType: MapEventType.routeBuilding)
 
         guard let oWayPoints = arguments?["wayPoints"] as? NSDictionary else {return}
