@@ -307,7 +307,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     func endNavigationEmbedded(result: FlutterResult?) {
         if (routeController != nil) {
             routeController?.endNavigation()
-            navigationMapView.recenterMap()                        
+            navigationMapView.recenterMap()
             suspendNotifications()
             sendEvent(eventType: MapEventType.navigationCancelled)
             if(result != nil)
@@ -326,6 +326,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         routeController?.reroutesProactively = true
         routeController?.resume()
         navigationMapView.recenterMap()
+        navigationMapView.showsUserHeadingIndicator = true
         resumeNotifications()
         result(true)
     }
@@ -364,6 +365,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         
     func cancelNavigation() {
         routeController?.endNavigation()
+        navigationMapView.showsUserHeadingIndicator = false
         sendEvent(eventType: MapEventType.navigationCancelled)
     }
     
@@ -394,7 +396,7 @@ extension FlutterMapNavigationView : MGLMapViewDelegate {
 extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return false
+        return true
     }
 
     @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
