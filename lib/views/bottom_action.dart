@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
 import '../embedded/controller.dart';
 import '../models/route_progress_event.dart';
 
@@ -118,16 +120,30 @@ class BottomActionView extends StatelessWidget {
     var data = routeProgressEvent?.durationRemaining ?? 0;
     DateTime dateTime = DateTime.now();
     DateTime estimateArriveTime = dateTime.add(Duration(seconds: data.round()));
-    return '${estimateArriveTime.hour}:${estimateArriveTime.minute}';
+    // check the time is tomorrow and return the date
+
+    if (estimateArriveTime.day != dateTime.day) {
+      return DateFormat('dd/MM - hh:mm a').format(estimateArriveTime);
+    }
+
+    return DateFormat('hh:mm a').format(estimateArriveTime);
   }
 
   _getTimeArriveRemaining() {
     var data = routeProgressEvent?.durationRemaining ?? 0;
     if (data < 60) return '${data.round()} giây';
     if (data < 3600) return '${(data / 60).round()} phút';
-    var hour = (data / 3600).floor();
-    var minute = ((data - hour * 3600) / 60).round();
-    return '$hour giờ, $minute phút';
+    if (data < 86400) {
+      var hour = (data / 3600).floor();
+
+      var minute = ((data - hour * 3600) / 60).round();
+      return '${hour < 10 ? '0$hour' : hour} giờ, ${minute < 10 ? '0$minute' : minute} phút';
+    }
+    var day = (data / 86400).floor();
+    var hour = ((data - day * 86400) / 3600).floor();
+
+    var minute = ((data - hour * 3600 - day * 86400) / 60).round();
+    return '$day ngày, ${hour < 10 ? '0$hour' : hour} giờ, ${minute < 10 ? '0$minute' : minute} phút';
   }
 
   _calculateTotalDistance(double? distance) {
