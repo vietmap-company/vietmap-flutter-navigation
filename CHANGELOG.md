@@ -8,3 +8,6 @@
 
 ## 0.0.4
 - Fix build route and follow location iOS
+
+## 0.0.5
+- Support Vietmap custom vector tile
