@@ -200,15 +200,11 @@ class FlutterMapViewFactory  :
         )
         methodChannel.setMethodCallHandler(this)
         mapView.getMapAsync(this)
-        mapView.addOnDidFinishRenderingMapListener(object : OnDidFinishRenderingMapListener {
-
-
-            override fun onDidFinishRenderingMap(p0: Boolean) {
-                PluginUtilities.sendEvent(
-                    VietMapEvents.ON_MAP_RENDERED
-                )
-            }
-        })
+        mapView.addOnDidFinishRenderingMapListener {
+            PluginUtilities.sendEvent(
+                VietMapEvents.ON_MAP_RENDERED
+            )
+        }
         configSpeechPlayer()
     }
 
