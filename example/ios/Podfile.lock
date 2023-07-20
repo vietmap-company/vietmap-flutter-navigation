@@ -40,7 +40,7 @@ SPEC CHECKSUMS:
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
   VietMap: ab9386c1e41ba42376d635217bbb0060716441e2
-  vietmap_flutter_navigation: 305c212ae3f59024c57f179336756399f916dd85
+  vietmap_flutter_navigation: 05203413bfab1960aec3d7f66ef93b68734100bd
 
 PODFILE CHECKSUM: 6b9eb94e9f98a329f2ef624b852a6e42d090af2b
 

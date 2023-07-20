@@ -3,7 +3,6 @@ package vn.vietmap.factory
 //import com.mapbox.services.android.navigation.ui.v5.LocationEngineConductor
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -45,11 +44,10 @@ import com.mapbox.mapboxsdk.maps.MapboxMap.OnMoveListener
 import com.mapbox.mapboxsdk.style.layers.LineLayer
 import com.mapbox.mapboxsdk.style.layers.Property.LINE_CAP_ROUND
 import com.mapbox.mapboxsdk.style.layers.Property.LINE_JOIN_ROUND
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.services.android.navigation.ui.v5.*
+import com.mapbox.services.android.navigation.ui.v5.R
 import com.mapbox.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
 import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener
 import com.mapbox.services.android.navigation.ui.v5.listeners.RouteListener
@@ -121,10 +119,10 @@ class FlutterMapViewFactory  :
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
     private val navigationOptions = MapboxNavigationOptions
-        .builder().maxTurnCompletionOffset(10.0)
-        .maneuverZoneRadius(40.0).maximumDistanceOffRoute(10.0)
-        .deadReckoningTimeInterval(1.0).maxManipulatedCourseAngle(25.0)
-        .userLocationSnapDistance(10.0).secondsBeforeReroute(3)
+        .builder().maxTurnCompletionOffset(5.0)
+        .maneuverZoneRadius(40.0).maximumDistanceOffRoute(60.0)
+        .deadReckoningTimeInterval(5.0).maxManipulatedCourseAngle(25.0)
+        .userLocationSnapDistance(5.0).secondsBeforeReroute(3)
         .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
         .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
         .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
@@ -133,6 +131,22 @@ class FlutterMapViewFactory  :
         .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED)
         .locationAcceptableAccuracyInMetersThreshold(100)
         .build()
+
+    /*
+    MapboxNavigationOptions
+            .builder().maxTurnCompletionOffset(10.0)
+            .maneuverZoneRadius(40.0).maximumDistanceOffRoute(30.0)
+            .deadReckoningTimeInterval(1.0).maxManipulatedCourseAngle(25.0)
+            .userLocationSnapDistance(20.0).secondsBeforeReroute(3)
+            .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
+            .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
+            .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
+            .isFromNavigationUi(false).isDebugLoggingEnabled(false)
+            .roundingIncrement(NavigationConstants.ROUNDING_INCREMENT_FIFTY)
+            .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED)
+            .locationAcceptableAccuracyInMetersThreshold(100)
+            .build()
+     */
     private var navigation: MapboxNavigation
     private var mapReady = false
     private var isDisposed = false
@@ -364,9 +378,13 @@ class FlutterMapViewFactory  :
     }
 
     private fun clearRoute(methodCall: MethodCall, result: MethodChannel.Result) {
-        if (navigationMapRoute != null)
-            navigationMapRoute?.updateRouteArrowVisibilityTo(false)
-
+        if (navigationMapRoute != null) {
+//            navigationMapRoute?.updateRouteArrowVisibilityTo(false)
+//            navigationMapRoute?.updateRouteVisibilityTo(false)
+            navigationMapRoute?.removeRoute()
+        }
+        currentRoute = null
+        result.success(true)
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_CANCELLED)
     }
 
@@ -546,6 +564,7 @@ class FlutterMapViewFactory  :
         if (simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
+        println("You're using this style: $mapStyleURL")
         mapBoxMap?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
@@ -556,7 +575,6 @@ class FlutterMapViewFactory  :
                 lineJoin(LINE_JOIN_ROUND)
             )
             style.addLayer(routeLineLayer)
-            initMapRoute()
 
             mapBoxMap?.addOnMoveListener(object : OnMoveListener {
                 override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
@@ -569,8 +587,12 @@ class FlutterMapViewFactory  :
                     PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE_END)
                 }
             })
+
+
             enableLocationComponent(style)
+            initMapRoute()
         }
+
 
         if (longPressDestinationEnabled)
             mapBoxMap?.addOnMapLongClickListener(this)
@@ -585,7 +607,9 @@ class FlutterMapViewFactory  :
     }
 
     private fun initMapRoute() {
-        navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
+        if (mapBoxMap != null) {
+            navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
+        }
 //        navigationMapRoute?.setOnRouteSelectionChangeListener(this)
 //        navigationMapRoute.addProgressChangeListener(MapboxNavigation(this))
     }
@@ -610,14 +634,13 @@ class FlutterMapViewFactory  :
         loadedMapStyle.addSource(geoJsonSource)
         val destinationSymbolLayer = SymbolLayer("destination-symbol-layer-id", "destination-source-id")
         destinationSymbolLayer.withProperties(
-            PropertyFactory.iconImage("destination-icon-id"),
-            PropertyFactory.iconAllowOverlap(true),
-            PropertyFactory.iconIgnorePlacement(true)
+            iconImage("destination-icon-id"),
+            iconAllowOverlap(true),
+            iconIgnorePlacement(true)
         )
         loadedMapStyle.addLayer(destinationSymbolLayer)
     }
 
-    @SuppressLint("MissingPermission")
     private fun moveCamera(location: LatLng, bearing: Float?) {
 
         val cameraPosition = CameraPosition.Builder()
@@ -638,7 +661,6 @@ class FlutterMapViewFactory  :
         )
     }
 
-    @SuppressLint("MissingPermission")
     private fun moveCamera(location: LatLng, bearing: Float?, tilt: Double, zoom: Double) {
 
         val cameraPosition = CameraPosition.Builder()
@@ -750,7 +772,7 @@ class FlutterMapViewFactory  :
 
                 // Draw the route on the map
                 if (navigationMapRoute != null) {
-                    navigationMapRoute?.updateRouteArrowVisibilityTo(false)
+                    navigationMapRoute?.removeRoute()
                 } else {
                     navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
                 }
@@ -1032,7 +1054,6 @@ class FlutterMapViewFactory  :
     }
 
 
-    @SuppressLint("MissingPermission")
     private fun enableLocationComponent(@NonNull loadedMapStyle: Style) {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context)
@@ -1051,16 +1072,26 @@ class FlutterMapViewFactory  :
                     CameraMode.TRACKING_GPS_NORTH,
                     750L,
                     zoom,
-                    locationComponent.lastKnownLocation?.bearing?.toDouble(),
+                    locationComponent.lastKnownLocation?.bearing?.toDouble() ?: 0.0,
                     tilt,
                     null
                 )
-                locationComponent.isLocationComponentEnabled = true
                 locationComponent.zoomWhileTracking(18.0)
                 locationComponent.renderMode = RenderMode.GPS
                 locationComponent.locationEngine = locationEngine
 
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
 
+                locationComponent.isLocationComponentEnabled = true
             }
 
         }

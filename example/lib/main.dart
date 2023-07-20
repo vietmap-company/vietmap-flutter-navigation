@@ -88,6 +88,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
+        top: false,
         child: Stack(
           children: [
             NavigationView(
@@ -152,7 +153,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
               },
             ),
             Positioned(
-                top: 0,
+                top: MediaQuery.of(context).viewPadding.top,
                 left: 0,
                 child: BannerInstructionView(
                   routeProgressEvent: routeProgressEvent,
@@ -170,7 +171,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
             _isRunning
                 ? const SizedBox.shrink()
                 : Positioned(
-                    top: 30,
+                    top: MediaQuery.of(context).viewPadding.top + 20,
                     child: FloatingSearchBar(
                       focusNode: focusNode,
                       onSearchItemClick: (p0) async {
@@ -203,20 +204,46 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
             _isRouteBuilt && !_isRunning
                 ? Positioned(
                     bottom: 20,
-                    left: MediaQuery.of(context).size.width / 2 - 25,
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                    side:
-                                        const BorderSide(color: Colors.blue)))),
-                        onPressed: () {
-                          _isRunning = true;
-                          _controller?.startNavigation();
-                        },
-                        child: const Text('Bắt đầu')),
+                    left: 0,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                          side: const BorderSide(
+                                              color: Colors.blue)))),
+                              onPressed: () {
+                                _isRunning = true;
+                                _controller?.startNavigation();
+                              },
+                              child: const Text('Bắt đầu')),
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                          side: const BorderSide(
+                                              color: Colors.blue)))),
+                              onPressed: () {
+                                _controller?.clearRoute();
+                                setState(() {
+                                  _isRouteBuilt = false;
+                                });
+                              },
+                              child: const Text('Xoá tuyến đường')),
+                        ],
+                      ),
+                    ),
                   )
                 : const SizedBox.shrink()
           ],
@@ -229,7 +256,9 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     recenterButton = TextButton(
         onPressed: () {
           _controller?.recenter();
-          recenterButton = const SizedBox.shrink();
+          setState(() {
+            recenterButton = const SizedBox.shrink();
+          });
         },
         child: Container(
             height: 50,

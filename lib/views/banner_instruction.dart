@@ -11,6 +11,7 @@ class BannerInstructionView extends StatelessWidget {
   });
   final RouteProgressEvent? routeProgressEvent;
   final Widget instructionIcon;
+
   @override
   Widget build(BuildContext context) {
     return routeProgressEvent == null
@@ -26,6 +27,9 @@ class BannerInstructionView extends StatelessWidget {
             child: Row(children: [
               const SizedBox(width: 15),
               instructionIcon,
+              //  ??
+              //     _getInstructionImage(routeProgressEvent?.currentModifier,
+              //         routeProgressEvent?.currentModifierType),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

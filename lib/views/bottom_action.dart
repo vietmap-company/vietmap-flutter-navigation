@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../embedded/controller.dart';
 import '../models/route_progress_event.dart';
@@ -122,10 +121,11 @@ class BottomActionView extends StatelessWidget {
     // check the time is tomorrow and return the date
 
     if (estimateArriveTime.day != dateTime.day) {
-      return DateFormat('dd/MM - hh:mm a').format(estimateArriveTime);
+      // return DateFormat('dd/MM - hh:mm a').format(estimateArriveTime);
+      return _formatDate(estimateArriveTime, 'dd/MM - hh:mm a');
     }
 
-    return DateFormat('hh:mm a').format(estimateArriveTime);
+    return _formatTime(estimateArriveTime, 'hh:mm a');
   }
 
   _getTimeArriveRemaining() {
@@ -149,5 +149,53 @@ class BottomActionView extends StatelessWidget {
     var data = distance ?? 0;
     if (data < 1000) return '${data.round()} mét';
     return '${(data / 1000).toStringAsFixed(2)} Km';
+  }
+
+  String _formatDate(DateTime date, String format) {
+    String formattedDate = '';
+    List<String> pattern = format.split(' ');
+    for (int i = 0; i < pattern.length; i++) {
+      switch (pattern[i]) {
+        case 'dd':
+          formattedDate += date.day.toString();
+          break;
+        case 'MM':
+          formattedDate += date.month.toString();
+          break;
+        case 'hh':
+          formattedDate += date.hour.toString();
+          break;
+        case 'mm':
+          formattedDate += date.minute.toString();
+          break;
+        case 'a':
+          formattedDate += date.hour < 12 ? 'am' : 'pm';
+          break;
+        default:
+          break;
+      }
+    }
+    return formattedDate;
+  }
+
+  String _formatTime(DateTime time, String format) {
+    String formattedTime = '';
+    List<String> pattern = format.split(' ');
+    for (int i = 0; i < pattern.length; i++) {
+      switch (pattern[i]) {
+        case 'hh':
+          formattedTime += time.hour.toString().padLeft(2, '0');
+          break;
+        case 'mm':
+          formattedTime += time.minute.toString().padLeft(2, '0');
+          break;
+        case 'a':
+          formattedTime += time.hour < 12 ? 'AM' : 'PM';
+          break;
+        default:
+          break;
+      }
+    }
+    return formattedTime;
   }
 }

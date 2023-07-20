@@ -11,3 +11,12 @@
 
 ## 0.0.5
 - Support Vietmap custom vector tile
+## 0.0.6
+- Update Readme.md to support custom vector tile
+## 0.0.7
+- Optimize Android navigation config 
+- Fix android crash when open navigation
+
+
+## 0.0.8
+- Remove unnecessary library
