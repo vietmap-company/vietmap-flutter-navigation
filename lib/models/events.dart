@@ -22,5 +22,6 @@ enum MapEvent {
   onMapMove,
   onMapMoveEnd,
   onMapLongClick,
-  onMapClick
+  onMapClick,
+  onMapRendered
 }

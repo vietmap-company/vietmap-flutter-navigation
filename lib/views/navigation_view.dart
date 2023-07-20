@@ -30,6 +30,7 @@ class NavigationView extends StatefulWidget {
       this.userOffRoute,
       this.onMapMoveEnd,
       this.onMapReady,
+        this.onMapRendered,
       this.onMapLongClick,
       this.onMapClick});
   final MapOptions mapOptions;
@@ -43,6 +44,7 @@ class NavigationView extends StatefulWidget {
   final VoidCallback? onNavigationFinished;
   final VoidCallback? onNavigationCancelled;
   final VoidCallback? onMapMove;
+  final VoidCallback? onMapRendered;
   final VoidCallback? onMapMoveEnd;
   final VoidCallback? onMapReady;
   final Function(WayPoint?)? onMapLongClick;
@@ -150,6 +152,9 @@ class _NavigationViewState extends State<NavigationView> {
               longitude: data['longitude']);
           widget.userOffRoute!(wayPoint);
         }
+        break;
+      case MapEvent.onMapRendered:
+        if(widget.onMapRendered != null) widget.onMapRendered!();
         break;
       default:
         break;

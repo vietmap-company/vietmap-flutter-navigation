@@ -40,6 +40,7 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.location.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.maps.*
+import com.mapbox.mapboxsdk.maps.MapView.OnDidFinishRenderingMapListener
 import com.mapbox.mapboxsdk.maps.MapboxMap.OnMoveListener
 import com.mapbox.mapboxsdk.style.layers.LineLayer
 import com.mapbox.mapboxsdk.style.layers.Property.LINE_CAP_ROUND
@@ -103,7 +104,7 @@ class FlutterMapViewFactory  :
     SpeechAnnouncementListener,
     BannerInstructionsListener,
     RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener,
-    MapboxMap.OnMapClickListener {
+    MapboxMap.OnMapClickListener,OnDidFinishRenderingMapListener {
 
     private val activity: Activity
     private val context: Context
@@ -199,7 +200,15 @@ class FlutterMapViewFactory  :
         )
         methodChannel.setMethodCallHandler(this)
         mapView.getMapAsync(this)
+        mapView.addOnDidFinishRenderingMapListener(object : OnDidFinishRenderingMapListener {
 
+
+            override fun onDidFinishRenderingMap(p0: Boolean) {
+                PluginUtilities.sendEvent(
+                    VietMapEvents.ON_MAP_RENDERED
+                )
+            }
+        })
         configSpeechPlayer()
     }
 
@@ -379,8 +388,6 @@ class FlutterMapViewFactory  :
 
     private fun clearRoute(methodCall: MethodCall, result: MethodChannel.Result) {
         if (navigationMapRoute != null) {
-//            navigationMapRoute?.updateRouteArrowVisibilityTo(false)
-//            navigationMapRoute?.updateRouteVisibilityTo(false)
             navigationMapRoute?.removeRoute()
         }
         currentRoute = null
@@ -1123,5 +1130,9 @@ class FlutterMapViewFactory  :
             return true
         }
 
-
+    override fun onDidFinishRenderingMap(p0: Boolean) {
+        TODO("Not yet implemented")
     }
+
+
+}
