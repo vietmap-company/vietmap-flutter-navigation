@@ -319,8 +319,9 @@ class FlutterMapViewFactory  :
         val bounds: LatLngBounds = boundsBuilder
             .build()
         val cameraUpdate = newLatLngBounds(bounds, 300)
-        mapBoxMap?.easeCamera(cameraUpdate, 600)
+        mapBoxMap?.animateCamera(cameraUpdate,700)
     }
+
 
     private fun buildRoute(methodCall: MethodCall, result: MethodChannel.Result) {
         isNavigationCanceled = false
