@@ -324,7 +324,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             return
         }
         
-        routeController = RouteController(along: response, locationManager: self.getNavigationLocationManager(simulated: true))
+        routeController = RouteController(along: response, locationManager: self.getNavigationLocationManager(simulated: _simulateRoute))
         routeController?.delegate = self
         routeController?.reroutesProactively = true
         routeController?.resume()
