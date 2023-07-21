@@ -10,6 +10,7 @@ import Foundation
 enum MapEventType: String, Codable
 {
     case mapReady
+    case onMapRendered
     case routeBuilding
     case routeBuilt
     case routeBuildFailed

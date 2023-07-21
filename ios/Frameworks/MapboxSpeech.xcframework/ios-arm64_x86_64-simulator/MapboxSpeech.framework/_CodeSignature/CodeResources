@@ -18,11 +18,11 @@
 		</data>
 		<key>Modules/MapboxSpeech.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		XtkKEo20GwZggXGoYVssrc+tKik=
+		F50KlP8CtfTgi56wZ+6/3aOnHuk=
 		</data>
 		<key>Modules/MapboxSpeech.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		44LXEUqNb6b5KTMuaSIktKuMJVI=
+		FDPR7Su9VyJ24mNUIuVLEOMnS/0=
 		</data>
 		<key>Modules/MapboxSpeech.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -34,7 +34,7 @@
 		</data>
 		<key>Modules/MapboxSpeech.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		YfzfeZV0Du7hGSfnmCtzAXwRBnY=
+		clHiAJ1NOcjhC8YFBnoaXbcYBuM=
 		</data>
 		<key>Modules/MapboxSpeech.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -46,7 +46,7 @@
 		</data>
 		<key>Modules/MapboxSpeech.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		4g023oGPMz8MP+qhEDSmTvJjcNQ=
+		NsblfBNUtjuV/O+gZObDAEd70Mw=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -81,22 +81,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			XtkKEo20GwZggXGoYVssrc+tKik=
+			F50KlP8CtfTgi56wZ+6/3aOnHuk=
 			</data>
 			<key>hash2</key>
 			<data>
-			g6KJ2FR2oCgSdDm7nHNlg25VfRI42VABk7TiGlrfyb0=
+			c2hVEZ7A4hMJ2UDGo0fvBSsbDzg72zkN57uXidAKJmU=
 			</data>
 		</dict>
 		<key>Modules/MapboxSpeech.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			44LXEUqNb6b5KTMuaSIktKuMJVI=
+			FDPR7Su9VyJ24mNUIuVLEOMnS/0=
 			</data>
 			<key>hash2</key>
 			<data>
-			DyO/VGrUgcn0ArJCEjccptiyBUb8/mI3vPOiGOkjFcs=
+			0qDikcWDovkTmz/uhUDiT+P7aJpAVLOl7yVrCoPJSko=
 			</data>
 		</dict>
 		<key>Modules/MapboxSpeech.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -125,11 +125,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			YfzfeZV0Du7hGSfnmCtzAXwRBnY=
+			clHiAJ1NOcjhC8YFBnoaXbcYBuM=
 			</data>
 			<key>hash2</key>
 			<data>
-			EzrhepLfE1FhZwuayMBu04RcmsiT+9rTC96WzAl022w=
+			K9NhBC7hlJMURVBt7S/IHc3VmR6x/GqHiDzF6eAl8fY=
 			</data>
 		</dict>
 		<key>Modules/MapboxSpeech.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -158,11 +158,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			4g023oGPMz8MP+qhEDSmTvJjcNQ=
+			NsblfBNUtjuV/O+gZObDAEd70Mw=
 			</data>
 			<key>hash2</key>
 			<data>
-			oysuzFhhZvfqdVa1MvI3M9El/xz8ksDi7e/RdDhqC5M=
+			CENADEyj5nB2BWf6wTWAQwqhobo1ngzsSxXFA8L8bWU=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

@@ -38,7 +38,7 @@
 		</data>
 		<key>Headers/MapboxNavigation-Swift.h</key>
 		<data>
-		pBhl4UuMr+VIDF8IyAviMCXvq8Q=
+		jTR0f8mz45F6r7SyjTeRStN/MyQ=
 		</data>
 		<key>Headers/MapboxNavigation.h</key>
 		<data>
@@ -50,11 +50,11 @@
 		</data>
 		<key>Modules/MapboxNavigation.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		YXZvUjM4tvo1VclHdOXcQXanVGw=
+		HS6OQzhd5YI5t/dKnuLK3YvEUpw=
 		</data>
 		<key>Modules/MapboxNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		SADin6c/y0iaR6OazsygBNZUGZU=
+		bMJ2sZO23wCnDv8SXKlCeMIsq5M=
 		</data>
 		<key>Modules/MapboxNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Modules/MapboxNavigation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		Hbg2D7bFVfq4KXqOHPiWz27Gptk=
+		eS/L/kABOXd0shTy2Ab23dTHCJI=
 		</data>
 		<key>Modules/MapboxNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -78,7 +78,7 @@
 		</data>
 		<key>Modules/MapboxNavigation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		yWTf/1EgYlePwbYUtCaDGsjsfbE=
+		3xAQ0u4kwGPLUAJi727wrqVuDgg=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -597,7 +597,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			JB+BTRW5KHkZ+5kw8Qp6Ff+bIs6CHXbjj3WlGvv+c0I=
+			cWbxo7gced8gtg4IUXZBKO0IcZwYPTXujjrur8glSJ0=
 			</data>
 		</dict>
 		<key>Headers/MapboxNavigation.h</key>
@@ -611,14 +611,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			j9N89xo6gDSFrTj8gJyLRhHlozb2Q4Mtnn19OHLKKbA=
+			o6tuoJ0Mp/6XmB+8cWNUbRz3+6HbBpBBMBCLUdQWXV4=
 			</data>
 		</dict>
 		<key>Modules/MapboxNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/OEaTckxQWCWjIdDumrE6Xt84FGgJaLz3FRoXcBsuHk=
+			kxnBZ+y9j1+te5uSkTbZe706PQrzgVWa2KwNs5+aSEQ=
 			</data>
 		</dict>
 		<key>Modules/MapboxNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -639,7 +639,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			tGTWmjWNlplRRaIeCE0X15ijtte7yRKl7kosLKAhQDQ=
+			yeSe28fZonFhnUW1lV3hwECUY0tVlpLMR8JoplUDjJ0=
 			</data>
 		</dict>
 		<key>Modules/MapboxNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -660,7 +660,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			QHu3lsgKhtqr6+YgCuKCNHUx2uXuM1AuG+hFGw4wf3o=
+			26MxRQVSFB/V64OFToeApNzfVYk4PUWd8DuyMGXxPlo=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

@@ -18,11 +18,11 @@
 		</data>
 		<key>Modules/Polyline.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		6tKJL0pVmeutovvpxIC34cAyF5A=
+		tbvU9suWVmnyOHFCihX0VdKa30w=
 		</data>
 		<key>Modules/Polyline.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		aWPvSkB1rWRWUxtswWs4avnTOi8=
+		lh5ddSqCBPRkkZnOGVHtDjhwDLc=
 		</data>
 		<key>Modules/Polyline.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -81,22 +81,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			6tKJL0pVmeutovvpxIC34cAyF5A=
+			tbvU9suWVmnyOHFCihX0VdKa30w=
 			</data>
 			<key>hash2</key>
 			<data>
-			SCU+fnK3dOSPANFQYlA6x+lBUt2yRE9vSxQCYKZC2yA=
+			+54+1k/LjOVGyWIj52Dcm2/jqhudDnZlnexBBwNOccU=
 			</data>
 		</dict>
 		<key>Modules/Polyline.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			aWPvSkB1rWRWUxtswWs4avnTOi8=
+			lh5ddSqCBPRkkZnOGVHtDjhwDLc=
 			</data>
 			<key>hash2</key>
 			<data>
-			SRl6N3xaWaGpQmgCckidDGrNmin2AMJ1kPsMPucp5Ak=
+			T0/G7re5i796BDBY5P5D2iA54Hik4JA/kOiWQVYZVjg=
 			</data>
 		</dict>
 		<key>Modules/Polyline.swiftmodule/arm64-apple-ios-simulator.abi.json</key>

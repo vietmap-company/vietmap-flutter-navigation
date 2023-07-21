@@ -22,11 +22,11 @@
 		</data>
 		<key>Modules/MapboxGeocoder.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		jZlVVWYWENL/GUdEuHkkmJuR8WQ=
+		UFHNjcFyiRyL9HB9wOQaIRCHbUc=
 		</data>
 		<key>Modules/MapboxGeocoder.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		HNip9TN7RdbmdjW5u1CjBb6Dp6A=
+		bMSPkKrojOzPA3QGYlCDUemm4BI=
 		</data>
 		<key>Modules/MapboxGeocoder.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -38,7 +38,7 @@
 		</data>
 		<key>Modules/MapboxGeocoder.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		ER8WaAlEaihKrfd4pDKZCAYfHQY=
+		j6VS1NJSPWQxbtt1OTEI4tVjz14=
 		</data>
 		<key>Modules/MapboxGeocoder.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -50,7 +50,7 @@
 		</data>
 		<key>Modules/MapboxGeocoder.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		+xB8Ix6SWKOUvYacA5RWW52WHM0=
+		ydKWgtQWi0br0Q9Cl/N0GlF4SE4=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -96,22 +96,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			jZlVVWYWENL/GUdEuHkkmJuR8WQ=
+			UFHNjcFyiRyL9HB9wOQaIRCHbUc=
 			</data>
 			<key>hash2</key>
 			<data>
-			HlUJ3j0iRId1EH4xe1HuCR7ccPhD2XGHERGGwW/ApPg=
+			i+c4yrpNaWk9WcNX3s0zxbc4QT8y761VaQJdpZZHVqo=
 			</data>
 		</dict>
 		<key>Modules/MapboxGeocoder.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			HNip9TN7RdbmdjW5u1CjBb6Dp6A=
+			bMSPkKrojOzPA3QGYlCDUemm4BI=
 			</data>
 			<key>hash2</key>
 			<data>
-			3LyzVHFzwrJ227umcekWTHTIM0x5DleL8DwUd4uh3tU=
+			DOatYMsdZv+i533HaJ3oz5HfBv5N3hf9OlNn41x8ivU=
 			</data>
 		</dict>
 		<key>Modules/MapboxGeocoder.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -140,11 +140,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			ER8WaAlEaihKrfd4pDKZCAYfHQY=
+			j6VS1NJSPWQxbtt1OTEI4tVjz14=
 			</data>
 			<key>hash2</key>
 			<data>
-			/wx+vzyMOrChHYMpdVEe275kuuT9YijiK56oA8QDQsw=
+			D67L0E9X6m+WJ5yzw075myUlg5tMx9Ef1og+iZAX7lE=
 			</data>
 		</dict>
 		<key>Modules/MapboxGeocoder.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -173,11 +173,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			+xB8Ix6SWKOUvYacA5RWW52WHM0=
+			ydKWgtQWi0br0Q9Cl/N0GlF4SE4=
 			</data>
 			<key>hash2</key>
 			<data>
-			oGD4ughtA8OS/WiB3S+cto9Cl5ZJ0HQKmjPZoxkWO2M=
+			w4xAYzfJgwTvGVslNUG/Sk4VVj1K1Cx1eEk2S+fFhKE=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

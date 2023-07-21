@@ -319,14 +319,17 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     
     func startNavigationEmbedded(result: @escaping FlutterResult) {
         isEmbeddedNavigation = true
-        guard let response = self.routeResponse else { return }
+        guard let response = self.routeResponse else {
+            result(false)
+            return
+        }
         
-        routeController = RouteController(along: response, locationManager: self.getNavigationLocationManager(simulated: false))
+        routeController = RouteController(along: response, locationManager: self.getNavigationLocationManager(simulated: true))
         routeController?.delegate = self
         routeController?.reroutesProactively = true
         routeController?.resume()
         navigationMapView.recenterMap()
-        navigationMapView.showsUserHeadingIndicator = true
+        navigationMapView.showsUserLocation = true
         resumeNotifications()
         result(true)
     }
@@ -345,7 +348,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         let routeProgress = notification.userInfo![RouteControllerNotificationUserInfoKey.routeProgressKey] as! RouteProgress
         let location = notification.userInfo![RouteControllerNotificationUserInfoKey.locationKey] as! CLLocation
         // Update the user puck
-        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, altitude: 120, pitch: 60, heading: location.course)
+        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, altitude: 250, pitch: 60, heading: location.course)
         navigationMapView.updateCourseTracking(location: location, camera: camera, animated: true)
         _distanceRemaining = routeProgress.distanceRemaining
         _durationRemaining = routeProgress.durationRemaining
@@ -365,7 +368,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         
     func cancelNavigation() {
         routeController?.endNavigation()
-        navigationMapView.showsUserHeadingIndicator = false
+        navigationMapView.recenterMap()
         sendEvent(eventType: MapEventType.navigationCancelled)
     }
     
@@ -390,6 +393,10 @@ extension FlutterMapNavigationView : NavigationMapViewDelegate {
 extension FlutterMapNavigationView : MGLMapViewDelegate {
     public func mapViewDidFinishLoadingMap(_ mapView: MGLMapView) {
         sendEvent(eventType: MapEventType.mapReady)
+    }
+    
+    public func mapViewDidFinishRenderingMap(_ mapView: MGLMapView, fullyRendered: Bool) {
+        sendEvent(eventType: MapEventType.onMapRendered)
     }
 }
 

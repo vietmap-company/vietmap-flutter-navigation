@@ -38,11 +38,11 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		1ycKi5rtz6+2e3HReMRhUDmmacM=
+		kTSU7ebVFDjRyExF5ZxGaGYf2rA=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		bwDnztOJV2sueus6OidtqXqk+jU=
+		Y/e3qGBkip5wWLjetlcvjOrcYIE=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		w15nh4f5j55FORZ6xI0wVo1FRZU=
+		hLZRBP/D87AhNo9NqrierSu+JSU=
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		dmCF5WhCBnmtB9UWG9c23oxcu3Q=
+		1QdxWCCp7tb+RVfF7nWj752kSCU=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -281,14 +281,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			WQIv+jeOb6oZ9nuj5W5V5zxE75Q9LtPq3iYDtaiccyk=
+			WhDYMx07fjmxSxVky1j/2YHJPae46BbjTKkNplgd9aQ=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			aPsGGSHVs2Go2bWlPAkDpKIrAxAu/GNeCngaL9Ev4Xg=
+			Lk+PyjWQySzu6L4OUTN3scFaXClvpQV2dGdApf2z6OA=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -309,7 +309,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			NqZtPEUs1mMkgiMpERF1iJqxayqwprVlLhj4N1Ig2R8=
+			u0byvK8wjBzBtdHMrsECxfuFoqOg1htufuwRM3OW+C4=
 			</data>
 		</dict>
 		<key>Modules/MapboxCoreNavigation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -330,7 +330,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			GYptIi86xURu1+6QoHYZd2HaW7pd7WSgtxtAJzFV+5E=
+			ZU9eCJwcHPd1aGiL49fVBn6fcETfoqUGHC0hf12Wilc=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

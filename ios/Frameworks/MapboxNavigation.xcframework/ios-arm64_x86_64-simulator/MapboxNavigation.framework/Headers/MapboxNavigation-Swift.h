@@ -1120,11 +1120,11 @@ SWIFT_CLASS_NAMED("MarkerView")
 
 
 @class UIGestureRecognizer;
-@class MGLMapCamera;
 
 /// <code>NavigationMapView</code> is a subclass of <code>MGLMapView</code> with convenience functions for adding <code>Route</code> lines to a map.
 SWIFT_CLASS_NAMED("NavigationMapView")
 @interface MBNavigationMapView : MGLMapView <UIGestureRecognizerDelegate>
+@property (nonatomic) CLLocationDistance defaultAltitudeVM;
 /// Returns the altitude that the map camera initally defaults to.
 @property (nonatomic) CLLocationDistance defaultAltitude;
 /// Returns the altitude the map conditionally zooms out to when user is on a motorway, and the maneuver length is sufficently long.
@@ -1152,9 +1152,9 @@ SWIFT_CLASS_NAMED("NavigationMapView")
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)decoder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithFrame:(CGRect)frame styleURL:(NSURL * _Nullable)styleURL OBJC_DESIGNATED_INITIALIZER;
 - (void)prepareForInterfaceBuilder;
+- (void)layoutSubviews;
 - (CGPoint)anchorPointForGesture:(UIGestureRecognizer * _Nonnull)gesture SWIFT_WARN_UNUSED_RESULT;
 - (void)mapViewDidFinishRenderingFrameFullyRendered:(BOOL)fullyRendered;
-- (void)updateCourseTrackingWithLocation:(CLLocation * _Nullable)location camera:(MGLMapCamera * _Nullable)camera animated:(BOOL)animated;
 - (void)showcase:(NSArray<MBRoute *> * _Nonnull)routes padding:(UIEdgeInsets)padding animated:(BOOL)animated;
 /// Adds or updates both the route line and the route line casing
 - (void)showRoutes:(NSArray<MBRoute *> * _Nonnull)routes legIndex:(NSInteger)legIndex;
@@ -1400,6 +1400,7 @@ SWIFT_CLASS_NAMED("NavigationView")
 
 
 @class MBDirections;
+@class MGLMapCamera;
 @protocol MBNavigationViewControllerDelegate;
 @class MBNavigationLocationManager;
 
@@ -3113,11 +3114,11 @@ SWIFT_CLASS_NAMED("MarkerView")
 
 
 @class UIGestureRecognizer;
-@class MGLMapCamera;
 
 /// <code>NavigationMapView</code> is a subclass of <code>MGLMapView</code> with convenience functions for adding <code>Route</code> lines to a map.
 SWIFT_CLASS_NAMED("NavigationMapView")
 @interface MBNavigationMapView : MGLMapView <UIGestureRecognizerDelegate>
+@property (nonatomic) CLLocationDistance defaultAltitudeVM;
 /// Returns the altitude that the map camera initally defaults to.
 @property (nonatomic) CLLocationDistance defaultAltitude;
 /// Returns the altitude the map conditionally zooms out to when user is on a motorway, and the maneuver length is sufficently long.
@@ -3145,9 +3146,9 @@ SWIFT_CLASS_NAMED("NavigationMapView")
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)decoder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithFrame:(CGRect)frame styleURL:(NSURL * _Nullable)styleURL OBJC_DESIGNATED_INITIALIZER;
 - (void)prepareForInterfaceBuilder;
+- (void)layoutSubviews;
 - (CGPoint)anchorPointForGesture:(UIGestureRecognizer * _Nonnull)gesture SWIFT_WARN_UNUSED_RESULT;
 - (void)mapViewDidFinishRenderingFrameFullyRendered:(BOOL)fullyRendered;
-- (void)updateCourseTrackingWithLocation:(CLLocation * _Nullable)location camera:(MGLMapCamera * _Nullable)camera animated:(BOOL)animated;
 - (void)showcase:(NSArray<MBRoute *> * _Nonnull)routes padding:(UIEdgeInsets)padding animated:(BOOL)animated;
 /// Adds or updates both the route line and the route line casing
 - (void)showRoutes:(NSArray<MBRoute *> * _Nonnull)routes legIndex:(NSInteger)legIndex;
@@ -3393,6 +3394,7 @@ SWIFT_CLASS_NAMED("NavigationView")
 
 
 @class MBDirections;
+@class MGLMapCamera;
 @protocol MBNavigationViewControllerDelegate;
 @class MBNavigationLocationManager;
 
