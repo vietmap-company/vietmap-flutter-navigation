@@ -125,7 +125,7 @@ class BottomActionView extends StatelessWidget {
       return _formatDate(estimateArriveTime, 'dd/MM - hh:mm a');
     }
 
-    return _formatTime(estimateArriveTime, 'hh:mm a');
+    return _formatTime(estimateArriveTime, 'hh mm');
   }
 
   _getTimeArriveRemaining() {
@@ -187,10 +187,10 @@ class BottomActionView extends StatelessWidget {
           formattedTime += time.hour.toString().padLeft(2, '0');
           break;
         case 'mm':
-          formattedTime += time.minute.toString().padLeft(2, '0');
+          formattedTime += ':${time.minute.toString().padLeft(2, '0')}';
           break;
         case 'a':
-          formattedTime += time.hour < 12 ? 'AM' : 'PM';
+          formattedTime += time.hour < 12 ? ' AM' : ' PM';
           break;
         default:
           break;
