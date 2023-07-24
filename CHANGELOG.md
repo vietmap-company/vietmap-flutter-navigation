@@ -1,3 +1,9 @@
+## 1.0.3
+- Update readme.md document
+## 1.0.2
+- Remove dead code
+- Update document 
+- Optimize android navigation performance
 ## 1.0.1
 - Fix simulate route on iOS
 ## 1.0.0

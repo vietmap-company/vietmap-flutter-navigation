@@ -1,10 +1,10 @@
-# Vietmap Flutter navigation
+# Vietmap Flutter Navigation
 
-Vietmap Flutter navigation
+Vietmap Flutter Navigation
 
 Liên hệ [vietmap.vn](https://vietmap.vn) để đăng kí key hợp lệ.
 
-## Getting Started
+## Getting started
 
 Thêm thư viện vào file pubspec.yaml
 ```yaml
@@ -12,8 +12,12 @@ Thêm thư viện vào file pubspec.yaml
 ```
 
 Kiểm tra phiên bản của thư viện tại [https://pub.dev/packages/vietmap_flutter_navigation](https://pub.dev/packages/vietmap_flutter_navigation)
-
-### Android config
+ 
+hoặc chạy lệnh sau để thêm thư viện vào project:
+```bash
+  flutter pub add vietmap_flutter_navigation
+```
+## Cấu hình cho Android
 
 
 Thêm đoạn code sau vào build.gradle (project) tại path android/build.gradle
@@ -38,7 +42,7 @@ allprojects {
 ```
 
 
-### iOS config
+## Cấu hình cho iOS
 Thêm đoạn code sau vào file Info.plist
 ```
 	<key>VietMapAPIBaseURL</key>
@@ -56,7 +60,7 @@ Thêm đoạn code sau vào file Info.plist
 ```
 
 
-### Demo code
+## Các tính năng chính
 
 
 Khai báo các biến cần thiết và hàm cấu hình khởi tạo
@@ -153,7 +157,8 @@ Thêm các nút như xem tổng quan đường đi, về giữa để điều h�
 ```
 Các hàm thường sử dụng
 ```dart
-          /// Tìm đường mới từ 2 điểm, waypoint1 là điểm bắt đầu, waypoint2 là điểm kết thúc, biến wayPoints nhận vào 1 List gồm 2 điểm waypoint1 và waypoint2 là điểm bắt đầu và kết thúc
+          /// Tìm đường mới từ 2 điểm, waypoint1 là điểm bắt đầu, 
+          /// waypoint2 là điểm kết thúc.
             _controller?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
 
           /// Bắt đầu dẫn đường, gọi sau khi đã gọi hàm buildRoute phía trên
@@ -164,7 +169,8 @@ Các hàm thường sử dụng
                 wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
                 profile: DrivingProfile.drivingTraffic);
           
-          /// Hàm về giữa sau khi nhấn xem tông quan đường đi hoặc người dùng di chuyển bản đồ tới vị trí khác
+          /// Hàm về giữa sau khi nhấn xem tông quan đường đi 
+          /// hoặc người dùng di chuyển bản đồ tới vị trí khác
           _controller?.recenter();
 
           /// Hàm xem tổng quát đường đi
@@ -178,4 +184,4 @@ Các hàm thường sử dụng
 ```
 Code mẫu màn hình dẫn đường [tại đây](./example/lib/main.dart)
 # Lưu ý: Thay apikey được cung cấp vào toàn bộ tag _YOUR_API_KEY_HERE_ để ứng dụng hoạt động bình thường
-![Navigation screen](./images/navigation.jpg)
+![Navigation screen](/images/navigation.jpg)
