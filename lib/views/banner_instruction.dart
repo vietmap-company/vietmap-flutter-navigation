@@ -9,7 +9,11 @@ class BannerInstructionView extends StatelessWidget {
     required this.routeProgressEvent,
     required this.instructionIcon,
   });
+
+  /// this widget use [RouteProgressEvent] to show the direction icon and instruction
   final RouteProgressEvent? routeProgressEvent;
+
+  /// this widget use [instructionIcon] to show the direction icon, allow user show custom instruction icon for each direction
   final Widget instructionIcon;
 
   @override

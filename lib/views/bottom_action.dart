@@ -11,10 +11,21 @@ class BottomActionView extends StatelessWidget {
       required this.recenterButton,
       this.onOverviewCallback,
       this.onStopNavigationCallback});
+
+  /// this widget use [MapNavigationViewController] to control the map (overview, finish navigation)
   final MapNavigationViewController? controller;
+
+  /// will return overviewCallback when user click on the overview button
   final VoidCallback? onOverviewCallback;
+
+  /// allow a custom widget to recenter the map
   final Widget recenterButton;
+
+  /// this widget use [RouteProgressEvent] to show the information to calculate
+  /// the time arrive remaining, distance remaining and estimated arrival time
   final RouteProgressEvent? routeProgressEvent;
+
+  /// will return onStopNavigationCallback when user click on the stop navigation button
   final VoidCallback? onStopNavigationCallback;
 
   @override

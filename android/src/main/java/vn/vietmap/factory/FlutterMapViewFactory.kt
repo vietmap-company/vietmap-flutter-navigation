@@ -120,10 +120,10 @@ class FlutterMapViewFactory  :
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
     private val navigationOptions = MapboxNavigationOptions
-        .builder().maxTurnCompletionOffset(5.0)
-        .maneuverZoneRadius(40.0).maximumDistanceOffRoute(60.0)
+        .builder().maxTurnCompletionOffset(30.0)
+        .maneuverZoneRadius(40.0).maximumDistanceOffRoute(50.0)
         .deadReckoningTimeInterval(5.0).maxManipulatedCourseAngle(25.0)
-        .userLocationSnapDistance(5.0).secondsBeforeReroute(3)
+        .userLocationSnapDistance(20.0).secondsBeforeReroute(3)
         .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
         .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
         .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
@@ -132,6 +132,15 @@ class FlutterMapViewFactory  :
         .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED)
         .locationAcceptableAccuracyInMetersThreshold(100)
         .build()
+//    private val navigationOptions = MapboxNavigationOptions
+//        .builder().maxTurnCompletionOffset(30.0).maneuverZoneRadius(40.0)
+//        .maximumDistanceOffRoute(20.0).deadReckoningTimeInterval(1.0)
+//        .maxManipulatedCourseAngle(25.0).userLocationSnapDistance(10.0).secondsBeforeReroute(3)
+//        .enableOffRouteDetection(true).enableFasterRouteDetection(false).snapToRoute(true)
+//        .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
+//        .minimumDistanceBeforeRerouting(100.0).metersRemainingTillArrival(40.0)
+//        .isFromNavigationUi(false).isDebugLoggingEnabled(false).roundingIncrement(50)
+//        .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED).locationAcceptableAccuracyInMetersThreshold(100)
 
     /*
     MapboxNavigationOptions

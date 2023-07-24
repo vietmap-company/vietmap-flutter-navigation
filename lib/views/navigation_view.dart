@@ -117,6 +117,7 @@ class _NavigationViewState extends State<NavigationView> {
         });
   }
 
+  /// handle all events from the native side and response to the user callback function
   Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {
     switch (e.eventType) {
       case MapEvent.progressChange:
