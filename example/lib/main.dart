@@ -77,7 +77,12 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption.apiKey =
         '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/06602373-c116-41cc-9af6-1ce0dc7807ae";
+
+        ///raster tile
+        'https://run.mocky.io/v3/961aaa3a-f380-46be-9159-09cc985d9326';
+
+    ///vector tile
+    // "https://run.mocky.io/v3/06602373-c116-41cc-9af6-1ce0dc7807ae";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }

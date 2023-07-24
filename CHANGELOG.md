@@ -1,3 +1,5 @@
+## 1.0.1
+- Fix simulate route on iOS
 ## 1.0.0
 - Optimize iOS navigation performance
 - Fix android crash when open navigation

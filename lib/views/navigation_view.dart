@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +13,9 @@ import '../models/route_event.dart';
 import '../models/route_progress_event.dart';
 
 class NavigationView extends StatefulWidget {
+  /// NavigationView is a widget that show a map with navigation
+  /// it will response all events from the map and navigation
+  /// and return all information about the route
   const NavigationView(
       {super.key,
       required this.mapOptions,
@@ -30,25 +32,66 @@ class NavigationView extends StatefulWidget {
       this.userOffRoute,
       this.onMapMoveEnd,
       this.onMapReady,
-        this.onMapRendered,
+      this.onMapRendered,
       this.onMapLongClick,
       this.onMapClick});
+
+  /// Setting navigation options for the map
   final MapOptions mapOptions;
+
+  /// This callback will called whenever user change GPS location
+  /// it will response a [RouteProgressEvent] object, which contains all information about current route
   final Function(RouteProgressEvent)? onRouteProgressChange;
+
+  /// This callback will called when map is created
   final Function(MapNavigationViewController) onMapCreated;
+
+  /// This callback will called when the route is building
   final VoidCallback? onRouteBuilding;
+
+  /// This callback will called when the route is built successfully and response a [DirectionRoute] object
+  /// which contains all information about the route
   final Function(DirectionRoute)? onRouteBuilt;
+
+  /// This callback will called when the route is built failed and response a message
   final Function(String?)? onRouteBuildFailed;
+
+  /// This callback will called when the navigation is running
   final VoidCallback? onNavigationRunning;
+
+  /// This callback will called when the user is arrival to the destination
   final VoidCallback? onArrival;
+
+  /// This callback will called when the navigation is finished (user arrived destination)
   final VoidCallback? onNavigationFinished;
+
+  /// This callback will called when the navigation is cancelled
+  /// (user click on the cancel button on the navigation view)
   final VoidCallback? onNavigationCancelled;
+
+  /// This callback will called when the map is start move
   final VoidCallback? onMapMove;
+
+  /// This callback will called when the map is rendered successfully and complete show all elements of the map
   final VoidCallback? onMapRendered;
+
+  /// This callback will called when the map is moved end
   final VoidCallback? onMapMoveEnd;
+
+  /// This callback will called when the map is ready
   final VoidCallback? onMapReady;
+
+  /// This callback will called when the user long click on the map and response a [WayPoint] object
+  /// which contains all information about the location where user long click
   final Function(WayPoint?)? onMapLongClick;
+
+  /// This callback will called when the user click on the map and response a [WayPoint] object
+  /// which contains all information about the location where user click
   final Function(WayPoint?)? onMapClick;
+
+  /// This callback will called when the user is off route and response a [WayPoint] object
+  /// which contains all information about the location where user off route
+  /// (user is off route when user is not follow the route)
   final Function(WayPoint?)? userOffRoute;
 
   @override
@@ -154,7 +197,7 @@ class _NavigationViewState extends State<NavigationView> {
         }
         break;
       case MapEvent.onMapRendered:
-        if(widget.onMapRendered != null) widget.onMapRendered!();
+        if (widget.onMapRendered != null) widget.onMapRendered!();
         break;
       default:
         break;
