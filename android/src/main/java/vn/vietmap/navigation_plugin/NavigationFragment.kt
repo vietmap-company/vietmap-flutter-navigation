@@ -138,7 +138,7 @@
 //    private fun fetchRoute(origin: Point, destination: Point) {
 //
 //        val builder = NavigationRoute.builder(activity)
-//            .apikey("89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944")
+//            .apikey("YOUR_API_KEY_HERE")
 //            .origin(origin)
 //            .destination(destination)
 //            .alternatives(true)

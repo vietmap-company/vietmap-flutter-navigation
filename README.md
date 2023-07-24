@@ -177,5 +177,5 @@ Các hàm thường sử dụng
           _controller?.finishNavigation();
 ```
 Code mẫu màn hình dẫn đường [tại đây](./example/lib/main.dart)
-
+# Lưu ý: Thay apikey được cung cấp vào toàn bộ tag _YOUR_API_KEY_HERE_ để ứng dụng hoạt động bình thường
 ![Navigation screen](./images/navigation.jpg)

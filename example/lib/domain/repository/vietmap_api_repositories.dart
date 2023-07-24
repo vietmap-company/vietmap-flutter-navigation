@@ -18,7 +18,7 @@ import '../../core/failures/exception_failure.dart';
 class VietmapApiRepositories implements VietmapApiRepository {
   late Dio _dio;
   String baseUrl = 'https://maps.vietmap.vn/api/';
-  String apiKey = '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
+  String apiKey = 'YOUR_API_KEY_HERE';
   VietmapApiRepositories() {
     _dio = Dio(BaseOptions(baseUrl: baseUrl));
 

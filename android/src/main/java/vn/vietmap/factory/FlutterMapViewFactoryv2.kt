@@ -209,7 +209,7 @@
 //        FlutterMapViewFactoryv2.originPoint = Point.fromLngLat(FlutterMapViewFactoryv2.wayPoints[0].longitude(), FlutterMapViewFactoryv2.wayPoints[0].latitude())
 //        FlutterMapViewFactoryv2.destinationPoint = Point.fromLngLat(FlutterMapViewFactoryv2.wayPoints[1].longitude(), FlutterMapViewFactoryv2.wayPoints[1].latitude())
 //        val builder = NavigationRoute.builder(activity)
-//            .apikey("89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944")
+//            .apikey("YOUR_API_KEY_HERE")
 //            .origin(FlutterMapViewFactoryv2.originPoint!!)
 //            .destination(FlutterMapViewFactoryv2.destinationPoint!!)
 //            .alternatives(true)
