@@ -1,3 +1,6 @@
+## 1.0.5
+- Migrate to vietmap android navigation sdk version 2.0.0
+- Fix android overview route
 ## 1.0.4
 - Fix cancel navigation iOS
 ## 1.0.3
