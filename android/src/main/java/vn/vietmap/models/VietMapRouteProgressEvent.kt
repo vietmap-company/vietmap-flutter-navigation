@@ -3,7 +3,7 @@ package vn.vietmap.models
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.mapbox.api.directions.v5.models.BannerInstructions
-import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
+import vn.vietmap.services.android.navigation.v5.routeprogress.RouteProgress
 
 class VietMapRouteProgressEvent(progress: RouteProgress) {
 

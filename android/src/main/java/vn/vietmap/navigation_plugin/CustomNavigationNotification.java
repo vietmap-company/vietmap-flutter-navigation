@@ -1,6 +1,7 @@
 package vn.vietmap.navigation_plugin;
 
-import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.NAVIGATION_NOTIFICATION_CHANNEL;
+
+import static vn.vietmap.services.android.navigation.v5.navigation.NavigationConstants.NAVIGATION_NOTIFICATION_CHANNEL;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -16,8 +17,9 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
-import com.mapbox.services.android.navigation.v5.navigation.notification.NavigationNotification;
-import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress;
+import vn.vietmap.services.android.navigation.v5.navigation.notification.NavigationNotification;
+import vn.vietmap.services.android.navigation.v5.routeprogress.RouteProgress;
+
 
 public class CustomNavigationNotification implements NavigationNotification {
 
@@ -32,7 +34,7 @@ public class CustomNavigationNotification implements NavigationNotification {
     public CustomNavigationNotification(Context applicationContext) {
         notificationManager = (NotificationManager) applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
         customNotificationBuilder = new NotificationCompat.Builder(applicationContext, NAVIGATION_NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.maplibre_compass_icon)
+                .setSmallIcon(R.drawable.vietmap_compass_icon)
                 .setContentTitle("Custom Navigation Notification")
                 .setContentText("Display your own content here!")
                 .setContentIntent(createPendingStopIntent(applicationContext));

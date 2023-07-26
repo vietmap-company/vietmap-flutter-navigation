@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".NavigationFragment">
 
-    <com.mapbox.services.android.navigation.ui.v5.NavigationView
+    <vn.vietmap.services.android.navigation.ui.v5.NavigationView
         android:id="@+id/navigation_fragment_frame"
         android:layout_width="0dp"
         android:layout_height="0dp"

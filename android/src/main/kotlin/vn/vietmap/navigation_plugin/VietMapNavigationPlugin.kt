@@ -4,12 +4,12 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.NonNull
 import vn.vietmap.factory.MapViewFactory
-import com.mapbox.mapboxsdk.Mapbox
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.*
 import io.flutter.plugin.platform.PlatformViewRegistry
+import vn.vietmap.vietmapsdk.Vietmap
 
 /** VietMapNavigationPlugin */
 class VietMapNavigationPlugin : FlutterPlugin , ActivityAware,EventChannel.StreamHandler
@@ -70,13 +70,12 @@ class VietMapNavigationPlugin : FlutterPlugin , ActivityAware,EventChannel.Strea
         currentActivity = binding.activity
 
         currentContext = binding.activity.applicationContext
-        Mapbox.getInstance(currentContext)
+        Vietmap.getInstance(currentContext)
         if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
             platformViewRegistry?.registerViewFactory(
                 viewId,
                 MapViewFactory(binaryMessenger!!, currentActivity!!)
             )
-
         }
     }
 

@@ -1,7 +1,4 @@
 package vn.vietmap.factory
-
-//import com.mapbox.services.android.navigation.ui.v5.LocationEngineConductor
-
 import android.Manifest
 import android.app.Activity
 import android.app.Application
@@ -19,7 +16,7 @@ import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.mapbox.android.gestures.MoveGestureDetector
+import vn.vietmap.android.gestures.MoveGestureDetector
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
@@ -27,50 +24,53 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.core.constants.Constants
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.utils.PolylineUtils
-import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.camera.CameraPosition
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory.newLatLngBounds
-import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.LocationComponentOptions
-import com.mapbox.mapboxsdk.location.engine.LocationEngine
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
-import com.mapbox.mapboxsdk.location.permissions.PermissionsManager
-import com.mapbox.mapboxsdk.maps.*
-import com.mapbox.mapboxsdk.maps.MapView.OnDidFinishRenderingMapListener
-import com.mapbox.mapboxsdk.maps.MapboxMap.OnMoveListener
-import com.mapbox.mapboxsdk.style.layers.LineLayer
-import com.mapbox.mapboxsdk.style.layers.Property.LINE_CAP_ROUND
-import com.mapbox.mapboxsdk.style.layers.Property.LINE_JOIN_ROUND
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.services.android.navigation.ui.v5.R
-import com.mapbox.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
-import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener
-import com.mapbox.services.android.navigation.ui.v5.listeners.RouteListener
-import com.mapbox.services.android.navigation.ui.v5.listeners.SpeechAnnouncementListener
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
-import com.mapbox.services.android.navigation.ui.v5.voice.NavigationSpeechPlayer
-import com.mapbox.services.android.navigation.ui.v5.voice.SpeechAnnouncement
-import com.mapbox.services.android.navigation.ui.v5.voice.SpeechPlayer
-import com.mapbox.services.android.navigation.ui.v5.voice.SpeechPlayerProvider
-import com.mapbox.services.android.navigation.v5.location.engine.LocationEngineProvider
-import com.mapbox.services.android.navigation.v5.location.replay.ReplayRouteLocationEngine
-import com.mapbox.services.android.navigation.v5.milestone.Milestone
-import com.mapbox.services.android.navigation.v5.milestone.MilestoneEventListener
-import com.mapbox.services.android.navigation.v5.milestone.VoiceInstructionMilestone
-import com.mapbox.services.android.navigation.v5.navigation.*
-import com.mapbox.services.android.navigation.v5.offroute.OffRouteDetector
-import com.mapbox.services.android.navigation.v5.offroute.OffRouteListener
-import com.mapbox.services.android.navigation.v5.route.FasterRouteListener
-import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener
-import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
-import com.mapbox.services.android.navigation.v5.snap.SnapToRoute
-import com.mapbox.services.android.navigation.v5.utils.RouteUtils
+import vn.vietmap.vietmapsdk.Vietmap
+import vn.vietmap.vietmapsdk.camera.CameraPosition
+import vn.vietmap.vietmapsdk.camera.CameraUpdate
+import vn.vietmap.vietmapsdk.camera.CameraUpdateFactory
+import vn.vietmap.vietmapsdk.camera.CameraUpdateFactory.newLatLngBounds
+import vn.vietmap.vietmapsdk.geometry.LatLng
+import vn.vietmap.vietmapsdk.geometry.LatLngBounds
+import vn.vietmap.vietmapsdk.location.LocationComponentActivationOptions
+import vn.vietmap.vietmapsdk.location.LocationComponentOptions
+import vn.vietmap.vietmapsdk.location.engine.LocationEngine
+import vn.vietmap.vietmapsdk.location.modes.CameraMode
+import vn.vietmap.vietmapsdk.location.modes.RenderMode
+import vn.vietmap.vietmapsdk.location.permissions.PermissionsManager
+import vn.vietmap.vietmapsdk.maps.*
+import vn.vietmap.vietmapsdk.maps.MapView.OnDidFinishRenderingMapListener
+import vn.vietmap.vietmapsdk.maps.VietMapGL.OnMoveListener
+import vn.vietmap.vietmapsdk.style.layers.LineLayer
+import vn.vietmap.vietmapsdk.style.layers.Property.LINE_CAP_ROUND
+import vn.vietmap.vietmapsdk.style.layers.Property.LINE_JOIN_ROUND
+import vn.vietmap.vietmapsdk.style.layers.PropertyFactory.*
+import vn.vietmap.vietmapsdk.style.layers.SymbolLayer
+import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
+import vn.vietmap.services.android.navigation.ui.v5.R
+import vn.vietmap.services.android.navigation.ui.v5.camera.CameraOverviewCancelableCallback
+import vn.vietmap.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
+import vn.vietmap.services.android.navigation.ui.v5.listeners.NavigationListener
+import vn.vietmap.services.android.navigation.ui.v5.listeners.RouteListener
+import vn.vietmap.services.android.navigation.ui.v5.listeners.SpeechAnnouncementListener
+import vn.vietmap.services.android.navigation.ui.v5.route.NavigationMapRoute
+import vn.vietmap.services.android.navigation.ui.v5.voice.NavigationSpeechPlayer
+import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechAnnouncement
+import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechPlayer
+import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechPlayerProvider
+import vn.vietmap.services.android.navigation.v5.location.engine.LocationEngineProvider
+import vn.vietmap.services.android.navigation.v5.location.replay.ReplayRouteLocationEngine
+import vn.vietmap.services.android.navigation.v5.milestone.Milestone
+import vn.vietmap.services.android.navigation.v5.milestone.MilestoneEventListener
+import vn.vietmap.services.android.navigation.v5.milestone.VoiceInstructionMilestone
+import vn.vietmap.services.android.navigation.v5.navigation.*
+import vn.vietmap.services.android.navigation.v5.navigation.camera.RouteInformation
+import vn.vietmap.services.android.navigation.v5.offroute.OffRouteDetector
+import vn.vietmap.services.android.navigation.v5.offroute.OffRouteListener
+import vn.vietmap.services.android.navigation.v5.route.FasterRouteListener
+import vn.vietmap.services.android.navigation.v5.routeprogress.ProgressChangeListener
+import vn.vietmap.services.android.navigation.v5.routeprogress.RouteProgress
+import vn.vietmap.services.android.navigation.v5.snap.SnapToRoute
+import vn.vietmap.services.android.navigation.v5.utils.RouteUtils
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -86,6 +86,7 @@ import vn.vietmap.models.VietMapEvents
 import vn.vietmap.models.VietMapLocation
 import vn.vietmap.models.VietMapRouteProgressEvent
 import vn.vietmap.navigation_plugin.VietMapNavigationPlugin
+import vn.vietmap.services.android.navigation.ui.v5.camera.NavigationCamera
 import vn.vietmap.utilities.PluginUtilities
 import java.util.*
 
@@ -103,8 +104,8 @@ class FlutterMapViewFactory  :
     FasterRouteListener,
     SpeechAnnouncementListener,
     BannerInstructionsListener,
-    RouteListener, EventChannel.StreamHandler, MapboxMap.OnMapLongClickListener,
-    MapboxMap.OnMapClickListener,OnDidFinishRenderingMapListener {
+    RouteListener, EventChannel.StreamHandler, VietMapGL.OnMapLongClickListener,
+    VietMapGL.OnMapClickListener,OnDidFinishRenderingMapListener {
 
     private val activity: Activity
     private val context: Context
@@ -112,14 +113,14 @@ class FlutterMapViewFactory  :
     private val methodChannel: MethodChannel
     private val eventChannel: EventChannel
 
-    private val options: MapboxMapOptions
+    private val options: VietMapGLOptions
 
     private var mapView: MapView
-    private var mapBoxMap: MapboxMap? = null
+    private var vietmapGL: VietMapGL? = null
     private var currentRoute: DirectionsRoute? = null
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
-    private val navigationOptions = MapboxNavigationOptions
+    private val navigationOptions = VietmapNavigationOptions
         .builder().maxTurnCompletionOffset(30.0)
         .maneuverZoneRadius(40.0).maximumDistanceOffRoute(50.0)
         .deadReckoningTimeInterval(5.0).maxManipulatedCourseAngle(25.0)
@@ -132,7 +133,7 @@ class FlutterMapViewFactory  :
         .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED)
         .locationAcceptableAccuracyInMetersThreshold(100)
         .build()
-//    private val navigationOptions = MapboxNavigationOptions
+//    private val navigationOptions = VietmapNavigationOptions
 //        .builder().maxTurnCompletionOffset(30.0).maneuverZoneRadius(40.0)
 //        .maximumDistanceOffRoute(20.0).deadReckoningTimeInterval(1.0)
 //        .maxManipulatedCourseAngle(25.0).userLocationSnapDistance(10.0).secondsBeforeReroute(3)
@@ -143,7 +144,7 @@ class FlutterMapViewFactory  :
 //        .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED).locationAcceptableAccuracyInMetersThreshold(100)
 
     /*
-    MapboxNavigationOptions
+    VietmapNavigationOptions
             .builder().maxTurnCompletionOffset(10.0)
             .maneuverZoneRadius(40.0).maximumDistanceOffRoute(30.0)
             .deadReckoningTimeInterval(1.0).maxManipulatedCourseAngle(25.0)
@@ -157,7 +158,7 @@ class FlutterMapViewFactory  :
             .locationAcceptableAccuracyInMetersThreshold(100)
             .build()
      */
-    private var navigation: MapboxNavigation
+    private var navigation: VietmapNavigation
     private var mapReady = false
     private var isDisposed = false
     private var isRefreshing = false
@@ -170,7 +171,7 @@ class FlutterMapViewFactory  :
     private val snapEngine = SnapToRoute()
     private var apikey: String? = null
     private var speechPlayer: SpeechPlayer? = null
-
+    private var routeProgress: RouteProgress? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
     constructor(
         cxt: Context,
@@ -180,7 +181,7 @@ class FlutterMapViewFactory  :
         args: Any?
     ) {
 
-        Mapbox.getInstance(act.applicationContext)
+        Vietmap.getInstance(act.applicationContext)
             activity = act
             activity.application.registerActivityLifecycleCallbacks(this)
             context = cxt
@@ -193,7 +194,7 @@ class FlutterMapViewFactory  :
         eventChannel.setStreamHandler(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
-        options = MapboxMapOptions.createFromAttributes(context)
+        options = VietMapGLOptions.createFromAttributes(context)
             .compassEnabled(false)
             .logoEnabled(true)
         mapView = MapView(context, options)
@@ -202,7 +203,7 @@ class FlutterMapViewFactory  :
         }else{
             LocationEngineProvider.getBestLocationEngine(context)
         }
-        navigation = MapboxNavigation(
+        navigation = VietmapNavigation(
             context,
             navigationOptions,
             locationEngine!!
@@ -318,17 +319,19 @@ class FlutterMapViewFactory  :
 
     private fun overViewRoute() {
         isOverviewing = true
-        val boundsBuilder = LatLngBounds.Builder()
-        currentRoute?.let {
-            val path: List<Point> = PolylineUtils.decode(
-                it.geometry()?:"", Constants.PRECISION_6
-            )
-            path.forEach { p -> boundsBuilder.include(LatLng(p.latitude(),p.longitude())) }
-        }
-        val bounds: LatLngBounds = boundsBuilder
-            .build()
-        val cameraUpdate = newLatLngBounds(bounds, 300)
-        mapBoxMap?.animateCamera(cameraUpdate,700)
+//        val boundsBuilder = LatLngBounds.Builder()
+//        currentRoute?.let {
+//            val path: List<Point> = PolylineUtils.decode(
+//                it.geometry()?:"", Constants.PRECISION_6
+//            )
+//            path.forEach { p -> boundsBuilder.include(LatLng(p.latitude(),p.longitude())) }
+//        }
+//        val bounds: LatLngBounds = boundsBuilder
+//            .build()
+//        val cameraUpdate = newLatLngBounds(bounds, 300)
+//        vietmapGL?.animateCamera(cameraUpdate,700)
+        val padding:IntArray = intArrayOf(30,30,30,30)
+        routeProgress?.let { showRouteOverview(padding, it) }
     }
 
 
@@ -430,7 +433,7 @@ class FlutterMapViewFactory  :
         zoom = 19.0
         isOverviewing = false
         isNavigationCanceled = false
-        mapBoxMap?.locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH
+        vietmapGL?.locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH
 
         if (currentRoute != null) {
             if (simulateRoute) {
@@ -442,19 +445,12 @@ class FlutterMapViewFactory  :
                     navigation.locationEngine = it
                 }
             }
-            mapBoxMap?.locationComponent?.locationEngine = null
+            vietmapGL?.locationComponent?.locationEngine = null
             navigation.addNavigationEventListener(this)
             navigation.addFasterRouteListener(this)
             navigation.addMilestoneEventListener(this)
             navigation.addOffRouteListener(this)
             navigation.addProgressChangeListener(this)
-            val offRouteEngine: OffRouteDetector = OffRouteDetector()
-
-
-//            navigation.offRouteEngine =
-//            val mapboxNavigation = MapboxNavigation(context)
-//
-//            mapboxNavigation.startNavigation(currentRoute!!)
             navigation.snapEngine = snapEngine
             currentRoute?.let {
                 isNavigationInProgress = true
@@ -571,14 +567,14 @@ class FlutterMapViewFactory  :
             longPressDestinationEnabled = longPress
     }
 
-    override fun onMapReady(map: MapboxMap) {
+    override fun onMapReady(map: VietMapGL) {
         this.mapReady = true
-        this.mapBoxMap = map
+        this.vietmapGL = map
         if (simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
         println("You're using this style: $mapStyleURL")
-        mapBoxMap?.setStyle(mapStyleURL) { style ->
+        vietmapGL?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
             routeLineLayer.setProperties(
@@ -589,7 +585,7 @@ class FlutterMapViewFactory  :
             )
             style.addLayer(routeLineLayer)
 
-            mapBoxMap?.addOnMoveListener(object : OnMoveListener {
+            vietmapGL?.addOnMoveListener(object : OnMoveListener {
                 override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
                     isOverviewing = true
                     PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
@@ -608,10 +604,10 @@ class FlutterMapViewFactory  :
 
 
         if (longPressDestinationEnabled)
-            mapBoxMap?.addOnMapLongClickListener(this)
-        mapBoxMap?.addOnMapClickListener(this)
+            vietmapGL?.addOnMapLongClickListener(this)
+        vietmapGL?.addOnMapClickListener(this)
 
-//        markerViewManager = MarkerViewManager(mapView, mapBoxMap)
+//        markerViewManager = MarkerViewManager(mapView, vietmapGL)
 
         if (initialLatitude != null && initialLongitude != null)
             moveCamera(LatLng(initialLatitude!!, initialLongitude!!), null)
@@ -620,11 +616,11 @@ class FlutterMapViewFactory  :
     }
 
     private fun initMapRoute() {
-        if (mapBoxMap != null) {
-            navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
+        if (vietmapGL != null) {
+            navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
         }
 //        navigationMapRoute?.setOnRouteSelectionChangeListener(this)
-//        navigationMapRoute.addProgressChangeListener(MapboxNavigation(this))
+//        navigationMapRoute.addProgressChangeListener(VietmapNavigation(this))
     }
     override fun onMapLongClick(point: LatLng): Boolean {
         if (wayPoints.size === 2) {
@@ -635,14 +631,12 @@ class FlutterMapViewFactory  :
             "{\"latitude\":${point.latitude},\"longitude\":${point.longitude}}"
         )
 
-//        var navCam = NavigationCamera(mapBoxMap!!, navigation, mapBoxMap!!.locationComponent)
+//        var navCam = NavigationCamera(vietmapGL!!, navigation, vietmapGL!!.locationComponent)
 //        navCam.showRouteOverview(intArrayOf(20, 20, 20, 20))
         return false
     }
 
     fun Context.addDestinationIconSymbolLayer(loadedMapStyle: Style) {
-//        loadedMapStyle.addImage("destination-icon-id",
-//            BitmapFactory.decodeResource(this.resources, R.drawable.mapbox_marker_icon_default))
         val geoJsonSource = GeoJsonSource("destination-source-id")
         loadedMapStyle.addSource(geoJsonSource)
         val destinationSymbolLayer = SymbolLayer("destination-symbol-layer-id", "destination-source-id")
@@ -668,7 +662,7 @@ class FlutterMapViewFactory  :
         var duration = 3000
         if (!animateBuildRoute)
             duration = 1
-        mapBoxMap?.animateCamera(
+        vietmapGL?.animateCamera(
             CameraUpdateFactory
                 .newCameraPosition(cameraPosition.build()), duration
         )
@@ -688,7 +682,7 @@ class FlutterMapViewFactory  :
         var duration = 3000
         if (!animateBuildRoute)
             duration = 1
-        mapBoxMap?.animateCamera(
+        vietmapGL?.animateCamera(
             CameraUpdateFactory
                 .newCameraPosition(cameraPosition.build()), duration
         )
@@ -723,7 +717,7 @@ class FlutterMapViewFactory  :
     }
 
         private fun buildRoute(point: LatLng) {
-            val lastLocation = mapBoxMap?.locationComponent?.lastKnownLocation
+            val lastLocation = vietmapGL?.locationComponent?.lastKnownLocation
             if (lastLocation?.longitude != null) {
                 wayPoints.add(
                     Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
@@ -787,7 +781,7 @@ class FlutterMapViewFactory  :
                 if (navigationMapRoute != null) {
                     navigationMapRoute?.removeRoute()
                 } else {
-                    navigationMapRoute = NavigationMapRoute(mapView, mapBoxMap!!)
+                    navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
                 }
                 navigationMapRoute?.addRoute(currentRoute)
                 isBuildingRoute = false
@@ -861,7 +855,6 @@ class FlutterMapViewFactory  :
 
     override fun onProgressChange(location: Location, routeProgress: RouteProgress) {
 
-
         if (!isNavigationCanceled) {
             try {
                 distanceRemaining = routeProgress.distanceRemaining()
@@ -871,24 +864,25 @@ class FlutterMapViewFactory  :
                 PluginUtilities.sendEvent(progressEvent)
                 addCustomMarker(
                     LatLng(location.latitude, location.longitude),
-                    R.drawable.maplibre_marker_icon_default
+                    R.drawable.vietmap_marker_icon_default
                 )
 
                 currentCenterPoint =
                     CurrentCenterPoint(location.latitude, location.longitude, location.bearing)
 
                 if (!isOverviewing) {
+                    this.routeProgress = routeProgress
                     moveCamera(LatLng(location.latitude, location.longitude), location.bearing)
                 }
 
                 if(!isDisposed && !isBuildingRoute) {
                     val snappedLocation: Location =
                         snapEngine.getSnappedLocation(location, routeProgress)
-                    mapBoxMap?.locationComponent?.forceLocationUpdate(snappedLocation)
+                    vietmapGL?.locationComponent?.forceLocationUpdate(snappedLocation)
                 }
 
                 if (simulateRoute && !isDisposed && !isBuildingRoute) {
-                    mapBoxMap?.locationComponent?.forceLocationUpdate(location)
+                    vietmapGL?.locationComponent?.forceLocationUpdate(location)
                 }
 
                 if (!isRefreshing) {
@@ -911,10 +905,10 @@ class FlutterMapViewFactory  :
     override fun onMilestoneEvent(routeProgress: RouteProgress, instruction: String, milestone: Milestone) {
         playVoiceAnnouncement(milestone)
         if (routeUtils.isArrivalEvent(routeProgress, milestone) && isNavigationInProgress) {
-            mapBoxMap?.locationComponent?.locationEngine = locationEngine
+            vietmapGL?.locationComponent?.locationEngine = locationEngine
             PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
 
-            mapBoxMap?.locationComponent?.locationEngine = locationEngine
+            vietmapGL?.locationComponent?.locationEngine = locationEngine
             finishNavigation()
         }
         if (!isNavigationCanceled) {
@@ -937,7 +931,7 @@ class FlutterMapViewFactory  :
     }
 
     override fun onNavigationFinished() {
-        mapBoxMap?.locationComponent?.locationEngine = locationEngine
+        vietmapGL?.locationComponent?.locationEngine = locationEngine
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_FINISHED)
     }
 
@@ -987,7 +981,7 @@ class FlutterMapViewFactory  :
     }
 
     override fun onArrival() {
-        mapBoxMap?.locationComponent?.locationEngine = locationEngine
+        vietmapGL?.locationComponent?.locationEngine = locationEngine
         PluginUtilities.sendEvent(VietMapEvents.ON_ARRIVAL)
     }
 
@@ -1073,7 +1067,7 @@ class FlutterMapViewFactory  :
                 .pulseEnabled(true)
 
                 .build()
-            mapBoxMap?.locationComponent?.let { locationComponent ->
+            vietmapGL?.locationComponent?.let { locationComponent ->
                 locationComponent.activateLocationComponent(
                     LocationComponentActivationOptions.builder(context, loadedMapStyle)
                         .locationComponentOptions(customLocationComponentOptions)
@@ -1140,5 +1134,62 @@ class FlutterMapViewFactory  :
         TODO("Not yet implemented")
     }
 
+    private fun buildRouteInformationFromProgress(routeProgress: RouteProgress?): RouteInformation {
+        return if (routeProgress == null) {
+            RouteInformation.create(null, null, null)
+        } else RouteInformation.create(routeProgress.directionsRoute(), null, null)
+    }
+    fun showRouteOverview(padding: IntArray?, currentRouteProgress: RouteProgress){
 
+        val routeInformation: RouteInformation =
+            buildRouteInformationFromProgress(currentRouteProgress)
+        animateCameraForRouteOverview(routeInformation, padding!!)
+    }
+    private fun animateCameraForRouteOverview(
+        routeInformation: RouteInformation,
+        padding: IntArray
+    ) {
+        val cameraEngine = navigation.cameraEngine
+        val routePoints = cameraEngine.overview(routeInformation)
+        if (!routePoints.isEmpty()) {
+            animateVietmapGLForRouteOverview(padding, routePoints)
+        }
+    }
+
+    private fun animateVietmapGLForRouteOverview(padding: IntArray, routePoints: List<Point>) {
+        if (routePoints.size <= 1) {
+            return
+        }
+        val resetUpdate: CameraUpdate = buildResetCameraUpdate()
+        val overviewUpdate: CameraUpdate = buildOverviewCameraUpdate(padding, routePoints)
+        vietmapGL?.animateCamera(
+            resetUpdate, 150,
+            CameraOverviewCancelableCallback(overviewUpdate, vietmapGL)
+        )
+    }
+
+    private fun buildResetCameraUpdate(): CameraUpdate {
+        val resetPosition: CameraPosition = CameraPosition.Builder().tilt(0.0).bearing(0.0).build()
+        return CameraUpdateFactory.newCameraPosition(resetPosition)
+    }
+
+    private fun buildOverviewCameraUpdate(
+        padding: IntArray,
+        routePoints: List<Point>
+    ): CameraUpdate {
+        val routeBounds = convertRoutePointsToLatLngBounds(routePoints)
+        return newLatLngBounds(
+            routeBounds, padding[0], padding[1], padding[2], padding[3]
+        )
+    }
+
+    private fun convertRoutePointsToLatLngBounds(routePoints: List<Point>): LatLngBounds {
+        val latLngs: MutableList<LatLng> = ArrayList()
+        for (routePoint in routePoints) {
+            latLngs.add(LatLng(routePoint.latitude(), routePoint.longitude()))
+        }
+        return LatLngBounds.Builder()
+            .includes(latLngs)
+            .build()
+    }
 }

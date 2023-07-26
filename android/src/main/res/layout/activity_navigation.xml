@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <com.mapbox.services.android.navigation.ui.v5.NavigationView
+    <vn.vietmap.services.android.navigation.ui.v5.NavigationView
         android:id="@+id/navigationViewPluginWidget"
         android:layout_width="0dp"
         android:layout_height="0dp"

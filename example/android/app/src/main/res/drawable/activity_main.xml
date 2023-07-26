@@ -6,15 +6,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <com.mapbox.services.android.navigation.ui.v5.NavigationView
-        android:id="@+id/navigationViewPluginWidgett"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationLightTheme="@style/NavigationViewLight"
-        app:navigationDarkTheme="@style/NavigationViewDark"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
