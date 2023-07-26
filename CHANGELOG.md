@@ -1,3 +1,5 @@
+## 1.0.4
+- Fix cancel navigation iOS
 ## 1.0.3
 - Update readme.md document
 ## 1.0.2

@@ -369,6 +369,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     func cancelNavigation() {
         routeController?.endNavigation()
         navigationMapView.recenterMap()
+        suspendNotifications()
         sendEvent(eventType: MapEventType.navigationCancelled)
     }
     
