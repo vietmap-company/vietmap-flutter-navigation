@@ -155,6 +155,15 @@ Thêm các nút như xem tổng quan đường đi, về giữa để điều h�
               routeProgressEvent: routeProgressEvent
             )
 ```
+
+Thêm hàm dispose cho controller
+```dart
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+```
 Các hàm thường sử dụng
 ```dart
           /// Tìm đường mới từ 2 điểm, waypoint1 là điểm bắt đầu, 
@@ -176,7 +185,7 @@ Các hàm thường sử dụng
           /// Hàm xem tổng quát đường đi
           _controller?.overview();
 
-          /// Hàm tắt tiếng khi dẫn đường
+          /// Hàm tắt/bật tiếng khi dẫn đường
           _controller?.mute();
 
           /// Hàm kết thúc dẫn đường

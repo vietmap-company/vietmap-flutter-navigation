@@ -27,29 +27,9 @@ void main() {
   runApp(MaterialApp(
     builder: EasyLoading.init(),
     title: 'VietMap Navigation example app',
-    home: const TempScreenToPush(),
+    home: const VietMapNavigationScreen(),
     debugShowCheckedModeBanner: false,
   ));
-}
-
-class TempScreenToPush extends StatelessWidget {
-  const TempScreenToPush({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const VietMapNavigationScreen()));
-            },
-            child: const Text('Back')),
-      ),
-    );
-  }
 }
 
 class VietMapNavigationScreen extends StatefulWidget {
