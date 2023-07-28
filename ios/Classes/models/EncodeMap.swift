@@ -7,8 +7,8 @@
 
 import Foundation
 import MapboxDirections
-import MapboxCoreNavigation
-import MapboxNavigation
+import VietMapCoreNavigation
+import VietMapNavigation
 
 // MARK: encode route
 public func encodeRoute(route: Route) -> String {

@@ -73,7 +73,8 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
 
-    _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
+    _navigationOption.apiKey =
+        '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
         "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
 

@@ -10,6 +10,10 @@ PODS:
   - vietmap_flutter_navigation (0.0.1):
     - Flutter
     - VietMap (= 1.0.14)
+    - VietMapCoreNavigation (= 1.0.0)
+    - VietMapNavigation (= 1.0.0)
+  - VietMapCoreNavigation (1.0.0)
+  - VietMapNavigation (1.0.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -21,6 +25,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - VietMap
+    - VietMapCoreNavigation
+    - VietMapNavigation
 
 EXTERNAL SOURCES:
   Flutter:
@@ -40,8 +46,10 @@ SPEC CHECKSUMS:
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
   VietMap: ab9386c1e41ba42376d635217bbb0060716441e2
-  vietmap_flutter_navigation: 05203413bfab1960aec3d7f66ef93b68734100bd
+  vietmap_flutter_navigation: 42c3d95e1c529deb052b644a2cc2decd7a05ea16
+  VietMapCoreNavigation: 053b02a2965e4090b9e7d5a73868037cc216c496
+  VietMapNavigation: 1740f361d2fce6c61541a6638835269cf5f340e5
 
 PODFILE CHECKSUM: 6b9eb94e9f98a329f2ef624b852a6e42d090af2b
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.12.1
