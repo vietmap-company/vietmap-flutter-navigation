@@ -184,6 +184,12 @@ class MapNavigationViewController {
     return success;
   }
 
+  Future<bool?> onDispose() async {
+    var success =
+        await _methodChannel.invokeMethod(MethodChannelEvent.onDispose, null);
+    return success;
+  }
+
   /// Generic Handler for Messages sent from the Platform
   Future<dynamic> _handleMethod(MethodCall call) async {
     switch (call.method) {

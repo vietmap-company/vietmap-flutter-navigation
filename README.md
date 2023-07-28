@@ -182,6 +182,16 @@ Các hàm thường sử dụng
           /// Hàm kết thúc dẫn đường
           _controller?.finishNavigation();
 ```
+
+## Lưu ý khi sử dụng
+- Hàm **_controller?.buildRouteAndStartNavigation()** không nên để trong initState mà nên để trong hàm onPressed của button hoặc hàm onMapRendered của NavigationView để tránh crash app khi bản đồ chưa được khởi tạo hoàn toàn.
+```dart
+    onMapRendered: () {
+      _controller?.buildAndStartNavigation(
+      wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
+      profile: DrivingProfile.drivingTraffic);  
+    }
+```
 Code mẫu màn hình dẫn đường [tại đây](./example/lib/main.dart)
 # Lưu ý: Thay apikey được cung cấp vào toàn bộ tag _YOUR_API_KEY_HERE_ để ứng dụng hoạt động bình thường
 ![Navigation screen](/images/navigation.jpg)

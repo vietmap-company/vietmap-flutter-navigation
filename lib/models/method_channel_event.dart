@@ -11,4 +11,5 @@ class MethodChannelEvent {
   static const String finishNavigation = "finishNavigation";
   static const String buildAndStartNavigation = "buildAndStartNavigation";
   static const String mute = "mute";
+  static const String onDispose = "onDispose";
 }

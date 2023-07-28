@@ -1,3 +1,5 @@
+## 1.0.6
+- Fix crash on android when click finish navigation
 ## 1.0.5
 - Migrate to vietmap android navigation sdk version 2.0.0
 - Fix android overview route

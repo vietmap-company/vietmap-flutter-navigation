@@ -74,7 +74,7 @@ class VietMapNavigationPlugin : FlutterPlugin , ActivityAware,EventChannel.Strea
         if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
             platformViewRegistry?.registerViewFactory(
                 viewId,
-                MapViewFactory(binaryMessenger!!, currentActivity!!)
+                MapViewFactory(binaryMessenger!!, currentActivity!!,binding)
             )
         }
     }
