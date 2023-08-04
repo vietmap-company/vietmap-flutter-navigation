@@ -1,3 +1,5 @@
+## 1.1.0
+- Optimize navigation performance
 ## 1.0.6
 - Fix crash on android when click finish navigation
 ## 1.0.5

@@ -582,7 +582,6 @@ class FlutterMapViewFactory  :
                 lineJoin(LINE_JOIN_ROUND)
             )
             style.addLayer(routeLineLayer)
-
             vietmapGL?.addOnMoveListener(object : OnMoveListener {
                 override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
 //                    loadImageFromFlutterAssets( "assets/download.jpeg")
@@ -600,7 +599,6 @@ class FlutterMapViewFactory  :
             enableLocationComponent(style)
             initMapRoute()
         }
-
 
         if (longPressDestinationEnabled)
             vietmapGL?.addOnMapLongClickListener(this)

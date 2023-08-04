@@ -1,8 +1,8 @@
 # Vietmap Flutter Navigation
 
-Vietmap Flutter Navigation
+[<img src="https://bizweb.dktcdn.net/100/415/690/themes/804206/assets/logo.png?1689561872933" height="40"/> </p>](https://vietmap.vn/maps-api)
 
-Liên hệ [vietmap.vn](https://vietmap.vn) để đăng kí key hợp lệ.
+Liên hệ [vietmap.vn](https://bit.ly/vietmap-api) để đăng kí key hợp lệ.
 
 ## Getting started
 
@@ -20,7 +20,7 @@ hoặc chạy lệnh sau để thêm thư viện vào project:
 ## Cấu hình cho Android
 
 
-Thêm đoạn code sau vào build.gradle (project) tại path android/build.gradle
+Thêm đoạn code sau vào build.gradle (project) tại đường dẫn **android/build.gradle**
 
 ```gradle
  maven { url "https://jitpack.io" }
@@ -202,5 +202,14 @@ Các hàm thường sử dụng
     }
 ```
 Code mẫu màn hình dẫn đường [tại đây](./example/lib/main.dart)
-# Lưu ý: Thay apikey được cung cấp vào toàn bộ tag _YOUR_API_KEY_HERE_ để ứng dụng hoạt động bình thường
-![Navigation screen](/images/navigation.jpg)
+# Lưu ý: Thay apikey được VietMap cung cấp vào toàn bộ tag _YOUR_API_KEY_HERE_ để ứng dụng hoạt động bình thường
+
+Nếu có bất kỳ thắc mắc và hỗ trợ, vui lòng liên hệ:
+
+[<img src="https://bizweb.dktcdn.net/100/415/690/themes/804206/assets/logo.png?1689561872933" height="40"/> </p>](https://vietmap.vn/maps-api)
+Gửi email: [maps-api.support@vietmap.vn](mailto:maps-api.support@vietmap.vn)
+
+
+Liên hệ [hỗ trợ](https://vietmap.vn/lien-he)
+
+Tài liệu api [tại đây](https://maps.vietmap.vn/docs/map-api/overview/)

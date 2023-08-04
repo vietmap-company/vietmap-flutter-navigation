@@ -64,7 +64,6 @@ class VietmapApiRepositories implements VietmapApiRepository {
       if (res.statusCode == 200) {
         var data = List<VietmapAutocompleteModel>.from(
             res.data.map((e) => VietmapAutocompleteModel.fromJson(e)));
-        // var data = VietmapAutocompleteModel.fromJson(res.data);
         return Right(data);
       } else {
         return const Left(ApiServerFailure('Có lỗi xảy ra'));
@@ -87,7 +86,6 @@ class VietmapApiRepositories implements VietmapApiRepository {
 
       if (res.statusCode == 200) {
         var data = VietmapPlaceModel.fromJson(res.data);
-        // var data = VietmapAutocompleteModel.fromJson(res.data);
         return Right(data);
       } else {
         return const Left(ApiServerFailure('Có lỗi xảy ra'));
