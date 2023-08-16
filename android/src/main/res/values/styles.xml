@@ -61,7 +61,7 @@
     <style name="TestNavigationViewLight" parent="NavigationViewLight">
         <!-- Map style URL -->
         <item name="navigationViewMapStyle">
-            https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa
+            https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d
         </item>
     </style>
 </resources>

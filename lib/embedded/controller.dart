@@ -120,6 +120,12 @@ class MapNavigationViewController {
     return result;
   }
 
+  /// Set Center Icon for Navigation, get by call [VietMapHelper.getBytesFromAsset('assetsPath')]
+  Future<bool?> setCenterIcon(Uint8List? centerIcon) {
+    return _methodChannel.invokeMethod(
+        MethodChannelEvent.setCenterIcon, centerIcon);
+  }
+
   Future<void> recenter({MapOptions? options}) async {
     Map<String, dynamic>? args;
     if (options != null) args = options.toMap();
@@ -184,7 +190,7 @@ class MapNavigationViewController {
     return success;
   }
 
-  Future<bool?> onDispose() async {
+  Future<dynamic> onDispose() async {
     var success =
         await _methodChannel.invokeMethod(MethodChannelEvent.onDispose, null);
     return success;

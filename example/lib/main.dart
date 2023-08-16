@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
+import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
@@ -73,11 +74,11 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
 
-    _navigationOption.apiKey =
-        'YOUR_API_KEY_HERE';
+    _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa";
-
+        "https://run.mocky.io/v3/06602373-c116-41cc-9af6-1ce0dc7807ae";
+    _navigationOption.customLocationCenterIcon =
+        await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 
@@ -101,6 +102,11 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                   EasyLoading.dismiss();
                   _isRouteBuilt = true;
                 });
+              },
+              onMapRendered: () async {
+                _controller?.setCenterIcon(
+                    await VietMapHelper.getBytesFromAsset(
+                        'assets/download.jpeg'));
               },
               onMapLongClick: (WayPoint? point) async {
                 if (_isRunning) return;

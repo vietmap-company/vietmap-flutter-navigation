@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -40,7 +41,6 @@ import vn.vietmap.models.VietMapEvents
 import vn.vietmap.models.VietMapLocation
 import vn.vietmap.models.VietMapRouteProgressEvent
 import vn.vietmap.navigation_plugin.VietMapNavigationPlugin
-import vn.vietmap.services.android.navigation.ui.v5.R
 import vn.vietmap.services.android.navigation.ui.v5.camera.CameraOverviewCancelableCallback
 import vn.vietmap.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
 import vn.vietmap.services.android.navigation.ui.v5.listeners.NavigationListener
@@ -74,6 +74,8 @@ import vn.vietmap.vietmapsdk.geometry.LatLng
 import vn.vietmap.vietmapsdk.geometry.LatLngBounds
 import vn.vietmap.vietmapsdk.location.LocationComponentActivationOptions
 import vn.vietmap.vietmapsdk.location.LocationComponentOptions
+import vn.vietmap.vietmapsdk.location.LocationLayerController
+import vn.vietmap.vietmapsdk.location.LocationLayerRenderer
 import vn.vietmap.vietmapsdk.location.engine.LocationEngine
 import vn.vietmap.vietmapsdk.location.modes.CameraMode
 import vn.vietmap.vietmapsdk.location.modes.RenderMode
@@ -87,7 +89,6 @@ import vn.vietmap.vietmapsdk.style.layers.Property.LINE_JOIN_ROUND
 import vn.vietmap.vietmapsdk.style.layers.PropertyFactory.*
 import vn.vietmap.vietmapsdk.style.layers.SymbolLayer
 import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
-import java.io.IOException
 import java.util.*
 
 
@@ -170,6 +171,7 @@ class FlutterMapViewFactory  :
     private var speechPlayer: SpeechPlayer? = null
     private var routeProgress: RouteProgress? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
+    private var bitmapDrawable: BitmapDrawable? =null
     constructor(
         cxt: Context,
         messenger: BinaryMessenger,
@@ -186,6 +188,7 @@ class FlutterMapViewFactory  :
             val arguments = args as? Map<*, *>
             if (arguments != null)
                 setOptions(arguments)
+
 
         methodChannel = MethodChannel(messenger, "navigation_plugin/${viewId}")
         eventChannel = EventChannel(messenger, "navigation_plugin/${viewId}/events")
@@ -276,6 +279,15 @@ class FlutterMapViewFactory  :
             }
             "startNavigation" -> {
                 startNavigation(methodCall, result)
+            }
+            "setCenterIcon" ->{
+
+                val arguments = methodCall.arguments as? Map<*, *>
+                val byteArray = arguments?.get("customLocationCenterIcon") as? ByteArray
+                if(byteArray!=null){
+                    this.bitmapDrawable = loadImageFromBinary(byteArray)
+                    setCenterIcon();
+                }
             }
             "finishNavigation" -> {
                 finishNavigation(methodCall, result)
@@ -484,7 +496,10 @@ class FlutterMapViewFactory  :
         }
 
     }
-
+    private fun loadImageFromBinary(binaryData: ByteArray): BitmapDrawable {
+        val bitmap: Bitmap = BitmapFactory.decodeByteArray(binaryData, 0, binaryData.size)
+        return BitmapDrawable(context.resources, bitmap)
+    }
     private fun setOptions(arguments: Map<*, *>)
     {
         val navMode = arguments["mode"] as? String
@@ -520,6 +535,11 @@ class FlutterMapViewFactory  :
         val apik = arguments["apikey"] as? String
         if (apik != null&&apik!="") {
             apikey = apik
+        }
+
+        val byteArray = arguments["customLocationCenterIcon"] as? ByteArray
+        if(byteArray!=null){
+            this.bitmapDrawable = loadImageFromBinary(byteArray)
         }
 
         initialLatitude = arguments["initialLatitude"] as? Double
@@ -584,7 +604,6 @@ class FlutterMapViewFactory  :
             style.addLayer(routeLineLayer)
             vietmapGL?.addOnMoveListener(object : OnMoveListener {
                 override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
-//                    loadImageFromFlutterAssets( "assets/download.jpeg")
                     isOverviewing = true
                     PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
                 }
@@ -803,7 +822,6 @@ class FlutterMapViewFactory  :
                 originCoordinate?.let {
                     val location = LatLng(originCoordinate.latitude(), originCoordinate.longitude())
                     moveCamera(location,null)
-                    //addCustomMarker(location)
                 }
             }catch (e:java.lang.Exception){
                    Timber.i(String.format("moveCameraToOriginOfRoute, %s", "Error: ${e.message}"))
@@ -858,10 +876,10 @@ class FlutterMapViewFactory  :
 
                 val progressEvent = VietMapRouteProgressEvent(routeProgress)
                 PluginUtilities.sendEvent(progressEvent)
-                addCustomMarker(
-                    LatLng(location.latitude, location.longitude),
-                    R.drawable.vietmap_marker_icon_default
-                )
+//                addCustomMarker(
+//                    LatLng(location.latitude, location.longitude),
+//                    R.drawable.vietmap_marker_icon_default
+//                )
 
                 currentCenterPoint =
                     CurrentCenterPoint(location.latitude, location.longitude, location.bearing)
@@ -1063,6 +1081,8 @@ class FlutterMapViewFactory  :
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context)
                 .pulseEnabled(true)
+//                .backgroundDrawable()
+
 
                 .build()
             vietmapGL?.locationComponent?.let { locationComponent ->
@@ -1200,21 +1220,10 @@ class FlutterMapViewFactory  :
             .includes(latLngs)
             .build()
     }
-    private  fun  loadImageFromFlutterAssets(assetPath: String){
-        try {
-            val bitmap = loadImageFromAsset(assetPath)
-            // Process the bitmap or pass it back to Flutter if needed
-            // ...
-
-        } catch (e: IOException) {
-            println("LOAD_ERROR - Error loading image from asset")
-        }
-    }
-
-    @Throws(IOException::class)
-    private fun loadImageFromAsset(assetPath: String): Bitmap? {
-        val inputStream = context.assets.open(assetPath)
-        return BitmapFactory.decodeStream(inputStream)
-    }
-
+private  fun setCenterIcon(){
+//    var locationComponentOptions = vietmapGL?.locationComponent?.locationComponentOptions
+////    locationComponentOptions?.toBuilder()?.backgroundDrawable(bitmapDrawable)
+//    val locationLayerController : LocationLayerController?  = vietmapGL?.locationComponent?.locationLayerController;
+//    val locationLayerRenderer:LocationLayerRenderer? = locationLayerController?.getLocationLayerRenderer()
+}
 }

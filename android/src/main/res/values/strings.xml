@@ -57,7 +57,7 @@
     <string name="current_night_mode" translatable="false">current_night_mode</string>
 
     <string name="new_location">Vĩ độ: %1$s Kinh độ: %2$s</string>
-    <string name="map_view_style_url" translatable="false">https://run.mocky.io/v3/ff325d44-9fdd-480f-9f0f-a9155bf362fa</string>
+    <string name="map_view_style_url" translatable="false">https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d</string>
 
     <string name="user_location_permission_explanation">Ứng dụng này cần sử dụng quyền vị trí để hoạt động chính xác.</string>
     <string name="user_location_permission_not_granted">Bạn chưa cung cấp quyền vị trí.</string>

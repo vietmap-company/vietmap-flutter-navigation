@@ -1,3 +1,11 @@
+## 1.1.4
+- Update README.md document
+## 1.1.3
+- Update README.md document
+## 1.1.2
+- Fix warning on load drawable image
+## 1.1.1
+- Optimize navigation performance
 ## 1.1.0
 - Optimize navigation performance
 ## 1.0.6

@@ -12,4 +12,5 @@ class MethodChannelEvent {
   static const String buildAndStartNavigation = "buildAndStartNavigation";
   static const String mute = "mute";
   static const String onDispose = "onDispose";
+  static const String setCenterIcon = "setCenterIcon";
 }

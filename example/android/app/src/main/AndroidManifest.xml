@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="vn.vietmap.demo_plugin_example">
     <application
         android:label="vietmap_navigation_plugin"
         android:name="${applicationName}"

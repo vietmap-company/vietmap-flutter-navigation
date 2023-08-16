@@ -1,5 +1,8 @@
 // ignore_for_file: public_member_api_docs
 
+import 'dart:typed_data';
+
+import 'package:flutter/services.dart';
 import 'package:vietmap_flutter_navigation/models/voice_units.dart';
 import 'package:flutter/widgets.dart';
 
@@ -29,6 +32,7 @@ class MapOptions {
       this.bannerInstructionsEnabled,
       this.longPressDestinationEnabled,
       this.simulateRoute,
+      this.customLocationCenterIcon,
       this.isOptimized,
       this.mapStyleUrlDay,
       this.mapStyleUrlNight,
@@ -144,6 +148,9 @@ class MapOptions {
 
   bool? isCustomizeUI;
 
+  ///  Location center custom icon, get by call [VietMapHelper.getBytesFromAsset('assetsPath')]
+  Uint8List? customLocationCenterIcon;
+
   Map<String, dynamic> toMap() {
     final optionsMap = <String, dynamic>{};
     void addIfNonNull(String fieldName, dynamic value) {
@@ -159,6 +166,9 @@ class MapOptions {
     addIfNonNull('language', language);
     addIfNonNull('animateBuildRoute', animateBuildRoute);
     addIfNonNull('longPressDestinationEnabled', longPressDestinationEnabled);
+    if (customLocationCenterIcon != null) {
+      optionsMap['customLocationCenterIcon'] = customLocationCenterIcon;
+    }
 
     if (zoom != null) optionsMap['zoom'] = zoom;
     if (bearing != null) optionsMap['bearing'] = bearing;

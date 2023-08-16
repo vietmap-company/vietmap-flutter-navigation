@@ -2,32 +2,32 @@
 
 [<img src="https://bizweb.dktcdn.net/100/415/690/themes/804206/assets/logo.png?1689561872933" height="40"/> </p>](https://vietmap.vn/maps-api)
 
-Contact [vietmap.vn](https://bit.ly/vietmap-api) to register a valid key.
+Liên hệ [vietmap.vn](https://bit.ly/vietmap-api) để đăng kí key hợp lệ.
 
 ## Getting started
 
-Add library to pubspec.yaml file
+Thêm thư viện vào file pubspec.yaml
 ```yaml
   vietmap_flutter_navigation: latest_version
 ```
 
-Check the latest version at [https://pub.dev/packages/vietmap_flutter_navigation](https://pub.dev/packages/vietmap_flutter_navigation)
+Kiểm tra phiên bản của thư viện tại [https://pub.dev/packages/vietmap_flutter_navigation](https://pub.dev/packages/vietmap_flutter_navigation)
  
-or run this command in the terminal to add the library to the project:
+hoặc chạy lệnh sau để thêm thư viện vào project:
 ```bash
   flutter pub add vietmap_flutter_navigation
 ```
-## Android config
+## Cấu hình cho Android
 
 
-Add the below code to the build.gradle (project) file at path **android/build.gradle**
+Thêm đoạn code sau vào build.gradle (project) tại đường dẫn **android/build.gradle**
 
 ```gradle
  maven { url "https://jitpack.io" }
 ```
 
 
-at the repositories block
+như sau
 
 
 ```gradle
@@ -42,8 +42,8 @@ allprojects {
 ```
 
 
-## iOS config
-Add the below codes to the Info.plist file
+## Cấu hình cho iOS
+Thêm đoạn code sau vào file Info.plist
 ```
 	<key>VietMapAPIBaseURL</key>
 	<string>https://maps.vietmap.vn/api/navigations/route/</string>
@@ -60,8 +60,10 @@ Add the below codes to the Info.plist file
 ```
 
 
-## Main characteristics
+## Các tính năng chính
 
+
+Khai báo các biến cần thiết và hàm cấu hình khởi tạo
 ```dart
   late MapOptions _navigationOption;
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
@@ -71,7 +73,7 @@ Add the below codes to the Info.plist file
     WayPoint(
         name: "destination point", latitude: 10.762528, longitude: 106.653099)
   ];
-  /// Display the guide instruction image to the next turn
+  /// Hiển thị hình ảnh dẫn đường vào ngã rẽ tiếp theo
   Widget instructionImage = const SizedBox.shrink();
 
   Widget recenterButton = const SizedBox.shrink();
@@ -97,7 +99,7 @@ Add the below codes to the Info.plist file
   }
 ```
 
-Display the Navigation view, include map view, route and navigation
+Hiển thị Navigation view, bao gồm bản đồ và đường đi, điều hướng dẫn đường
 ```dart
           NavigationView(
             mapOptions: _navigationOption,
@@ -114,14 +116,15 @@ Display the Navigation view, include map view, route and navigation
           ),
 ```
 
-Add banner instruction to display icon, route name,...
+
+Thêm banner widget chỉ dẫn điều hướng 
 ```dart
             BannerInstructionView(
               routeProgressEvent: routeProgressEvent,
               instructionIcon: instructionImage,
             )
 ```
-Set instruction icon from routeProgress data.
+Hàm set hình ảnh dẫn đường
 ```dart
   _setInstructionImage(String? modifier, String? type) {
     if (modifier != null && type != null) {
@@ -136,9 +139,13 @@ Set instruction icon from routeProgress data.
     }
   }
 ```
-Instruction icon [here](./example/assets/navigation_symbol), copy and paste to your project.
+Danh sách các hình ảnh dẫn đường được lưu trong thư mục [này](./example/assets/navigation_symbol), sao chép và dán vào project của bạn để sử dụng.
 
-Figma design [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)Add the Bottom view, which contains the overview route, recenter and stop navigation button.
+File thiết kế có thể tham khảo [tại đây](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)
+
+
+
+Thêm các nút như xem tổng quan đường đi, về giữa để điều hướng dẫn đường
 ```dart
             BottomActionView(
               recenterButton: recenterButton,
@@ -149,7 +156,7 @@ Figma design [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-na
             )
 ```
 
-Add the dispose function for the navigation controller
+Thêm hàm dispose cho controller
 ```dart
   @override
   void dispose() {
@@ -157,60 +164,53 @@ Add the dispose function for the navigation controller
     super.dispose();
   }
 ```
-Useful function
+Các hàm thường sử dụng
 ```dart
-          /// Find a new route between two locations, 
-          /// waypoint1 is origin, waypoint2 is destination.
+          /// Tìm đường mới từ 2 điểm, waypoint1 là điểm bắt đầu, 
+          /// waypoint2 là điểm kết thúc.
             _controller?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
 
-          /// Start navigation, call after the buildRoute have a response.
+          /// Bắt đầu dẫn đường, gọi sau khi đã gọi hàm buildRoute phía trên
             _controller?.startNavigation();
 
-
-          /// Find route and start when the api response at least 1 route
+          /// Hàm tìm đường và bắt đầu dẫn đường khi tìm được đường đi
             _controller?.buildAndStartNavigation(
                 wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
                 profile: DrivingProfile.drivingTraffic);
           
-          /// recenter to the navigation
+          /// Hàm về giữa sau khi nhấn xem tông quan đường đi 
+          /// hoặc người dùng di chuyển bản đồ tới vị trí khác
           _controller?.recenter();
 
-          /// Overview the route
+          /// Hàm xem tổng quát đường đi
           _controller?.overview();
 
-          /// Turn on/off the navigation voice guide
+          /// Hàm tắt/bật tiếng khi dẫn đường
           _controller?.mute();
 
-          /// Stop the navigation
+          /// Hàm kết thúc dẫn đường
           _controller?.finishNavigation();
 ```
 
-## Troubleshooting
-- We strongly recommend you call the **_controller?.buildRouteAndStartNavigation()** in a button or onMapRendered callback, which is called when the map is rendered successfully. 
+## Lưu ý khi sử dụng
+- Hàm **_controller?.buildRouteAndStartNavigation()** không nên để trong initState mà nên để trong hàm onPressed của button hoặc hàm onMapRendered của NavigationView để tránh crash app khi bản đồ chưa được khởi tạo hoàn toàn.
 ```dart
     onMapRendered: () {
       _controller?.buildAndStartNavigation(
       wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
       profile: DrivingProfile.drivingTraffic);  
     }
-```
+``` 
 
-Demo code [here](./example/lib/main.dart)
-# Note: Replace apikey which is provided by VietMap to all YOUR_API_KEY_HERE tag to the application work normally
+Code mẫu màn hình dẫn đường [tại đây](./example/lib/main.dart)
+# Lưu ý: Thay apikey được VietMap cung cấp vào toàn bộ tag _YOUR_API_KEY_HERE_ để ứng dụng hoạt động bình thường
 
-
+Nếu có bất kỳ thắc mắc và hỗ trợ, vui lòng liên hệ:
 
 [<img src="https://bizweb.dktcdn.net/100/415/690/themes/804206/assets/logo.png?1689561872933" height="40"/> </p>](https://vietmap.vn/maps-api)
-Email us: [maps-api.support@vietmap.vn](mailto:maps-api.support@vietmap.vn)
+Gửi email: [maps-api.support@vietmap.vn](mailto:maps-api.support@vietmap.vn)
 
 
-Contact for [support](https://vietmap.vn/lien-he)
+Liên hệ [hỗ trợ](https://vietmap.vn/lien-he)
 
-Vietmap API document [here](https://maps.vietmap.vn/docs/map-api/overview/)
-
-Have a bug to report? [Open an issue](https://github.com/vietmap-company/flutter-map-sdk/issues). If possible, include a full log and information which shows the issue.
-
-
-Have a feature request? [Open an issue](https://github.com/vietmap-company/flutter-map-sdk/issues). Tell us what the feature should do and why you want the feature.
-
-[Tài liệu tiếng Việt](./README.vi.md)
+Tài liệu api [tại đây](https://maps.vietmap.vn/docs/map-api/overview/)
