@@ -335,6 +335,17 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         result(true)
     }
     
+    func startNavigationNewRoute(route: Route) {
+        isEmbeddedNavigation = true
+        routeController?.endNavigation()
+        routeController = RouteController(along: route, locationManager: self.getNavigationLocationManager(simulated: _simulateRoute))
+        routeController?.delegate = self
+        routeController?.reroutesProactively = true
+        routeController?.resume()
+        navigationMapView.recenterMap()
+        navigationMapView.showsUserLocation = true
+    }
+    
     func resumeNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(progressDidChange(_ :)), name: .routeControllerProgressDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(rerouted(_:)), name: .routeControllerDidReroute, object: nil)
@@ -368,6 +379,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     }
         
     func cancelNavigation() {
+        isEmbeddedNavigation = false
         routeController?.endNavigation()
         navigationMapView.recenterMap()
         suspendNotifications()
@@ -390,6 +402,9 @@ extension FlutterMapNavigationView : NavigationMapViewDelegate {
         self.routes!.insert(route, at: 0)
         self._routes!.remove(at: index)
         self._routes!.insert(route, at: 0)
+        if isEmbeddedNavigation {
+            self.startNavigationNewRoute(route: route)
+        }
         
         sendEvent(eventType: MapEventType.onNewRouteSelected, data: encodeRoute(route: route))
     }

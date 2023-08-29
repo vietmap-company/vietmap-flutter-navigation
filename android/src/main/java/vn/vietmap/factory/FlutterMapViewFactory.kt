@@ -247,6 +247,7 @@ class FlutterMapViewFactory  :
         var isOptimized = false
         var originPoint: Point? = null
         var destinationPoint: Point? = null
+        var isRunning:Boolean = false
     }
 
 
@@ -458,6 +459,7 @@ class FlutterMapViewFactory  :
                     navigation.locationEngine = it
                 }
             }
+            isRunning= true
             vietmapGL?.locationComponent?.locationEngine = null
             navigation.addNavigationEventListener(this)
             navigation.addFasterRouteListener(this)
@@ -490,6 +492,7 @@ class FlutterMapViewFactory  :
         }
 
         if (currentRoute != null) {
+            isRunning = false
             navigation.stopNavigation()
             navigation.removeFasterRouteListener(this)
             navigation.removeMilestoneEventListener(this)
@@ -640,7 +643,12 @@ class FlutterMapViewFactory  :
 
         navigationMapRoute?.setOnRouteSelectionChangeListener {
             routeClicked = true
+
             currentRoute = it
+            if(isRunning){
+                finishNavigation(isOffRouted = true)
+                startNavigation()
+            }
             PluginUtilities.sendEvent(
                 VietMapEvents.ON_NEW_ROUTE_SELECTED,
                 it.toJson()
@@ -956,7 +964,7 @@ class FlutterMapViewFactory  :
     override fun onCancelNavigation() {
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_CANCELLED)
         navigation.stopNavigation()
-
+        isRunning= false
     }
 
     override fun onNavigationFinished() {

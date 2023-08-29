@@ -1,9 +1,13 @@
+## 1.1.7
+- Update route info when user selected new route while navigation is running
+## 1.1.6
+- Fix `VietMapEvents.ON_NEW_ROUTE_SELECTED` event
 ## 1.1.5
 - Add `onNewRouteSelected` callback
 ## 1.1.4
-- Update README.md document
+- Update `README.md` document
 ## 1.1.3
-- Update README.md document
+- Update `README.md` document
 ## 1.1.2
 - Fix warning on load drawable image
 ## 1.1.1
@@ -18,7 +22,7 @@
 ## 1.0.4
 - Fix cancel navigation iOS
 ## 1.0.3
-- Update readme.md document
+- Update `readme.md` document
 ## 1.0.2
 - Remove dead code
 - Update document 
