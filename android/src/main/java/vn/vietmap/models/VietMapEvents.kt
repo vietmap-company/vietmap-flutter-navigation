@@ -24,6 +24,7 @@ enum class VietMapEvents(val value: String) {
     ON_MAP_LONG_CLICK("onMapLongClick"),
     ON_MAP_MOVE_END("onMapMoveEnd"),
     ON_MAP_CLICK("onMapClick"),
-    ON_MAP_RENDERED("onMapRendered")
+    ON_MAP_RENDERED("onMapRendered"),
+    ON_NEW_ROUTE_SELECTED("onNewRouteSelected"),
 
 }

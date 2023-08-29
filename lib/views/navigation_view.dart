@@ -34,7 +34,8 @@ class NavigationView extends StatefulWidget {
       this.onMapReady,
       this.onMapRendered,
       this.onMapLongClick,
-      this.onMapClick});
+      this.onMapClick,
+      this.onNewRouteSelected});
 
   /// Setting navigation options for the map
   final MapOptions mapOptions;
@@ -94,6 +95,10 @@ class NavigationView extends StatefulWidget {
   /// (user is off route when user is not follow the route)
   final Function(WayPoint?)? userOffRoute;
 
+  /// This callback will called when the user select a new route and response a [DirectionRoute] object
+  /// which contains all information about the new route
+  final Function(DirectionRoute)? onNewRouteSelected;
+
   @override
   State<NavigationView> createState() => _NavigationViewState();
 }
@@ -121,9 +126,9 @@ class _NavigationViewState extends State<NavigationView> {
   Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {
     switch (e.eventType) {
       case MapEvent.progressChange:
-        if (e.data != null) {
-          var progressEvent = e.data as RouteProgressEvent;
-          if (widget.onRouteProgressChange != null) {
+        if (widget.onRouteProgressChange != null) {
+          if (e.data != null) {
+            var progressEvent = e.data as RouteProgressEvent;
             widget.onRouteProgressChange!(progressEvent);
           }
         }
@@ -132,14 +137,20 @@ class _NavigationViewState extends State<NavigationView> {
         if (widget.onRouteBuilding != null) widget.onRouteBuilding!();
         break;
       case MapEvent.routeBuilt:
-        Map<String, dynamic> map = decodeJson(data: e.data);
-        var data = DirectionRoute.fromJson(map);
-        if (widget.onRouteBuilt != null) widget.onRouteBuilt!(data);
+        if (widget.onRouteBuilt != null) {
+          if (e.data != null) {
+            Map<String, dynamic> map = decodeJson(data: e.data);
+            var data = DirectionRoute.fromJson(map);
+            widget.onRouteBuilt!(data);
+          }
+        }
         break;
       case MapEvent.routeBuildFailed:
-        var message = jsonDecode(e.data);
         if (widget.onRouteBuildFailed != null) {
-          widget.onRouteBuildFailed!(message);
+          if (e.data != null) {
+            var message = jsonDecode(e.data);
+            widget.onRouteBuildFailed!(message);
+          }
         }
         break;
       case MapEvent.navigationRunning:
@@ -160,22 +171,26 @@ class _NavigationViewState extends State<NavigationView> {
         break;
       case MapEvent.onMapClick:
         if (widget.onMapClick != null) {
-          var data = decodeJson(data: e.data);
-          WayPoint wayPoint = WayPoint(
-              name: 'map_long_click',
-              latitude: data['latitude'],
-              longitude: data['longitude']);
-          widget.onMapClick!(wayPoint);
+          if (e.data != null) {
+            var data = decodeJson(data: e.data);
+            WayPoint wayPoint = WayPoint(
+                name: 'map_long_click',
+                latitude: data['latitude'],
+                longitude: data['longitude']);
+            widget.onMapClick!(wayPoint);
+          }
         }
         break;
       case MapEvent.onMapLongClick:
         if (widget.onMapLongClick != null) {
-          var data = decodeJson(data: e.data);
-          WayPoint wayPoint = WayPoint(
-              name: 'map_long_click',
-              latitude: data['latitude'],
-              longitude: data['longitude']);
-          widget.onMapLongClick!(wayPoint);
+          if (e.data != null) {
+            var data = decodeJson(data: e.data);
+            WayPoint wayPoint = WayPoint(
+                name: 'map_long_click',
+                latitude: data['latitude'],
+                longitude: data['longitude']);
+            widget.onMapLongClick!(wayPoint);
+          }
         }
         break;
       case MapEvent.onMapMoveEnd:
@@ -189,16 +204,27 @@ class _NavigationViewState extends State<NavigationView> {
         break;
       case MapEvent.userOffRoute:
         if (widget.userOffRoute != null) {
-          var data = jsonDecode(e.data);
-          WayPoint wayPoint = WayPoint(
-              name: 'user_off_route',
-              latitude: data['latitude'],
-              longitude: data['longitude']);
-          widget.userOffRoute!(wayPoint);
+          if (e.data != null) {
+            var data = jsonDecode(e.data);
+            WayPoint wayPoint = WayPoint(
+                name: 'user_off_route',
+                latitude: data['latitude'],
+                longitude: data['longitude']);
+            widget.userOffRoute!(wayPoint);
+          }
         }
         break;
       case MapEvent.onMapRendered:
         if (widget.onMapRendered != null) widget.onMapRendered!();
+        break;
+      case MapEvent.onNewRouteSelected:
+        if (widget.onNewRouteSelected != null) {
+          if (e.data != null) {
+            Map<String, dynamic> map = decodeJson(data: e.data);
+            var data = DirectionRoute.fromJson(map);
+            widget.onNewRouteSelected!(data);
+          }
+        }
         break;
       default:
         break;

@@ -23,6 +23,7 @@ import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
@@ -47,6 +48,7 @@ import vn.vietmap.services.android.navigation.ui.v5.listeners.NavigationListener
 import vn.vietmap.services.android.navigation.ui.v5.listeners.RouteListener
 import vn.vietmap.services.android.navigation.ui.v5.listeners.SpeechAnnouncementListener
 import vn.vietmap.services.android.navigation.ui.v5.route.NavigationMapRoute
+import vn.vietmap.services.android.navigation.ui.v5.route.OnRouteSelectionChangeListener
 import vn.vietmap.services.android.navigation.ui.v5.voice.NavigationSpeechPlayer
 import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechAnnouncement
 import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechPlayer
@@ -116,6 +118,7 @@ class FlutterMapViewFactory  :
     private var mapView: MapView
     private var vietmapGL: VietMapGL? = null
     private var currentRoute: DirectionsRoute? = null
+    private var routeClicked: Boolean = false
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
     private val navigationOptions = VietmapNavigationOptions
@@ -591,7 +594,6 @@ class FlutterMapViewFactory  :
         if (simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
-        println("You're using this style: $mapStyleURL")
         vietmapGL?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
@@ -621,7 +623,7 @@ class FlutterMapViewFactory  :
 
         if (longPressDestinationEnabled)
             vietmapGL?.addOnMapLongClickListener(this)
-        vietmapGL?.addOnMapClickListener(this)
+
 
 //        markerViewManager = MarkerViewManager(mapView, vietmapGL)
 
@@ -635,8 +637,17 @@ class FlutterMapViewFactory  :
         if (vietmapGL != null) {
             navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
         }
-//        navigationMapRoute?.setOnRouteSelectionChangeListener(this)
-//        navigationMapRoute.addProgressChangeListener(VietmapNavigation(this))
+
+        navigationMapRoute?.setOnRouteSelectionChangeListener {
+            routeClicked = true
+            currentRoute = it
+            PluginUtilities.sendEvent(
+                VietMapEvents.ON_NEW_ROUTE_SELECTED,
+                it.toJson()
+            )
+        }
+
+        vietmapGL?.addOnMapClickListener(this)
     }
     override fun onMapLongClick(point: LatLng): Boolean {
         if (wayPoints.size === 2) {
@@ -760,7 +771,6 @@ class FlutterMapViewFactory  :
             return
         }
 
-        println("Location bearing--------------==========$bearing")
         PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILDING)
         val br = bearing ?: 0.0
         val builder = NavigationRoute.builder(activity).apikey(apikey ?: "")
@@ -778,7 +788,6 @@ class FlutterMapViewFactory  :
                 call: Call<DirectionsResponse?>,
                 response: Response<DirectionsResponse?>
             ) {
-                println(call.request().url())
                 if (response.body() == null || response.body()!!.routes().size < 1) {
                     PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, "No routes found")
                     return
@@ -786,7 +795,6 @@ class FlutterMapViewFactory  :
 
                 currentRoute = response.body()!!.routes()[0]
                 val data = currentRoute?.toJson()
-                println(data)
                 PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT, "${currentRoute?.toJson()}")
 //                moveCameraToOriginOfRoute()
 
@@ -796,7 +804,14 @@ class FlutterMapViewFactory  :
                 } else {
                     navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
                 }
-                navigationMapRoute?.addRoute(currentRoute)
+                //show multiple route to map
+                if (response.body()!!.routes().size > 1) {
+                    navigationMapRoute?.addRoutes(response.body()!!.routes())
+                } else {
+                    navigationMapRoute?.addRoute(currentRoute)
+                }
+
+
                 isBuildingRoute = false
                 overViewRoute()
                 //Start Navigation again from new Point, if it was already in Progress
@@ -814,7 +829,6 @@ class FlutterMapViewFactory  :
             }
         })
     }
-
     private fun moveCameraToOriginOfRoute() {
         currentRoute?.let {
             try {
@@ -830,7 +844,6 @@ class FlutterMapViewFactory  :
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        println("-------------------------onActivityCreated")
         mapView.onCreate(savedInstanceState)
 
     }
@@ -1150,6 +1163,10 @@ class FlutterMapViewFactory  :
         }
 
         override fun onMapClick(point: LatLng): Boolean {
+            if(routeClicked){
+                routeClicked = false
+                return true
+            }
 
             PluginUtilities.sendEvent(
                 VietMapEvents.ON_MAP_CLICK,

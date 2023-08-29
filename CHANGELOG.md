@@ -1,3 +1,5 @@
+## 1.1.5
+- Add `onNewRouteSelected` callback
 ## 1.1.4
 - Update README.md document
 ## 1.1.3
@@ -27,7 +29,7 @@
 - Optimize iOS navigation performance
 - Fix android crash when open navigation
 ## 0.0.9
-- Add onMapRendered callback
+- Add `onMapRendered` callback
 ## 0.0.8
 - Remove unnecessary library
 ## 0.0.7

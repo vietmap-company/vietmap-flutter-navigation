@@ -30,5 +30,6 @@ enum MapEventType: String, Codable
     case onMapMoveEnd
     case onMapLongClick
     case onMapClick
+    case onNewRouteSelected
 }
 

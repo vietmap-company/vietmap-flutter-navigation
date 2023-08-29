@@ -1,3 +1,5 @@
+import 'way_point.dart';
+
 class DirectionRoute {
   String? routeIndex;
   num? distance;
@@ -21,7 +23,6 @@ class DirectionRoute {
       this.voiceLocale});
 
   DirectionRoute.fromJson(Map<String, dynamic> json) {
-
     routeIndex = json['routeIndex'];
     distance = json['distance'];
     duration = json['duration'];
@@ -56,6 +57,24 @@ class DirectionRoute {
     }
     data['voiceLocale'] = voiceLocale;
     return data;
+  }
+
+  // get list of coordinates
+  List<WayPoint> get getCoordinates {
+    var coordinates = <WayPoint>[];
+    for (var leg in legs!) {
+      for (var step in leg.steps!) {
+        if (step.maneuver?.location != null &&
+            step.maneuver!.location!.length == 2) {
+          coordinates.add(WayPoint(
+              name: '',
+              latitude: step.maneuver!.location!.first.toDouble(),
+              longitude: step.maneuver!.location!.last.toDouble()));
+        }
+      }
+    }
+
+    return coordinates;
   }
 }
 

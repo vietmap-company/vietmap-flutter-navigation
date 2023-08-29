@@ -76,7 +76,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
 
     _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/06602373-c116-41cc-9af6-1ce0dc7807ae";
+        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
@@ -93,6 +93,9 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
           children: [
             NavigationView(
               mapOptions: _navigationOption,
+              onNewRouteSelected: (p0) {
+                log(p0.toString());
+              },
               onMapCreated: (p0) {
                 _controller = p0;
               },

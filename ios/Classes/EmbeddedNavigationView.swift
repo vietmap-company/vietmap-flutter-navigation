@@ -49,6 +49,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     var routeOptions: NavigationRouteOptions?
     var locationManager = CLLocationManager()
     var coordinates: [CLLocationCoordinate2D]?
+    var isClickOnRoute:Bool=false
 
     init(messenger: FlutterBinaryMessenger, frame: CGRect, viewId: Int64, args: Any?)
     {
@@ -382,12 +383,15 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
 // MARK: - NavigationMapViewDelegate
 extension FlutterMapNavigationView : NavigationMapViewDelegate {
     public func navigationMapView(_ mapView: NavigationMapView, didSelect route: Route) {
+        isClickOnRoute = true
         guard let routes = routes else { return }
         guard let index = routes.firstIndex(where: { $0 == route }) else { return }
         self.routes!.remove(at: index)
         self.routes!.insert(route, at: 0)
         self._routes!.remove(at: index)
         self._routes!.insert(route, at: 0)
+        
+        sendEvent(eventType: MapEventType.onNewRouteSelected, data: encodeRoute(route: route))
     }
 }
 
@@ -415,6 +419,10 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
     
     @objc func handlePress(_ gesture: UITapGestureRecognizer) {
         guard gesture.state == .ended else { return }
+//        if(isClickOnRoute){
+//            isClickOnRoute = false
+//            return
+//        }
         let location = navigationMapView.convert(gesture.location(in: navigationMapView), toCoordinateFrom: navigationMapView)
         sendEvent(eventType: MapEventType.onMapClick, data: encodeLocation(location: location))
     }

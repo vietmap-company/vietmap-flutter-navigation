@@ -23,5 +23,6 @@ enum MapEvent {
   onMapMoveEnd,
   onMapLongClick,
   onMapClick,
-  onMapRendered
+  onMapRendered,
+  onNewRouteSelected
 }
