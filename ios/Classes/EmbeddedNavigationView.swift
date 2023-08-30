@@ -50,7 +50,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     var locationManager = CLLocationManager()
     var coordinates: [CLLocationCoordinate2D]?
     var isClickOnRoute:Bool=false
-
+    // MARK: - Handle Flutter method
     init(messenger: FlutterBinaryMessenger, frame: CGRect, viewId: Int64, args: Any?)
     {
         self.frame = frame
@@ -140,13 +140,14 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         return navigationMapView
     }
 
+    // MARK: - configureMapView
     private func configureMapView(_ mapView: NavigationMapView) {
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         mapView.delegate = self
         mapView.navigationMapDelegate = self
         mapView.userTrackingMode = .follow
     }
-    
+    // MARK: - Setup MapView
     private func setupMapView()
     {
         navigationMapView = NavigationMapView(frame: frame,styleURL: URL(string: _url))
@@ -185,7 +186,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             gestureRecognizer.addTarget(self, action: #selector(handlePanGesture(_:)))
         }
     }
-
+    // MARK: - moveCameraToCoordinates
     func moveCameraToCoordinates(latitude: Double, longitude: Double) {
         navigationMapView.setCenter(CLLocationCoordinate2D(latitude: latitude, longitude: longitude), zoomLevel: self._zoom, animated: true)
     }
@@ -205,7 +206,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         guard let strongSelf = self else { return }
         strongSelf._routes = nil //clear routes from the map
     }
-    
+    // MARK: - buildRoute
     func buildRoute(arguments: NSDictionary?, flutterResult: @escaping FlutterResult, startNavigation: Bool = false)
     {
         _wayPoints.removeAll()
@@ -285,7 +286,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
         }
     }
-    
+    // MARK: - buildAndStartNavigation
     func buildAndStartNavigation(arguments: NSDictionary?, flutterResult: @escaping FlutterResult) {
         buildRoute(arguments: arguments, flutterResult: flutterResult, startNavigation: true)
     }
@@ -304,7 +305,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         _wayPoints.removeAll()
         sendEvent(eventType: MapEventType.navigationCancelled)
     }
-    
+    // MARK: - endNavigationEmbedded
     func endNavigationEmbedded(result: FlutterResult?) {
         if (routeController != nil) {
             routeController?.endNavigation()
@@ -317,15 +318,14 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
         }
     }
-    
+    // MARK: - startNavigationEmbedded
     func startNavigationEmbedded(result: @escaping FlutterResult) {
         isEmbeddedNavigation = true
-        guard let response = self.routeResponse else {
+        guard let route = self.routes?.first else {
             result(false)
             return
         }
-        
-        routeController = RouteController(along: response, locationManager: self.getNavigationLocationManager(simulated: _simulateRoute))
+        routeController = RouteController(along: route, locationManager: self.getNavigationLocationManager(simulated: _simulateRoute))
         routeController?.delegate = self
         routeController?.reroutesProactively = true
         routeController?.resume()
@@ -334,7 +334,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         resumeNotifications()
         result(true)
     }
-    
+    // MARK: - startNavigationNewRoute
     func startNavigationNewRoute(route: Route) {
         isEmbeddedNavigation = true
         routeController?.endNavigation()
@@ -355,7 +355,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         NotificationCenter.default.removeObserver(self, name: .routeControllerProgressDidChange, object: nil)
         NotificationCenter.default.removeObserver(self, name: .routeControllerWillReroute, object: nil)
     }
-    
+    // MARK: - onProgressChange
     @objc func progressDidChange(_ notification: NSNotification) {
         let routeProgress = notification.userInfo![RouteControllerNotificationUserInfoKey.routeProgressKey] as! RouteProgress
         let location = notification.userInfo![RouteControllerNotificationUserInfoKey.locationKey] as! CLLocation
@@ -369,6 +369,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         sendEvent(eventType: MapEventType.progressChange, data: routeProgressData)
     }
     
+    // MARK: - reroute
     @objc func rerouted(_ notification: NSNotification) {
         self.navigationMapView.showRoutes([(routeController?.routeProgress.route)!])
         self.navigationMapView.tracksUserCourse = true
@@ -378,6 +379,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         }
     }
         
+    // MARK: - cancelNavigation
     func cancelNavigation() {
         isEmbeddedNavigation = false
         routeController?.endNavigation()
@@ -386,6 +388,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         sendEvent(eventType: MapEventType.navigationCancelled)
     }
     
+    // MARK: - mute
     func mute(arguments: NSDictionary?, result: @escaping FlutterResult) {
         guard let muted = arguments?["isMute"] as? Bool else {return}
         NavigationSettings.shared.voiceMuted = muted
@@ -419,7 +422,7 @@ extension FlutterMapNavigationView : MGLMapViewDelegate {
         sendEvent(eventType: MapEventType.onMapRendered)
     }
 }
-
+    // MARK: - UIGestureRecognizerDelegate
 extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -452,6 +455,7 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
        }
    }
 
+    // MARK: - requestRoute
     func requestRoute(destination: CLLocationCoordinate2D) {
         sendEvent(eventType: MapEventType.routeBuilding)
 
@@ -479,6 +483,7 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
     }
 }
 
+    // MARK: - RouteControllerDelegate
 extension FlutterMapNavigationView: RouteControllerDelegate {
     public func routeController(_ routeController: RouteController, didArriveAt waypoint: Waypoint) -> Bool {
         sendEvent(eventType: MapEventType.onArrival)
