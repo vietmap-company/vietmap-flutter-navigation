@@ -1,3 +1,8 @@
+## 1.2.0
+- Update overview route padding
+- Fix `onProgressChange` crash in android
+- Remove unused code
+- Update  [vietmap](https://vietmap.vn/maps-api) homepage
 ## 1.1.9
 - Update auto overview route when the route built success
 ## 1.1.8

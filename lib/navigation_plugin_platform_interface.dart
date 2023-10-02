@@ -1,7 +1,5 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
-
 import 'navigation_plugin_method_channel.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
@@ -14,10 +12,6 @@ abstract class VietmapNavigationPluginPlatform extends PlatformInterface {
   VietmapNavigationPluginPlatform() : super(token: _token);
 
   static final Object _token = Object();
-
-  final onCameraMovePlatform = ArgumentCallbacks<CameraPosition>();
-
-  final onCameraIdlePlatform = ArgumentCallbacks<CameraPosition?>();
 
   static VietmapNavigationPluginPlatform _instance =
       MethodChannelVietmapNavigationPlugin();

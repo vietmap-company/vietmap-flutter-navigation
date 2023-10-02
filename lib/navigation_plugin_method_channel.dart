@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:vietmap_flutter_navigation/models/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'navigation_plugin_platform_interface.dart';
-import 'models/navmode.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
 import 'models/route_progress_event.dart';

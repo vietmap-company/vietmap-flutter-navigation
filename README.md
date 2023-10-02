@@ -203,6 +203,7 @@ Demo code [here](./example/lib/main.dart)
 [<img src="https://bizweb.dktcdn.net/100/415/690/themes/804206/assets/logo.png?1689561872933" height="40"/> </p>](https://vietmap.vn/maps-api)
 Email us: [maps-api.support@vietmap.vn](mailto:maps-api.support@vietmap.vn)
 
+Vietmap API and price [here](https://vietmap.vn/maps-api)
 
 Contact for [support](https://vietmap.vn/lien-he)
 

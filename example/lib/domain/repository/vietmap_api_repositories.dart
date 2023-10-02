@@ -23,6 +23,7 @@ class VietmapApiRepositories implements VietmapApiRepository {
     _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
     if (kDebugMode) {
+      // ignore: deprecated_member_use
       (_dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =

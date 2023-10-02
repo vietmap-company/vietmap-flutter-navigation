@@ -38,7 +38,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
 import vn.vietmap.android.gestures.MoveGestureDetector
-import vn.vietmap.models.*
+import vn.vietmap.models.CurrentCenterPoint
+import vn.vietmap.models.VietMapEvents
+import vn.vietmap.models.VietMapLocation
+import vn.vietmap.models.VietMapRouteProgressEvent
 import vn.vietmap.navigation_plugin.VietMapNavigationPlugin
 import vn.vietmap.services.android.navigation.ui.v5.camera.CameraOverviewCancelableCallback
 import vn.vietmap.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
@@ -65,8 +68,6 @@ import vn.vietmap.services.android.navigation.v5.snap.SnapToRoute
 import vn.vietmap.services.android.navigation.v5.utils.RouteUtils
 import vn.vietmap.utilities.PluginUtilities
 import vn.vietmap.vietmapsdk.Vietmap
-import vn.vietmap.vietmapsdk.annotations.BaseMarkerOptions
-import vn.vietmap.vietmapsdk.annotations.Icon
 import vn.vietmap.vietmapsdk.annotations.MarkerOptions
 import vn.vietmap.vietmapsdk.camera.CameraPosition
 import vn.vietmap.vietmapsdk.camera.CameraUpdate
@@ -76,7 +77,6 @@ import vn.vietmap.vietmapsdk.geometry.LatLng
 import vn.vietmap.vietmapsdk.geometry.LatLngBounds
 import vn.vietmap.vietmapsdk.location.LocationComponentActivationOptions
 import vn.vietmap.vietmapsdk.location.LocationComponentOptions
-import vn.vietmap.vietmapsdk.location.OnCameraTrackingChangedListener
 import vn.vietmap.vietmapsdk.location.engine.LocationEngine
 import vn.vietmap.vietmapsdk.location.modes.CameraMode
 import vn.vietmap.vietmapsdk.location.modes.RenderMode
@@ -92,28 +92,17 @@ import vn.vietmap.vietmapsdk.style.layers.SymbolLayer
 import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
 import java.text.DecimalFormat
 import java.util.*
+import kotlin.math.*
 
 
 class FlutterMapViewFactory  :
     PlatformView,
     MethodCallHandler,
-    Application.ActivityLifecycleCallbacks,
-    OnMapReadyCallback,
-    ProgressChangeListener,
-    OffRouteListener,
-    MilestoneEventListener,
-    NavigationEventListener,
-    NavigationListener,
-    FasterRouteListener,
-    SpeechAnnouncementListener,
-    BannerInstructionsListener,
-    RouteListener, EventChannel.StreamHandler, VietMapGL.OnMapLongClickListener,
-    VietMapGL.OnMapClickListener, OnDidFinishRenderingMapListener, DefaultLifecycleObserver,
-    VietMapGL.OnCameraIdleListener,
-    VietMapGL.OnCameraMoveListener,
-    VietMapGL.OnCameraMoveStartedListener,
-    MapView.OnDidBecomeIdleListener,
-    OnCameraTrackingChangedListener {
+    Application.ActivityLifecycleCallbacks, OnMapReadyCallback, ProgressChangeListener,
+    OffRouteListener, MilestoneEventListener, NavigationEventListener, NavigationListener,
+    FasterRouteListener, SpeechAnnouncementListener, BannerInstructionsListener, RouteListener,
+    EventChannel.StreamHandler, VietMapGL.OnMapLongClickListener, VietMapGL.OnMapClickListener,
+    OnDidFinishRenderingMapListener, DefaultLifecycleObserver {
 
     private val activity: Activity
     private val context: Context
@@ -126,19 +115,19 @@ class FlutterMapViewFactory  :
     private var routeClicked: Boolean = false
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
-
+    private var directionsRoutes: List<DirectionsRoute>? = null
     private var markerList: ArrayList<MarkerOptions>? = ArrayList()
     private var trackCameraPosition = false
-    private val navigationOptions = VietmapNavigationOptions
-        .builder().maxTurnCompletionOffset(30.0)
-        .maneuverZoneRadius(40.0).maximumDistanceOffRoute(50.0)
-        .deadReckoningTimeInterval(5.0).maxManipulatedCourseAngle(25.0)
-        .userLocationSnapDistance(20.0).secondsBeforeReroute(3)
-        .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
-        .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
-        .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
-        .isFromNavigationUi(false).isDebugLoggingEnabled(false)
-        .roundingIncrement(NavigationConstants.ROUNDING_INCREMENT_FIFTY)
+    private var distanceToOffRoute = 30 //distance in meter
+    private val navigationOptions =
+        VietmapNavigationOptions.builder().maxTurnCompletionOffset(30.0).maneuverZoneRadius(40.0)
+            .maximumDistanceOffRoute(50.0).deadReckoningTimeInterval(5.0)
+            .maxManipulatedCourseAngle(25.0).userLocationSnapDistance(20.0).secondsBeforeReroute(3)
+            .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
+            .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
+            .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
+            .isFromNavigationUi(false).isDebugLoggingEnabled(false)
+            .roundingIncrement(NavigationConstants.ROUNDING_INCREMENT_FIFTY)
         .timeFormatType(NavigationTimeFormat.NONE_SPECIFIED)
         .locationAcceptableAccuracyInMetersThreshold(100)
         .build()
@@ -183,7 +172,8 @@ class FlutterMapViewFactory  :
     private var routeProgress: RouteProgress? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var bitmapDrawable: BitmapDrawable? = null
-
+    private var maxDifference: Double = 60.0
+    private var primaryRouteIndex = 0
     private var mapReadyResult: MethodChannel.Result? = null
 
     constructor(
@@ -260,6 +250,8 @@ class FlutterMapViewFactory  :
         var destinationPoint: Point? = null
         var isRunning:Boolean = false
 
+        var padding: IntArray = intArrayOf(150, 500, 150, 500)
+
         private val LAT_LON_FORMATTER = DecimalFormat("#.#####")
         private const val STATE_MARKER_LIST = "markerList"
     }
@@ -304,7 +296,6 @@ class FlutterMapViewFactory  :
                 val byteArray = arguments?.get("customLocationCenterIcon") as? ByteArray
                 if(byteArray!=null){
                     this.bitmapDrawable = loadImageFromBinary(byteArray)
-                    setCenterIcon();
                 }
             }
             "finishNavigation" -> {
@@ -415,7 +406,6 @@ class FlutterMapViewFactory  :
 
     private fun overViewRoute() {
         isOverviewing = true
-        val padding:IntArray = intArrayOf(30,30,30,30)
         routeProgress?.let { showRouteOverview(padding, it) }
     }
 
@@ -620,12 +610,6 @@ class FlutterMapViewFactory  :
             apikey = apik
         }
 
-        val trackCamera = arguments["trackCameraPosition"] as? Boolean
-        println("-------------------------------------------------------")
-        println(arguments)
-        if (trackCamera != null) {
-            setTrackCameraPosition(trackCamera)
-        }
 
         val byteArray = arguments["customLocationCenterIcon"] as? ByteArray
         if (byteArray != null) {
@@ -687,9 +671,6 @@ class FlutterMapViewFactory  :
             locationEngine = ReplayRouteLocationEngine()
         }
 
-        vietmapGL?.addOnCameraMoveStartedListener(this)
-        vietmapGL?.addOnCameraMoveListener(this)
-        vietmapGL?.addOnCameraIdleListener(this)
         vietmapGL?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
@@ -738,6 +719,15 @@ class FlutterMapViewFactory  :
             routeClicked = true
 
             currentRoute = it
+
+            val routePoints: List<Point> =
+                currentRoute?.routeOptions()?.coordinates() as List<Point>
+            animateVietmapGLForRouteOverview(padding, routePoints)
+            primaryRouteIndex = try {
+                it.routeIndex()?.toInt()?:0
+            } catch (e: Exception){
+                0
+            }
             if(isRunning){
                 finishNavigation(isOffRouted = true)
                 startNavigation()
@@ -893,12 +883,14 @@ class FlutterMapViewFactory  :
                     PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, "No routes found")
                     return
                 }
+                directionsRoutes = response.body()!!.routes()
+                currentRoute = if (directionsRoutes!!.size < primaryRouteIndex) {
+                    directionsRoutes!![0]
+                } else {
+                    directionsRoutes!![primaryRouteIndex]
+                }
 
-                currentRoute = response.body()!!.routes()[0]
-
-                val data = currentRoute?.toJson()
                 PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT, "${currentRoute?.toJson()}")
-//                moveCameraToOriginOfRoute()
 
                 // Draw the route on the map
                 if (navigationMapRoute != null) {
@@ -906,18 +898,16 @@ class FlutterMapViewFactory  :
                 } else {
                     navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
                 }
+
                 //show multiple route to map
                 if (response.body()!!.routes().size > 1) {
-                    navigationMapRoute?.addRoutes(response.body()!!.routes())
+                    navigationMapRoute?.addRoutes(directionsRoutes!!)
                 } else {
                     navigationMapRoute?.addRoute(currentRoute)
                 }
 
 
                 isBuildingRoute = false
-
-
-                val padding: IntArray = intArrayOf(30, 30, 30, 30)
                 // get route point from current route
                 val routePoints: List<Point> =
                     currentRoute?.routeOptions()?.coordinates() as List<Point>
@@ -991,49 +981,99 @@ class FlutterMapViewFactory  :
     override fun onProgressChange(location: Location, routeProgress: RouteProgress) {
 
         if (!isNavigationCanceled) {
-//            try {
-                distanceRemaining = routeProgress.distanceRemaining()
-                durationRemaining = routeProgress.durationRemaining()
+            try {
+                val noRoutes: Boolean = directionsRoutes?.isEmpty() ?: true
 
-                val progressEvent = VietMapRouteProgressEvent(routeProgress)
-                PluginUtilities.sendEvent(progressEvent)
-                currentCenterPoint =
-                    CurrentCenterPoint(location.latitude, location.longitude, location.bearing)
+                val newCurrentRoute: Boolean = !routeProgress.directionsRoute()
+                    .equals(directionsRoutes?.get(primaryRouteIndex));
+                val isANewRoute: Boolean = noRoutes || newCurrentRoute;
+                if (isANewRoute) {
+                } else {
 
-                if (!isOverviewing) {
-                    this.routeProgress = routeProgress
-                    moveCamera(LatLng(location.latitude, location.longitude), location.bearing)
+                    distanceRemaining = routeProgress.distanceRemaining()
+                    durationRemaining = routeProgress.durationRemaining()
+
+                    val progressEvent = VietMapRouteProgressEvent(routeProgress)
+                    PluginUtilities.sendEvent(progressEvent)
+                    currentCenterPoint =
+                        CurrentCenterPoint(location.latitude, location.longitude, location.bearing)
+
+                    if (!isOverviewing) {
+                        this.routeProgress = routeProgress
+                        moveCamera(LatLng(location.latitude, location.longitude), location.bearing)
+                    }
+
+                    if (!isDisposed && !isBuildingRoute) {
+                        val snappedLocation: Location =
+                            snapEngine.getSnappedLocation(location, routeProgress)
+                        vietmapGL?.locationComponent?.forceLocationUpdate(snappedLocation)
+                    }
+
+                    if (simulateRoute && !isDisposed && !isBuildingRoute) {
+                        vietmapGL?.locationComponent?.forceLocationUpdate(location)
+                    }
+
+                    if (!isRefreshing) {
+                        isRefreshing = true
+                    }
                 }
-
-                if(!isDisposed && !isBuildingRoute) {
-                    val snappedLocation: Location =
-                        snapEngine.getSnappedLocation(location, routeProgress)
-                    vietmapGL?.locationComponent?.forceLocationUpdate(snappedLocation)
-                }
-
-            if (simulateRoute && !isDisposed && !isBuildingRoute) {
-                vietmapGL?.locationComponent?.forceLocationUpdate(location)
+            } catch (e: java.lang.Exception) {
             }
-
-            if (!isRefreshing) {
-                isRefreshing = true
-            }
-//            } catch (e: java.lang.Exception) {
-//            }
         }
     }
 
     override fun userOffRoute(location: Location) {
-        speechPlayer!!.onOffRoute()
-        PluginUtilities.sendEvent(
-            VietMapEvents.USER_OFF_ROUTE,
-            "{\"latitude\":${location.latitude},\"longitude\":${location.longitude}}"
-        )
-        doOnNewRoute(Point.fromLngLat(location.longitude, location.latitude))
+        if (checkIfUserOffRoute(location)) {
+            speechPlayer!!.onOffRoute()
+            PluginUtilities.sendEvent(
+                VietMapEvents.USER_OFF_ROUTE,
+                "{\"latitude\":${location.latitude},\"longitude\":${location.longitude}}"
+            )
+            doOnNewRoute(Point.fromLngLat(location.longitude, location.latitude))
+        } else {
+
+        }
     }
 
-    override fun onMilestoneEvent(routeProgress: RouteProgress, instruction: String, milestone: Milestone) {
-        if(voiceInstructionsEnabled){
+    private fun checkIfUserOffRoute(location: Location): Boolean {
+        val snapLocation: Location = snapEngine.getSnappedLocation(location, routeProgress)
+        val distance: Double = calculateDistanceBetween2Point(location, snapLocation)
+        return distance > this.distanceToOffRoute && areBearingsClose(
+            location.bearing.toDouble(), snapLocation.bearing.toDouble()
+        )
+    }
+
+    private fun areBearingsClose(bearing1: Double, bearing2: Double): Boolean {
+        // Normalize the bearings to be in the range [0, 360] degrees
+        val normalizedBearing1 = (bearing1 + 360) % 360
+        val normalizedBearing2 = (bearing2 + 360) % 360
+
+        // Calculate the absolute difference between the two normalized bearings
+        val bearingDifference = abs(normalizedBearing1 - normalizedBearing2)
+
+        // Check if the difference is less than or equal to the maximum allowed difference
+        return bearingDifference <= maxDifference
+    }
+
+    private fun calculateDistanceBetween2Point(location1: Location, location2: Location): Double {
+        val radius = 6371000.0 // meters
+
+        val dLat = (location2.latitude - location1.latitude) * PI / 180.0
+        val dLon = (location2.longitude - location1.longitude) * PI / 180.0
+
+        val a =
+            sin(dLat / 2.0) * sin(dLat / 2.0) + cos(location1.latitude * PI / 180.0) * cos(location2.latitude * PI / 180.0) * sin(
+                dLon / 2.0
+            ) * sin(dLon / 2.0)
+        val c = 2.0 * kotlin.math.atan2(sqrt(a), sqrt(1.0 - a))
+
+        return radius * c
+    }
+
+    override fun onMilestoneEvent(
+        routeProgress: RouteProgress, instruction: String, milestone: Milestone
+    ) {
+        if (voiceInstructionsEnabled) {
             playVoiceAnnouncement(milestone)
         }
         if (routeUtils.isArrivalEvent(routeProgress, milestone) && isNavigationInProgress) {
@@ -1342,60 +1382,6 @@ class FlutterMapViewFactory  :
             .build()
     }
 
-    private fun setCenterIcon() {
-//    var locationComponentOptions = vietmapGL?.locationComponent?.locationComponentOptions
-////    locationComponentOptions?.toBuilder()?.backgroundDrawable(bitmapDrawable)
-//    val locationLayerController : LocationLayerController?  = vietmapGL?.locationComponent?.locationLayerController;
-//    val locationLayerRenderer:LocationLayerRenderer? = locationLayerController?.getLocationLayerRenderer()
-    }
-
-    override fun onCameraIdle() {
-        val arguments: MutableMap<String, Any> = HashMap(2)
-        if (trackCameraPosition) {
-//            arguments["position"] = Convert.toJson(vietmapGL!!.cameraPosition)
-        }
-        methodChannel.invokeMethod("camera#onIdle", arguments)
-    }
-
-    private fun setTrackCameraPosition(trackCameraPosition: Boolean) {
-        this.trackCameraPosition = trackCameraPosition
-    }
-
-    override fun onCameraMove() {
-
-        if (!trackCameraPosition) {
-            return
-        }
-//        val arguments: MutableMap<String, Any> = HashMap(2)
-//        arguments["position"] = Convert.toJson(vietmapGL!!.cameraPosition)
-//        PluginUtilities.sendEvent(VietMapEvents.CAMERA_ON_MOVE, arguments.toString())
-//        methodChannel.invokeMethod("camera#onMove", arguments)
-    }
-
-    private fun getCameraPosition(): CameraPosition? {
-        return if (trackCameraPosition) vietmapGL!!.cameraPosition else null
-    }
-
-    override fun onCameraMoveStarted(p0: Int) {
-        val arguments: MutableMap<String, Any> = HashMap(2)
-        val isGesture = p0 == VietMapGL.OnCameraMoveStartedListener.REASON_API_GESTURE
-        arguments["isGesture"] = isGesture
-        methodChannel.invokeMethod("camera#onMoveStarted", arguments)
-    }
-
-    override fun onDidBecomeIdle() {
-        methodChannel.invokeMethod("map#onIdle", HashMap<Any, Any>())
-    }
-
-    override fun onCameraTrackingDismissed() {
-        methodChannel.invokeMethod("map#onCameraTrackingDismissed", HashMap<Any, Any>())
-    }
-
-    override fun onCameraTrackingChanged(p0: Int) {
-        val arguments: MutableMap<String, Any> = HashMap(2)
-        arguments["mode"] = p0
-        methodChannel.invokeMethod("map#onCameraTrackingChanged", arguments)
-    }
 
     fun _addMarker(point: LatLng) {
         val pixel = vietmapGL?.projection?.toScreenLocation(point)
