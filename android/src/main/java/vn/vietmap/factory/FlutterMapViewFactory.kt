@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.PointF
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Build
@@ -17,13 +18,13 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.DefaultLifecycleObserver
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
@@ -37,10 +38,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
 import vn.vietmap.android.gestures.MoveGestureDetector
-import vn.vietmap.models.CurrentCenterPoint
-import vn.vietmap.models.VietMapEvents
-import vn.vietmap.models.VietMapLocation
-import vn.vietmap.models.VietMapRouteProgressEvent
+import vn.vietmap.models.*
 import vn.vietmap.navigation_plugin.VietMapNavigationPlugin
 import vn.vietmap.services.android.navigation.ui.v5.camera.CameraOverviewCancelableCallback
 import vn.vietmap.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
@@ -48,7 +46,6 @@ import vn.vietmap.services.android.navigation.ui.v5.listeners.NavigationListener
 import vn.vietmap.services.android.navigation.ui.v5.listeners.RouteListener
 import vn.vietmap.services.android.navigation.ui.v5.listeners.SpeechAnnouncementListener
 import vn.vietmap.services.android.navigation.ui.v5.route.NavigationMapRoute
-import vn.vietmap.services.android.navigation.ui.v5.route.OnRouteSelectionChangeListener
 import vn.vietmap.services.android.navigation.ui.v5.voice.NavigationSpeechPlayer
 import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechAnnouncement
 import vn.vietmap.services.android.navigation.ui.v5.voice.SpeechPlayer
@@ -68,6 +65,9 @@ import vn.vietmap.services.android.navigation.v5.snap.SnapToRoute
 import vn.vietmap.services.android.navigation.v5.utils.RouteUtils
 import vn.vietmap.utilities.PluginUtilities
 import vn.vietmap.vietmapsdk.Vietmap
+import vn.vietmap.vietmapsdk.annotations.BaseMarkerOptions
+import vn.vietmap.vietmapsdk.annotations.Icon
+import vn.vietmap.vietmapsdk.annotations.MarkerOptions
 import vn.vietmap.vietmapsdk.camera.CameraPosition
 import vn.vietmap.vietmapsdk.camera.CameraUpdate
 import vn.vietmap.vietmapsdk.camera.CameraUpdateFactory
@@ -76,8 +76,7 @@ import vn.vietmap.vietmapsdk.geometry.LatLng
 import vn.vietmap.vietmapsdk.geometry.LatLngBounds
 import vn.vietmap.vietmapsdk.location.LocationComponentActivationOptions
 import vn.vietmap.vietmapsdk.location.LocationComponentOptions
-import vn.vietmap.vietmapsdk.location.LocationLayerController
-import vn.vietmap.vietmapsdk.location.LocationLayerRenderer
+import vn.vietmap.vietmapsdk.location.OnCameraTrackingChangedListener
 import vn.vietmap.vietmapsdk.location.engine.LocationEngine
 import vn.vietmap.vietmapsdk.location.modes.CameraMode
 import vn.vietmap.vietmapsdk.location.modes.RenderMode
@@ -91,6 +90,7 @@ import vn.vietmap.vietmapsdk.style.layers.Property.LINE_JOIN_ROUND
 import vn.vietmap.vietmapsdk.style.layers.PropertyFactory.*
 import vn.vietmap.vietmapsdk.style.layers.SymbolLayer
 import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
+import java.text.DecimalFormat
 import java.util.*
 
 
@@ -108,7 +108,12 @@ class FlutterMapViewFactory  :
     SpeechAnnouncementListener,
     BannerInstructionsListener,
     RouteListener, EventChannel.StreamHandler, VietMapGL.OnMapLongClickListener,
-    VietMapGL.OnMapClickListener,OnDidFinishRenderingMapListener {
+    VietMapGL.OnMapClickListener, OnDidFinishRenderingMapListener, DefaultLifecycleObserver,
+    VietMapGL.OnCameraIdleListener,
+    VietMapGL.OnCameraMoveListener,
+    VietMapGL.OnCameraMoveStartedListener,
+    MapView.OnDidBecomeIdleListener,
+    OnCameraTrackingChangedListener {
 
     private val activity: Activity
     private val context: Context
@@ -121,6 +126,9 @@ class FlutterMapViewFactory  :
     private var routeClicked: Boolean = false
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
+
+    private var markerList: ArrayList<MarkerOptions>? = ArrayList()
+    private var trackCameraPosition = false
     private val navigationOptions = VietmapNavigationOptions
         .builder().maxTurnCompletionOffset(30.0)
         .maneuverZoneRadius(40.0).maximumDistanceOffRoute(50.0)
@@ -174,7 +182,10 @@ class FlutterMapViewFactory  :
     private var speechPlayer: SpeechPlayer? = null
     private var routeProgress: RouteProgress? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
-    private var bitmapDrawable: BitmapDrawable? =null
+    private var bitmapDrawable: BitmapDrawable? = null
+
+    private var mapReadyResult: MethodChannel.Result? = null
+
     constructor(
         cxt: Context,
         messenger: BinaryMessenger,
@@ -248,6 +259,9 @@ class FlutterMapViewFactory  :
         var originPoint: Point? = null
         var destinationPoint: Point? = null
         var isRunning:Boolean = false
+
+        private val LAT_LON_FORMATTER = DecimalFormat("#.#####")
+        private const val STATE_MARKER_LIST = "markerList"
     }
 
 
@@ -323,11 +337,68 @@ class FlutterMapViewFactory  :
                     navigation.onDestroy()
                     mapView.onDestroy()
                     result.success(true)
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                     result.success(false)
                 }
             }
+            "map#toScreenLocationBatch" -> {
+                val param: DoubleArray? = methodCall.argument("coordinates") as DoubleArray?
+                val reply = DoubleArray(param?.size ?: 0)
+                if (param == null || reply == null) return
+                var i = 0
+                while (i < param.size) {
+                    val latLng: LatLng = LatLng(param!![i], param!![i + 1])
+                    val pointf = vietmapGL!!.projection.toScreenLocation(latLng)
+                    reply[i] = pointf.x.toDouble()
+                    reply[i + 1] = pointf.y.toDouble()
+                    i += 2
+                }
+                println(reply)
+                result.success(reply)
+            }
+            "map#toScreenLocation" -> {
+
+                val reply: MutableMap<String, Any> = HashMap()
+                val pointf = vietmapGL!!
+                    .projection
+                    .toScreenLocation(
+                        LatLng(
+                            methodCall.argument("latitude")!!,
+                            methodCall.argument("longitude")!!
+                        )
+                    )
+                reply["x"] = pointf.x
+                reply["y"] = pointf.y
+                result.success(reply)
+            }
+
+            "map#toLatLng" -> {
+
+                val reply: MutableMap<String, Any> = HashMap()
+                val x: Double = methodCall.argument("x")!!;
+                val y: Double = methodCall.argument("y")!!;
+                val latlng = vietmapGL!!
+                    .projection
+                    .fromScreenLocation(
+                        PointF(
+                            x.toFloat(),
+                            y.toFloat()
+                        )
+                    )
+                reply["latitude"] = latlng.latitude
+                reply["longitude"] = latlng.longitude
+                result.success(reply)
+            }
+
+            "map#waitForMap" -> {
+
+                if (vietmapGL != null) {
+                    result.success(null);
+                    return;
+                }
+            }
+
             else -> result.notImplemented()
         }
     }
@@ -509,14 +580,20 @@ class FlutterMapViewFactory  :
     private fun setOptions(arguments: Map<*, *>)
     {
         val navMode = arguments["mode"] as? String
-        if(navMode != null)
-        {
-            if(navMode == "walking")
-                navigationMode = DirectionsCriteria.PROFILE_WALKING;
-            else if(navMode == "cycling")
-                navigationMode = DirectionsCriteria.PROFILE_CYCLING;
-            else if(navMode == "driving")
-                navigationMode = DirectionsCriteria.PROFILE_DRIVING;
+        if(navMode != null) {
+            profile = navMode
+            when (navMode) {
+                "walking" -> {
+                    navigationMode = DirectionsCriteria.PROFILE_WALKING
+                }
+                "cycling" -> {
+                    navigationMode = DirectionsCriteria.PROFILE_CYCLING
+                }
+                "driving" -> {
+                    navigationMode = DirectionsCriteria.PROFILE_DRIVING
+                }
+
+            };
         }
 
         val simulated = arguments["simulateRoute"] as? Boolean
@@ -535,16 +612,23 @@ class FlutterMapViewFactory  :
         }
         val styleUrl = arguments["mapStyle"] as? String
 
-        if (styleUrl != null&&styleUrl!="") {
+        if (styleUrl != null && styleUrl != "") {
             mapStyleURL = styleUrl
         }
         val apik = arguments["apikey"] as? String
-        if (apik != null&&apik!="") {
+        if (apik != null && apik != "") {
             apikey = apik
         }
 
+        val trackCamera = arguments["trackCameraPosition"] as? Boolean
+        println("-------------------------------------------------------")
+        println(arguments)
+        if (trackCamera != null) {
+            setTrackCameraPosition(trackCamera)
+        }
+
         val byteArray = arguments["customLocationCenterIcon"] as? ByteArray
-        if(byteArray!=null){
+        if (byteArray != null) {
             this.bitmapDrawable = loadImageFromBinary(byteArray)
         }
 
@@ -592,11 +676,20 @@ class FlutterMapViewFactory  :
     }
 
     override fun onMapReady(map: VietMapGL) {
+
+        if (mapReadyResult != null) {
+            mapReadyResult!!.success(null);
+            mapReadyResult = null;
+        }
         this.mapReady = true
         this.vietmapGL = map
         if (simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
+
+        vietmapGL?.addOnCameraMoveStartedListener(this)
+        vietmapGL?.addOnCameraMoveListener(this)
+        vietmapGL?.addOnCameraIdleListener(this)
         vietmapGL?.setStyle(mapStyleURL) { style ->
             context.addDestinationIconSymbolLayer(style)
             val routeLineLayer = LineLayer("line-layer-id", "source-id")
@@ -802,6 +895,7 @@ class FlutterMapViewFactory  :
                 }
 
                 currentRoute = response.body()!!.routes()[0]
+
                 val data = currentRoute?.toJson()
                 PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILT, "${currentRoute?.toJson()}")
 //                moveCameraToOriginOfRoute()
@@ -821,9 +915,15 @@ class FlutterMapViewFactory  :
 
 
                 isBuildingRoute = false
-                overViewRoute()
+
+
+                val padding: IntArray = intArrayOf(30, 30, 30, 30)
+                // get route point from current route
+                val routePoints: List<Point> =
+                    currentRoute?.routeOptions()?.coordinates() as List<Point>
+                animateVietmapGLForRouteOverview(padding, routePoints)
                 //Start Navigation again from new Point, if it was already in Progress
-                if (isNavigationInProgress||isStartNavigation) {
+                if (isNavigationInProgress || isStartNavigation) {
                     startNavigation()
                 }
             }
@@ -891,17 +991,12 @@ class FlutterMapViewFactory  :
     override fun onProgressChange(location: Location, routeProgress: RouteProgress) {
 
         if (!isNavigationCanceled) {
-            try {
+//            try {
                 distanceRemaining = routeProgress.distanceRemaining()
                 durationRemaining = routeProgress.durationRemaining()
 
                 val progressEvent = VietMapRouteProgressEvent(routeProgress)
                 PluginUtilities.sendEvent(progressEvent)
-//                addCustomMarker(
-//                    LatLng(location.latitude, location.longitude),
-//                    R.drawable.vietmap_marker_icon_default
-//                )
-
                 currentCenterPoint =
                     CurrentCenterPoint(location.latitude, location.longitude, location.bearing)
 
@@ -916,15 +1011,15 @@ class FlutterMapViewFactory  :
                     vietmapGL?.locationComponent?.forceLocationUpdate(snappedLocation)
                 }
 
-                if (simulateRoute && !isDisposed && !isBuildingRoute) {
-                    vietmapGL?.locationComponent?.forceLocationUpdate(location)
-                }
-
-                if (!isRefreshing) {
-                    isRefreshing = true
-                }
-            } catch (e: java.lang.Exception) {
+            if (simulateRoute && !isDisposed && !isBuildingRoute) {
+                vietmapGL?.locationComponent?.forceLocationUpdate(location)
             }
+
+            if (!isRefreshing) {
+                isRefreshing = true
+            }
+//            } catch (e: java.lang.Exception) {
+//            }
         }
     }
 
@@ -1171,6 +1266,7 @@ class FlutterMapViewFactory  :
         }
 
         override fun onMapClick(point: LatLng): Boolean {
+            _addMarker(point)
             if(routeClicked){
                 routeClicked = false
                 return true
@@ -1245,10 +1341,75 @@ class FlutterMapViewFactory  :
             .includes(latLngs)
             .build()
     }
-private  fun setCenterIcon(){
+
+    private fun setCenterIcon() {
 //    var locationComponentOptions = vietmapGL?.locationComponent?.locationComponentOptions
 ////    locationComponentOptions?.toBuilder()?.backgroundDrawable(bitmapDrawable)
 //    val locationLayerController : LocationLayerController?  = vietmapGL?.locationComponent?.locationLayerController;
 //    val locationLayerRenderer:LocationLayerRenderer? = locationLayerController?.getLocationLayerRenderer()
-}
+    }
+
+    override fun onCameraIdle() {
+        val arguments: MutableMap<String, Any> = HashMap(2)
+        if (trackCameraPosition) {
+//            arguments["position"] = Convert.toJson(vietmapGL!!.cameraPosition)
+        }
+        methodChannel.invokeMethod("camera#onIdle", arguments)
+    }
+
+    private fun setTrackCameraPosition(trackCameraPosition: Boolean) {
+        this.trackCameraPosition = trackCameraPosition
+    }
+
+    override fun onCameraMove() {
+
+        if (!trackCameraPosition) {
+            return
+        }
+//        val arguments: MutableMap<String, Any> = HashMap(2)
+//        arguments["position"] = Convert.toJson(vietmapGL!!.cameraPosition)
+//        PluginUtilities.sendEvent(VietMapEvents.CAMERA_ON_MOVE, arguments.toString())
+//        methodChannel.invokeMethod("camera#onMove", arguments)
+    }
+
+    private fun getCameraPosition(): CameraPosition? {
+        return if (trackCameraPosition) vietmapGL!!.cameraPosition else null
+    }
+
+    override fun onCameraMoveStarted(p0: Int) {
+        val arguments: MutableMap<String, Any> = HashMap(2)
+        val isGesture = p0 == VietMapGL.OnCameraMoveStartedListener.REASON_API_GESTURE
+        arguments["isGesture"] = isGesture
+        methodChannel.invokeMethod("camera#onMoveStarted", arguments)
+    }
+
+    override fun onDidBecomeIdle() {
+        methodChannel.invokeMethod("map#onIdle", HashMap<Any, Any>())
+    }
+
+    override fun onCameraTrackingDismissed() {
+        methodChannel.invokeMethod("map#onCameraTrackingDismissed", HashMap<Any, Any>())
+    }
+
+    override fun onCameraTrackingChanged(p0: Int) {
+        val arguments: MutableMap<String, Any> = HashMap(2)
+        arguments["mode"] = p0
+        methodChannel.invokeMethod("map#onCameraTrackingChanged", arguments)
+    }
+
+    fun _addMarker(point: LatLng) {
+        val pixel = vietmapGL?.projection?.toScreenLocation(point)
+        val title = (
+                LAT_LON_FORMATTER.format(point.latitude) + ", " +
+                        LAT_LON_FORMATTER.format(point.longitude)
+                )
+        val snippet = "X = " + pixel?.x?.toInt() + ", Y = " + pixel?.y?.toInt()
+         MarkerOptions()
+            .position(point)
+            .title(title)
+            .snippet(snippet)
+          markerList?.let {
+              println("------------------Marker Added")
+              vietmapGL?.addMarkers(it) }
+    }
 }

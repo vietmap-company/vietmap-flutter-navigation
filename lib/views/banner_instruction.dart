@@ -5,10 +5,10 @@ import '../models/route_progress_event.dart';
 
 class BannerInstructionView extends StatelessWidget {
   const BannerInstructionView({
-    super.key,
+    Key? key,
     required this.routeProgressEvent,
     required this.instructionIcon,
-  });
+  }) : super(key: key);
 
   /// this widget use [RouteProgressEvent] to show the direction icon and instruction
   final RouteProgressEvent? routeProgressEvent;

@@ -43,7 +43,7 @@ allprojects {
 
 
 ## iOS config
-Add the below codes to the Info.plist file
+Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_KEY_HERE** 
 ```
 	<key>VietMapAPIBaseURL</key>
 	<string>https://maps.vietmap.vn/api/navigations/route/</string>

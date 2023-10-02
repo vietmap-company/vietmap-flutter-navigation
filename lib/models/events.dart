@@ -24,5 +24,6 @@ enum MapEvent {
   onMapLongClick,
   onMapClick,
   onMapRendered,
-  onNewRouteSelected
+  onNewRouteSelected,
+  cameraOnMove
 }

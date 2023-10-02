@@ -38,6 +38,7 @@ class MapOptions {
       this.mapStyleUrlNight,
       this.padding,
       this.animateBuildRoute,
+      this.trackCameraPosition,
       this.showReportFeedbackButton = true,
       this.showEndOfRouteFeedback = true,
       this.isCustomizeUI = false});
@@ -53,6 +54,10 @@ class MapOptions {
 
   /// The initial Longitude of the Map View
   double? initialLongitude;
+
+  /// If true, the map will continuously update the user location
+  /// when the location changes. Defaults to true.
+  bool? trackCameraPosition;
 
   /// 2-letter ISO 639-1 code for language. This property affects the sentence
   /// contained within the RouteStep.instructions property, but it does not
@@ -163,6 +168,7 @@ class MapOptions {
     addIfNonNull('mapStyle', mapStyle);
     addIfNonNull('initialLatitude', initialLatitude);
     addIfNonNull('initialLongitude', initialLongitude);
+    addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('language', language);
     addIfNonNull('animateBuildRoute', animateBuildRoute);
     addIfNonNull('longPressDestinationEnabled', longPressDestinationEnabled);

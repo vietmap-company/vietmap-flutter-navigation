@@ -7,16 +7,16 @@ import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 import 'package:vietmap_flutter_navigation/navigation_plugin_platform_interface.dart';
 import 'package:vietmap_flutter_navigation/navigation_plugin_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 
 class MockDemoPluginPlatform
     with MockPlatformInterfaceMixin
-    implements DemoPluginPlatform {
+    implements VietmapNavigationPluginPlatform {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<bool?> startNavigation(List<WayPoint> wayPoints, MapOptions options) =>
-      Future.value(true);
+  Future<bool?> startNavigation({MapOptions? options}) => Future.value(true);
 
   @override
   Future addWayPoints({required List<WayPoint> wayPoints}) {
@@ -59,19 +59,36 @@ class MockDemoPluginPlatform
     // TODO: implement startFreeDrive
     throw UnimplementedError();
   }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+  }
+
+  @override
+  // TODO: implement onCameraIdlePlatform
+  ArgumentCallbacks<CameraPosition?> get onCameraIdlePlatform =>
+      throw UnimplementedError();
+
+  @override
+  // TODO: implement onCameraMovePlatform
+  ArgumentCallbacks<CameraPosition> get onCameraMovePlatform =>
+      throw UnimplementedError();
 }
 
 void main() {
-  final DemoPluginPlatform initialPlatform = DemoPluginPlatform.instance;
+  final VietmapNavigationPluginPlatform initialPlatform =
+      VietmapNavigationPluginPlatform.instance;
 
-  test('$MethodChannelDemoPlugin is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelDemoPlugin>());
+  test('$MethodChannelVietmapNavigationPlugin is the default instance', () {
+    expect(
+        initialPlatform, isInstanceOf<MethodChannelVietmapNavigationPlugin>());
   });
 
   test('getPlatformVersion', () async {
     VietMapNavigationPlugin demoPlugin = VietMapNavigationPlugin();
     MockDemoPluginPlatform fakePlatform = MockDemoPluginPlatform();
-    DemoPluginPlatform.instance = fakePlatform;
+    VietmapNavigationPluginPlatform.instance = fakePlatform;
 
     expect(await demoPlugin.getPlatformVersion(), '42');
   });

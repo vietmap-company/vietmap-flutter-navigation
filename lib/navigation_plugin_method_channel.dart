@@ -14,8 +14,9 @@ import 'models/route_event.dart';
 import 'models/route_progress_event.dart';
 import 'models/way_point.dart';
 
-/// An implementation of [DemoPluginPlatform] that uses method channels.
-class MethodChannelDemoPlugin extends DemoPluginPlatform {
+/// An implementation of [VietmapNavigationPluginPlatform] that uses method channels.
+class MethodChannelVietmapNavigationPlugin
+    extends VietmapNavigationPluginPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('navigation_plugin');
@@ -58,20 +59,19 @@ class MethodChannelDemoPlugin extends DemoPluginPlatform {
   }
 
   @override
-  Future<bool?> startNavigation(
-      List<WayPoint> wayPoints, MapOptions options) async {
-    assert(wayPoints.length > 1, 'Error: WayPoints must be at least 2');
-    if (Platform.isIOS && wayPoints.length > 3) {
-      assert(options.mode != MapNavigationMode.drivingWithTraffic, '''
-            Error: Cannot use drivingWithTraffic Mode when you have more than 3 Stops
-          ''');
-    }
+  Future<bool?> startNavigation({MapOptions? options}) async {
+    // assert(wayPoints.length > 1, 'Error: WayPoints must be at least 2');
+    // if (Platform.isIOS && wayPoints.length > 3) {
+    //   assert(options.mode != MapNavigationMode.drivingWithTraffic, '''
+    //         Error: Cannot use drivingWithTraffic Mode when you have more than 3 Stops
+    //       ''');
+    // }
 
-    final pointList = _getPointListFromWayPoints(wayPoints);
-    var i = 0;
-    final wayPointMap = {for (var e in pointList) i++: e};
-    final args = options.toMap();
-    args['wayPoints'] = wayPointMap;
+    // final pointList = _getPointListFromWayPoints(wayPoints);
+    // var i = 0;
+    // final wayPointMap = {for (var e in pointList) i++: e};
+    final args = options?.toMap();
+    // args['wayPoints'] = wayPointMap;
     _routeEventSubscription = routeEventsListener!.listen(_onProgressData);
     final result = await methodChannel.invokeMethod('startNavigation', args);
     if (result is bool) return result;

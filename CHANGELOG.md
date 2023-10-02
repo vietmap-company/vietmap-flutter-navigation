@@ -1,3 +1,7 @@
+## 1.1.9
+- Update auto overview route when the route built success
+## 1.1.8
+- Fix `onProgressChange` response data when start selected route ios
 ## 1.1.7
 - Update route info when user selected new route while navigation is running
 ## 1.1.6

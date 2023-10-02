@@ -5,7 +5,8 @@ import 'package:vietmap_flutter_navigation/navigation_plugin_method_channel.dart
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelDemoPlugin platform = MethodChannelDemoPlugin();
+  MethodChannelVietmapNavigationPlugin platform =
+      MethodChannelVietmapNavigationPlugin();
   const MethodChannel channel = MethodChannel('navigation_plugin');
 
   setUp(() {
