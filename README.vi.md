@@ -45,18 +45,17 @@ allprojects {
 ## Cấu hình cho iOS
 Thêm đoạn code sau vào file Info.plist
 ```
-	<key>VietMapAPIBaseURL</key>
-	<string>https://maps.vietmap.vn/api/navigations/route/</string>
-	<key>VietMapAccessToken</key>
-	<string>YOUR_API_KEY_HERE</string>
-	<key>VietMapURL</key>
-	<string>https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app requires location permission to working normally</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app requires location permission to working normally</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app requires location permission to working normally</string>
+<key>VietMapURL</key>
+<string>YOUR_STYLE_HERE</string>
+<key>VietMapAPIBaseURL</key>
+<string>YOUR_SERVER_URL</string>
+<key>VietMapAccessToken</key>
+<string>YOUR_API_KEY</string>
+<string>This app requires location permission to working normally</string>
+<key>NSLocationAlwaysUsageDescription</key>
+<string>This app requires location permission to working normally</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>This app requires location permission to working normally</string>
 ```
 
 
@@ -93,7 +92,7 @@ Khai báo các biến cần thiết và hàm cấu hình khởi tạo
     _navigationOption.apiKey =
         'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
+        "YOUR_STYLE_HERE";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
