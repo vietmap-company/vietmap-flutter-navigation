@@ -13,4 +13,7 @@ class MethodChannelEvent {
   static const String mute = "mute";
   static const String onDispose = "onDispose";
   static const String setCenterIcon = "setCenterIcon";
+  static const String addMarkers = "addMarkers";
+  static const String removeMarkers = "removeMarkers";
+  static const String removeAllMarkers = "removeAllMarkers";
 }

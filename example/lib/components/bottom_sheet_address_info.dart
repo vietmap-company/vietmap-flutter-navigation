@@ -39,8 +39,8 @@ class AddressInfo extends StatelessWidget {
                   onPressed: () {
                     buildRoute();
                   },
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(Icons.alt_route_sharp, size: 17),
                       Text('Đường đi')
                     ],
@@ -56,8 +56,8 @@ class AddressInfo extends StatelessWidget {
                   onPressed: () {
                     buildAndStartRoute();
                   },
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(Icons.arrow_upward_rounded, size: 17),
                       Text('Bắt đầu'),
                     ],

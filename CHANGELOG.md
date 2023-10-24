@@ -1,3 +1,10 @@
+## 1.2.3
+* Update README.md document
+* Update map style url
+## 1.2.2
+- Optimize UX when user direction to next turn
+## 1.2.1
+- Add `addMarkers` from image or flutter widget feature
 ## 1.2.0
 - Update overview route padding
 - Fix `onProgressChange` crash in android

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
@@ -26,6 +27,7 @@ class NavigationView extends StatefulWidget {
       this.onRouteBuildFailed,
       this.onNavigationRunning,
       this.onArrival,
+      this.onMarkerClicked,
       this.onNavigationFinished,
       this.onNavigationCancelled,
       this.onMapMove,
@@ -82,6 +84,9 @@ class NavigationView extends StatefulWidget {
   /// This callback will called when the map is ready
   final VoidCallback? onMapReady;
 
+  /// This callback will called when the user click on the marker and response a [int], which is the marker id
+  final Function(int?)? onMarkerClicked;
+
   /// This callback will called when the user long click on the map and response a [WayPoint] object
   /// which contains all information about the location where user long click
   final Function(WayPoint?)? onMapLongClick;
@@ -124,6 +129,7 @@ class _NavigationViewState extends State<NavigationView> {
 
   /// handle all events from the native side and response to the user callback function
   Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {
+    log(e.eventType.toString());
     switch (e.eventType) {
       case MapEvent.progressChange:
         if (widget.onRouteProgressChange != null) {
@@ -223,6 +229,16 @@ class _NavigationViewState extends State<NavigationView> {
             Map<String, dynamic> map = decodeJson(data: e.data);
             var data = DirectionRoute.fromJson(map);
             widget.onNewRouteSelected!(data);
+          }
+        }
+        break;
+      case MapEvent.markerClicked:
+        if (widget.onMarkerClicked != null) {
+          if (e.data != null) {
+            var temp =
+                e.data.toString().replaceAll('"', '').replaceAll("'", '"');
+            var data = (jsonDecode(temp));
+            widget.onMarkerClicked!(data['markerId']);
           }
         }
         break;

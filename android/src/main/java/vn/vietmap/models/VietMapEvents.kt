@@ -27,5 +27,6 @@ enum class VietMapEvents(val value: String) {
     ON_MAP_RENDERED("onMapRendered"),
     ON_NEW_ROUTE_SELECTED("onNewRouteSelected"),
     CAMERA_ON_MOVE("cameraOnMove"),
+    MARKER_CLICKED("markerClicked"),
 
 }

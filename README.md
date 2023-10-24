@@ -50,7 +50,7 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
 	<key>VietMapAccessToken</key>
 	<string>YOUR_API_KEY_HERE</string>
 	<key>VietMapURL</key>
-	<string>https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d</string>
+	<string>https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app requires location permission to working normally</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -91,7 +91,7 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
     _navigationOption.apiKey =
         'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
@@ -138,7 +138,9 @@ Set instruction icon from routeProgress data.
 ```
 Instruction icon [here](./example/assets/navigation_symbol), copy and paste to your project.
 
-Figma design [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)Add the Bottom view, which contains the overview route, recenter and stop navigation button.
+Figma design [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)
+
+Add the Bottom view, which contains the overview route, recenter and stop navigation button.
 ```dart
             BottomActionView(
               recenterButton: recenterButton,
@@ -183,6 +185,55 @@ Useful function
 
           /// Stop the navigation
           _controller?.finishNavigation();
+```
+
+## Add a marker to the map
+  We provided 2 ways to add a marker to the map
+  - Add a marker from assets image 
+  - Add a marker from flutter widget
+
+### Marker from assets image
+```dart
+  /// Add a marker to the map
+  List<Marker>? markers = await _controller?.addImageMarkers([
+    Marker(
+        imagePath: 'assets/50.png',
+      latLng: const LatLng(10.762528, 106.653099)),
+    Marker(
+        imagePath: 'assets/40.png',
+        latLng: const LatLng(10.762528, 106.753099)),
+  ]);
+```
+### Marker from Flutter widget
+Currently, we use [screenshot library](https://pub.dev/packages/screenshot) to convert your widget to an binary image then show it to the map
+```dart
+    List<MarkerWidget>? markers =
+        await _controller?.addWidgetMarkers([
+      MarkerWidget(
+        child: Container(
+          width: 50,
+          height: 50,
+          color: Colors.red,
+          child: const Icon(
+            Icons.abc,
+            color: Colors.white,
+          ),
+        ),
+        latLng: const LatLng(10.759091, 106.675817),
+      ),
+      MarkerWidget(
+        child: Container(
+          width: 50,
+          height: 50,
+          color: Colors.red,
+          child: const Icon(
+            Icons.abc,
+            color: Colors.white,
+          ), 
+        ),
+        latLng: const LatLng(10.762528, 106.653099),
+      )
+    ]);
 ```
 
 ## Troubleshooting
