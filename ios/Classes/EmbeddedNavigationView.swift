@@ -483,8 +483,9 @@ extension FlutterMapNavigationView : MGLMapViewDelegate {
     }
     
     public func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
-        let image = UIImage(data: dataCustomImage!)!
-        
+        guard let dataCustomImage = dataCustomImage else { return annotation as? MGLAnnotationImage}
+        let image = UIImage(data: dataCustomImage)
+        guard let image = image else { return annotation as? MGLAnnotationImage}
         if #available(iOS 13.0, *) {
             image.withTintColor(UIColor.red)
         } else {
