@@ -1,3 +1,5 @@
+## 1.2.4
+* Fix crash when build route
 ## 1.2.3
 * Update README.md document
 * Update map style url
