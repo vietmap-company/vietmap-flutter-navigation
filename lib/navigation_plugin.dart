@@ -26,6 +26,7 @@ class VietMapNavigationPlugin {
     mode: MapNavigationMode.drivingWithTraffic,
     units: VoiceUnits.imperial,
     simulateRoute: true,
+    trackCameraPosition: true,
     animateBuildRoute: true,
     longPressDestinationEnabled: true,
     language: 'vi',
@@ -43,17 +44,17 @@ class VietMapNavigationPlugin {
 
   ///Current Device OS Version
   Future<String?> getPlatformVersion() {
-    return DemoPluginPlatform.instance.getPlatformVersion();
+    return VietmapNavigationPluginPlatform.instance.getPlatformVersion();
   }
 
   ///Total distance remaining in meters along route.
   Future<double?> getDistanceRemaining() {
-    return DemoPluginPlatform.instance.getDistanceRemaining();
+    return VietmapNavigationPluginPlatform.instance.getDistanceRemaining();
   }
 
   ///Total seconds remaining on all legs.
   Future<double?> getDurationRemaining() {
-    return DemoPluginPlatform.instance.getDurationRemaining();
+    return VietmapNavigationPluginPlatform.instance.getDurationRemaining();
   }
 
   ///Adds waypoints or stops to an on-going navigation
@@ -62,7 +63,8 @@ class VietMapNavigationPlugin {
   /// be inserted after the currently navigating waypoint
   /// in the existing navigation
   Future<dynamic> addWayPoints({required List<WayPoint> wayPoints}) async {
-    return DemoPluginPlatform.instance.addWayPoints(wayPoints: wayPoints);
+    return VietmapNavigationPluginPlatform.instance
+        .addWayPoints(wayPoints: wayPoints);
   }
 
   /// Free-drive mode is a unique Mapbox Navigation SDK feature that allows
@@ -72,29 +74,29 @@ class VietMapNavigationPlugin {
   ///
   Future<bool?> startFreeDrive({MapOptions? options}) async {
     options ??= _defaultOptions;
-    return DemoPluginPlatform.instance.startFreeDrive(options);
+    return VietmapNavigationPluginPlatform.instance.startFreeDrive(options);
   }
 
-  Future<bool?> startNavigation(
-      List<WayPoint> wayPoints, MapOptions options) async {
-    return DemoPluginPlatform.instance.startNavigation(wayPoints, options);
+  Future<bool?> startNavigation({MapOptions? options}) async {
+    return VietmapNavigationPluginPlatform.instance.startNavigation();
   }
 
   ///Ends Navigation and Closes the Navigation View
   Future<bool?> finishNavigation() async {
-    return DemoPluginPlatform.instance.finishNavigation();
+    return VietmapNavigationPluginPlatform.instance.finishNavigation();
   }
 
   /// Will download the navigation engine and the user's region
   /// to allow offline routing
   Future<bool?> enableOfflineRouting() async {
-    return DemoPluginPlatform.instance.enableOfflineRouting();
+    return VietmapNavigationPluginPlatform.instance.enableOfflineRouting();
   }
 
   /// Event listener for RouteEvents
   Future<dynamic> registerRouteEventListener(
     ValueSetter<RouteEvent> listener,
   ) async {
-    return DemoPluginPlatform.instance.registerRouteEventListener(listener);
+    return VietmapNavigationPluginPlatform.instance
+        .registerRouteEventListener(listener);
   }
 }

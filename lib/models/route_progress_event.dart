@@ -15,28 +15,27 @@ class RouteProgressEvent {
   // Khoảng cách
   double? currentLegDistanceTraveled;
   double? currentLegDistanceRemaining;
-  // Chỉ dẫn 
+  // Chỉ dẫn
   String? currentStepInstruction;
-  
+
   RouteLeg? currentLeg;
-  
+
   RouteLeg? priorLeg;
-  
+
   List<RouteLeg>? remainingLegs;
-  
+
   int? legIndex;
-  
+
   int? stepIndex;
-  
+
   bool? isProgressEvent;
-  
+
   double? distanceToNextTurn;
-  
+
   String? currentModifierType;
-  
+
   String? currentModifier;
 
-  
   RouteProgressEvent(
       {this.arrived,
       this.distanceRemaining,

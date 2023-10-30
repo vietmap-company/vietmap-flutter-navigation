@@ -45,7 +45,8 @@ class PluginUtilities {
         fun sendEvent(event: VietMapEvents, data: String = "") {
             val jsonString =
                 //VietMapEvents.MILESTONE_EVENT == event ||
-                if ( event == VietMapEvents.USER_OFF_ROUTE || event == VietMapEvents.ROUTE_BUILT|| event == VietMapEvents.ON_NEW_ROUTE_SELECTED||event == VietMapEvents.ON_MAP_LONG_CLICK||event == VietMapEvents.ON_MAP_CLICK)
+                if ( event == VietMapEvents.USER_OFF_ROUTE || event == VietMapEvents.ROUTE_BUILT|| event == VietMapEvents.ON_NEW_ROUTE_SELECTED||event == VietMapEvents.ON_MAP_LONG_CLICK
+                    ||event == VietMapEvents.ON_MAP_CLICK  )
                     "{" +
                         "  \"eventType\": \"${event.value}\"," +
                         "  \"data\": $data" +

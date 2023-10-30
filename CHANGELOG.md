@@ -1,3 +1,21 @@
+## 1.2.4
+* Fix crash when build route
+## 1.2.3
+* Update README.md document
+* Update map style url
+## 1.2.2
+- Optimize UX when user direction to next turn
+## 1.2.1
+- Add `addMarkers` from image or flutter widget feature
+## 1.2.0
+- Update overview route padding
+- Fix `onProgressChange` crash in android
+- Remove unused code
+- Update  [vietmap](https://vietmap.vn/maps-api) homepage
+## 1.1.9
+- Update auto overview route when the route built success
+## 1.1.8
+- Fix `onProgressChange` response data when start selected route ios
 ## 1.1.7
 - Update route info when user selected new route while navigation is running
 ## 1.1.6

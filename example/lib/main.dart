@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/helpers.dart';
+import 'package:vietmap_flutter_navigation/models/marker_widget.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
@@ -72,11 +73,12 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     if (!mounted) return;
 
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
-    _navigationOption.simulateRoute = false;
+    _navigationOption.simulateRoute = true;
 
-    _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
+    _navigationOption.apiKey =
+        '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
-        "https://run.mocky.io/v3/64ad9ec6-2715-4d56-a335-dedbfe5bc46d";
+        "https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
@@ -87,11 +89,73 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              _controller?.removeAllMarkers();
+            },
+            child: const Icon(Icons.delete),
+          ),
+          FloatingActionButton(
+              child: const Icon(Icons.mark_email_read),
+              onPressed: () async {
+                List<MarkerWidget>? markers =
+                    await _controller?.addWidgetMarkers([
+                  MarkerWidget(
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      color: Colors.red,
+                      child: const Icon(
+                        Icons.abc,
+                        color: Colors.white,
+                      ),
+                    ),
+                    latLng: const LatLng(10.759091, 106.675817),
+                  ),
+                  MarkerWidget(
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      color: Colors.red,
+                      child: const Icon(
+                        Icons.abc,
+                        color: Colors.white,
+                      ),
+                    ),
+                    latLng: const LatLng(10.762528, 106.653099),
+                  ),
+                  MarkerWidget(
+                    child: Container(
+                      width: 50,
+                      color: Colors.red,
+                      height: 50,
+                      child: const Icon(
+                        Icons.abc,
+                        color: Colors.white,
+                      ),
+                    ),
+                    latLng: const LatLng(10.762528, 106.753099),
+                  )
+                ]);
+                markers?.forEach((element) {
+                  print(element.markerId);
+                });
+              }),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Stack(
           children: [
             NavigationView(
+              onMarkerClicked: (p0) {
+                print(p0.toString());
+                log("marker clicked");
+                _controller?.removeMarkers([p0 ?? 0]);
+              },
               mapOptions: _navigationOption,
               onNewRouteSelected: (p0) {
                 log(p0.toString());
@@ -275,8 +339,8 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 borderRadius: BorderRadius.circular(50),
                 color: Colors.white,
                 border: Border.all(color: Colors.black45, width: 1)),
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Icon(
                   Icons.keyboard_double_arrow_up_sharp,
                   color: Colors.lightBlue,

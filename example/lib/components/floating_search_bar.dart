@@ -19,9 +19,7 @@ class FloatingSearchBar extends StatelessWidget {
       width: MediaQuery.of(context).size.width - 20,
       height: 50,
       child: TypeAheadField(
-        
         textFieldConfiguration: TextFieldConfiguration(
-          
             focusNode: focusNode,
             autofocus: false,
             style: const TextStyle(fontSize: 17),

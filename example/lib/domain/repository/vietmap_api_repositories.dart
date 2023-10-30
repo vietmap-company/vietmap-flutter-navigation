@@ -18,11 +18,12 @@ import '../../core/failures/exception_failure.dart';
 class VietmapApiRepositories implements VietmapApiRepository {
   late Dio _dio;
   String baseUrl = 'https://maps.vietmap.vn/api/';
-  String apiKey = 'YOUR_API_KEY_HERE';
+  String apiKey = '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
   VietmapApiRepositories() {
     _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
     if (kDebugMode) {
+      // ignore: deprecated_member_use
       (_dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =

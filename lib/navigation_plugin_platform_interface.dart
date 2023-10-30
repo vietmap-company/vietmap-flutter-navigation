@@ -7,23 +7,24 @@ import 'models/way_point.dart';
 
 import 'package:flutter/widgets.dart';
 
-abstract class DemoPluginPlatform extends PlatformInterface {
+abstract class VietmapNavigationPluginPlatform extends PlatformInterface {
   /// Constructs a DemoPluginPlatform.
-  DemoPluginPlatform() : super(token: _token);
+  VietmapNavigationPluginPlatform() : super(token: _token);
 
   static final Object _token = Object();
 
-  static DemoPluginPlatform _instance = MethodChannelDemoPlugin();
+  static VietmapNavigationPluginPlatform _instance =
+      MethodChannelVietmapNavigationPlugin();
 
-  /// The default instance of [DemoPluginPlatform] to use.
+  /// The default instance of [VietmapNavigationPluginPlatform] to use.
   ///
-  /// Defaults to [MethodChannelDemoPlugin].
-  static DemoPluginPlatform get instance => _instance;
+  /// Defaults to [MethodChannelVietmapNavigationPlugin].
+  static VietmapNavigationPluginPlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [DemoPluginPlatform] when
+  /// platform-specific class that extends [VietmapNavigationPluginPlatform] when
   /// they register themselves.
-  static set instance(DemoPluginPlatform instance) {
+  static set instance(VietmapNavigationPluginPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
@@ -31,6 +32,7 @@ abstract class DemoPluginPlatform extends PlatformInterface {
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
+
   ///Total distance remaining in meters along route.
   Future<double?> getDistanceRemaining() {
     throw UnimplementedError(
@@ -63,10 +65,7 @@ abstract class DemoPluginPlatform extends PlatformInterface {
   /// [options] options used to generate the route and used while navigating
   /// Begins to generate Route Progress
   ///
-  Future<bool?> startNavigation(
-    List<WayPoint> wayPoints,
-    MapOptions options,
-  ) async {
+  Future<bool?> startNavigation({MapOptions? options}) async {
     throw UnimplementedError('startNavigation() has not been implemented.');
   }
 
