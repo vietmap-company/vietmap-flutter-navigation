@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import MapboxDirections
+import VietMapDirections
 import VietMapCoreNavigation
 import VietMapNavigation
 
@@ -54,7 +54,7 @@ func convertRouteOption(route: Route) -> [String: Any] {
     ] as [String: Any]
 }
 
-func convertLeg(legs: [MapboxDirections.RouteLeg]) -> Array<Any> {
+func convertLeg(legs: [VietMapDirections.RouteLeg]) -> Array<Any> {
     var result: [Any] = []
     
     for item in legs {
@@ -70,7 +70,7 @@ func convertLeg(legs: [MapboxDirections.RouteLeg]) -> Array<Any> {
     return result
 }
 
-func convertSteps(steps: [MapboxDirections.RouteStep]) -> Array<Any> {
+func convertSteps(steps: [VietMapDirections.RouteStep]) -> Array<Any> {
     var result: [Any] = []
     
     for item in steps {
@@ -103,7 +103,7 @@ func convertSteps(steps: [MapboxDirections.RouteStep]) -> Array<Any> {
     return result
 }
 
-func convertIntersections(intersections: [MapboxDirections.Intersection]) -> Array<Any> {
+func convertIntersections(intersections: [VietMapDirections.Intersection]) -> Array<Any> {
     var result: [Any] = []
     
     for item in intersections {
@@ -125,7 +125,7 @@ func convertIntersections(intersections: [MapboxDirections.Intersection]) -> Arr
     return result
 }
 
-func convertVoiceInstructions(voices: [MapboxDirections.SpokenInstruction]) -> Array<Any> {
+func convertVoiceInstructions(voices: [VietMapDirections.SpokenInstruction]) -> Array<Any> {
     var result: [Any] = []
     
     for item in voices {
@@ -140,7 +140,7 @@ func convertVoiceInstructions(voices: [MapboxDirections.SpokenInstruction]) -> A
     return result
 }
 
-func convertBannerInstructions(banners: [MapboxDirections.VisualInstructionBanner]) -> Array<Any> {
+func convertBannerInstructions(banners: [VietMapDirections.VisualInstructionBanner]) -> Array<Any> {
     var result: [Any] = []
     
     for item in banners {
@@ -159,11 +159,11 @@ func convertBannerInstructions(banners: [MapboxDirections.VisualInstructionBanne
     return result
 }
 
-func convertComponent(components: [MapboxDirections.ComponentRepresentable]) -> Array<Any> {
+func convertComponent(components: [VietMapDirections.ComponentRepresentable]) -> Array<Any> {
     var result: [Any] = []
     
     for object in components {
-        let item: MapboxDirections.VisualInstructionComponent = object as! VisualInstructionComponent
+        let item: VietMapDirections.VisualInstructionComponent = object as! VisualInstructionComponent
         let itemResult: [String: Any] = [
             "text": item.text ?? "",
             "type": item.type.description,
@@ -205,7 +205,7 @@ func encodeRouteProgress(routeProgress: RouteProgress) -> String {
     return "{}"
 }
 
-func convertStep(steps: [MapboxDirections.RouteStep]) -> Array<Any> {
+func convertStep(steps: [VietMapDirections.RouteStep]) -> Array<Any> {
     var result: [Any] = []
     
     for item in steps {

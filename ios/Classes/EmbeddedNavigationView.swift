@@ -7,7 +7,7 @@
 import Flutter
 import UIKit
 import VietMap
-import MapboxDirections
+import VietMapDirections
 import VietMapCoreNavigation
 import VietMapNavigation
 
