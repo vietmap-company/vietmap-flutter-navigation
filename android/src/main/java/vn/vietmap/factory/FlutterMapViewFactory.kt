@@ -719,7 +719,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
     private fun initMapRoute() {
         if (vietmapGL != null) {
-            navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
+            navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!,"vmadmin_province")
         }
 
         navigationMapRoute?.setOnRouteSelectionChangeListener {
@@ -885,7 +885,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 if (navigationMapRoute != null) {
                     navigationMapRoute?.removeRoute()
                 } else {
-                    navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!)
+                    navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!,"vmadmin_province")
                 }
 
                 //show multiple route to map
