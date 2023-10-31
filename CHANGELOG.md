@@ -1,3 +1,8 @@
+## 1.2.6
+* Update target development to 12 for iOS
+## 1.2.5
+* Update xcode 15
+* Update route under name address iOS
 ## 1.2.4
 * Fix crash when build route
 ## 1.2.3
