@@ -46,9 +46,9 @@ allprojects {
 Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_KEY_HERE** 
 ```
 <key>VietMapURL</key>
-<string>YOUR_STYLE_HERE</string>
+<string>https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE</string>
 <key>VietMapAPIBaseURL</key>
-<string>YOUR_SERVER_URL</string>
+<string>https://maps.vietmap.vn/api/navigations/route/</string>
 <key>VietMapAccessToken</key>
 <string>YOUR_API_KEY</string>
 <string>This app requires location permission to working normally</string>
@@ -90,7 +90,7 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
     _navigationOption.apiKey =
         'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "YOUR_STYLE_HERE";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
@@ -187,9 +187,8 @@ Useful function
 ```
 
 ## Add a marker to the map
-  We provided 2 ways to add a marker to the map
-  - Add a marker from assets image 
-  - Add a marker from flutter widget
+  We `addImageMarkers` function to add multiple marker to the map
+  - Add a marker from assets image  
 
 ### Marker from assets image
 ```dart
@@ -202,38 +201,7 @@ Useful function
         imagePath: 'assets/40.png',
         latLng: const LatLng(10.762528, 106.753099)),
   ]);
-```
-### Marker from Flutter widget
-Currently, we use [screenshot library](https://pub.dev/packages/screenshot) to convert your widget to an binary image then show it to the map
-```dart
-    List<MarkerWidget>? markers =
-        await _controller?.addWidgetMarkers([
-      MarkerWidget(
-        child: Container(
-          width: 50,
-          height: 50,
-          color: Colors.red,
-          child: const Icon(
-            Icons.abc,
-            color: Colors.white,
-          ),
-        ),
-        latLng: const LatLng(10.759091, 106.675817),
-      ),
-      MarkerWidget(
-        child: Container(
-          width: 50,
-          height: 50,
-          color: Colors.red,
-          child: const Icon(
-            Icons.abc,
-            color: Colors.white,
-          ), 
-        ),
-        latLng: const LatLng(10.762528, 106.653099),
-      )
-    ]);
-```
+``` 
 
 ## Troubleshooting
 - We strongly recommend you call the **_controller?.buildRouteAndStartNavigation()** in a button or onMapRendered callback, which is called when the map is rendered successfully. 
@@ -263,5 +231,4 @@ Have a bug to report? [Open an issue](https://github.com/vietmap-company/flutter
 
 
 Have a feature request? [Open an issue](https://github.com/vietmap-company/flutter-map-sdk/issues). Tell us what the feature should do and why you want the feature.
-
-[Tài liệu tiếng Việt](./README.vi.md)
+ 

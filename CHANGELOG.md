@@ -1,3 +1,8 @@
+## 1.2.8
+* Update draw route below road name for android
+## 1.2.7
+* Remove unnecessary library
+* Update README.md document
 ## 1.2.6
 * Update target development to 12 for iOS
 ## 1.2.5

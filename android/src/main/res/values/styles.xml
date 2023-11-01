@@ -14,23 +14,23 @@
     </style>
 
     <style name="CustomInstructionView" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="navigationViewPrimary">@color/mapbox_navigation_view_color_primary</item>
-        <item name="navigationViewSecondary">@color/mapbox_navigation_view_color_secondary</item>
-        <item name="navigationViewAccent">@color/mapbox_navigation_view_color_accent</item>
-        <item name="navigationViewPrimaryText">@color/mapbox_navigation_view_color_secondary</item>
-        <item name="navigationViewSecondaryText">@color/mapbox_navigation_view_color_accent_text</item>
-        <item name="navigationViewDivider">@color/mapbox_navigation_view_color_divider</item>
+        <item name="navigationViewPrimary">@color/vietmap_navigation_view_color_primary</item>
+        <item name="navigationViewSecondary">@color/vietmap_navigation_view_color_secondary</item>
+        <item name="navigationViewAccent">@color/vietmap_navigation_view_color_accent</item>
+        <item name="navigationViewPrimaryText">@color/vietmap_navigation_view_color_secondary</item>
+        <item name="navigationViewSecondaryText">@color/vietmap_navigation_view_color_accent_text</item>
+        <item name="navigationViewDivider">@color/vietmap_navigation_view_color_divider</item>
 
-        <item name="navigationViewListBackground">@color/mapbox_navigation_view_color_list_background</item>
+        <item name="navigationViewListBackground">@color/vietmap_navigation_view_color_list_background</item>
 
-        <item name="navigationViewBannerBackground">@color/mapbox_navigation_view_color_banner_background</item>
-        <item name="navigationViewBannerPrimaryText">@color/mapbox_navigation_view_color_banner_primary_text</item>
-        <item name="navigationViewBannerSecondaryText">@color/mapbox_navigation_view_color_banner_secondary_text</item>
-        <item name="navigationViewBannerManeuverPrimary">@color/mapbox_navigation_view_color_banner_maneuver_primary</item>
-        <item name="navigationViewBannerManeuverSecondary">@color/mapbox_navigation_view_color_banner_maneuver_secondary</item>
+        <item name="navigationViewBannerBackground">@color/vietmap_navigation_view_color_banner_background</item>
+        <item name="navigationViewBannerPrimaryText">@color/vietmap_navigation_view_color_banner_primary_text</item>
+        <item name="navigationViewBannerSecondaryText">@color/vietmap_navigation_view_color_banner_secondary_text</item>
+        <item name="navigationViewBannerManeuverPrimary">@color/vietmap_navigation_view_color_banner_maneuver_primary</item>
+        <item name="navigationViewBannerManeuverSecondary">@color/vietmap_navigation_view_color_banner_maneuver_secondary</item>
 
-        <item name="navigationViewProgress">@color/mapbox_navigation_view_color_progress</item>
-        <item name="navigationViewProgressBackground">@color/mapbox_navigation_view_color_progress_background</item>
+        <item name="navigationViewProgress">@color/vietmap_navigation_view_color_progress</item>
+        <item name="navigationViewProgressBackground">@color/vietmap_navigation_view_color_progress_background</item>
 
         <item name="navigationViewRouteStyle">@style/NavigationMapRoute</item>
 

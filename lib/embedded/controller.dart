@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:vietmap_flutter_navigation/extension.dart';
 import 'package:vietmap_flutter_navigation/models/events.dart';
-import 'package:vietmap_flutter_navigation/models/marker_widget.dart';
 import 'package:vietmap_flutter_navigation/models/method_channel_event.dart';
 import 'package:vietmap_flutter_navigation/models/navmode.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
@@ -13,7 +12,6 @@ import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'package:screenshot/screenshot.dart';
 import '../models/marker.dart';
 
 enum DrivingProfile { drivingTraffic, cycling, walking, motorcycle }
@@ -125,42 +123,6 @@ class MapNavigationViewController {
 
   /// Add a Marker Group to the Map
   /// imagePath is the path to the image asset, allow only image in [png], [jpeg], [jpg] format
-
-  Future<List<MarkerWidget>> addWidgetMarkers(
-      List<MarkerWidget> markers) async {
-    ScreenshotController screenshotController = ScreenshotController();
-    List<Map<String, dynamic>> markerList = [];
-    await Future.forEach(markers, (MarkerWidget element) async {
-      try {
-        var data = await screenshotController.captureFromWidget(element.child);
-        var jsonData = element.toJson();
-        if (Platform.isAndroid) {
-          jsonData['imageBytes'] = data;
-        } else if (Platform.isIOS) {
-          var base64String = base64Encode(data);
-          jsonData['imageBase64'] = base64String;
-        }
-
-        markerList.add(jsonData);
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-    });
-    var i = 0;
-    var markerMap = {for (var e in markerList) i++: e};
-
-    List<Object?> listMarkerId = await _methodChannel.invokeMethod(
-        MethodChannelEvent.addMarkers, markerMap);
-
-    if (listMarkerId.isNotEmpty) {
-      for (var element in markers) {
-        element.markerId = listMarkerId[markers.indexOf(element)] as int?;
-      }
-      return markers;
-    } else {
-      return [];
-    }
-  }
 
   Future<List<Marker>> addImageMarkers(List<Marker> markers) async {
     List<Map<String, dynamic>> markerList = [];

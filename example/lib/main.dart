@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/helpers.dart';
-import 'package:vietmap_flutter_navigation/models/marker_widget.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
@@ -78,7 +77,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption.apiKey =
         '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
     _navigationOption.mapStyle =
-        "https://api.maptiler.com/maps/basic-v2/style.json?key=erfJ8OKYfrgKdU6J1SXm";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
@@ -99,51 +98,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
             child: const Icon(Icons.delete),
           ),
           FloatingActionButton(
-              child: const Icon(Icons.mark_email_read),
-              onPressed: () async {
-                List<MarkerWidget>? markers =
-                    await _controller?.addWidgetMarkers([
-                  MarkerWidget(
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      color: Colors.red,
-                      child: const Icon(
-                        Icons.abc,
-                        color: Colors.white,
-                      ),
-                    ),
-                    latLng: const LatLng(10.759091, 106.675817),
-                  ),
-                  MarkerWidget(
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      color: Colors.red,
-                      child: const Icon(
-                        Icons.abc,
-                        color: Colors.white,
-                      ),
-                    ),
-                    latLng: const LatLng(10.762528, 106.653099),
-                  ),
-                  MarkerWidget(
-                    child: Container(
-                      width: 50,
-                      color: Colors.red,
-                      height: 50,
-                      child: const Icon(
-                        Icons.abc,
-                        color: Colors.white,
-                      ),
-                    ),
-                    latLng: const LatLng(10.762528, 106.753099),
-                  )
-                ]);
-                markers?.forEach((element) {
-                  print(element.markerId);
-                });
-              }),
+              child: const Icon(Icons.mark_email_read), onPressed: () async {}),
         ],
       ),
       body: SafeArea(

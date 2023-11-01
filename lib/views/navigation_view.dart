@@ -111,8 +111,8 @@ class NavigationView extends StatefulWidget {
 class _NavigationViewState extends State<NavigationView> {
   @override
   void initState() {
-    assert(widget.mapOptions.apiKey != '', 'apikey không được để trống');
-    assert(widget.mapOptions.mapStyle != '', 'mapStyle không được để trống');
+    assert(widget.mapOptions.apiKey != '', 'apikey is required');
+    assert(widget.mapOptions.mapStyle != '', 'mapStyle is required');
     super.initState();
   }
 
