@@ -72,12 +72,12 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     if (!mounted) return;
 
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
-    _navigationOption.simulateRoute = true;
+    _navigationOption.simulateRoute = false;
 
     _navigationOption.apiKey =
-        '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
+        '6411732992b3c4def7a117893215b9163a15e69065c0874d';
     _navigationOption.mapStyle =
-        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=6411732992b3c4def7a117893215b9163a15e69065c0874d";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
@@ -88,19 +88,19 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              _controller?.removeAllMarkers();
-            },
-            child: const Icon(Icons.delete),
-          ),
-          FloatingActionButton(
-              child: const Icon(Icons.mark_email_read), onPressed: () async {}),
-        ],
-      ),
+      // floatingActionButton: Column(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   children: [
+      //     FloatingActionButton(
+      //       onPressed: () {
+      //         _controller?.removeAllMarkers();
+      //       },
+      //       child: const Icon(Icons.delete),
+      //     ),
+      //     FloatingActionButton(
+      //         child: const Icon(Icons.mark_email_read), onPressed: () async {}),
+      //   ],
+      // ),
       body: SafeArea(
         top: false,
         child: Stack(

@@ -11,16 +11,14 @@ import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.annotation.DrawableRes
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationServices
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
@@ -82,6 +80,9 @@ import vn.vietmap.vietmapsdk.geometry.LatLngBounds
 import vn.vietmap.vietmapsdk.location.LocationComponentActivationOptions
 import vn.vietmap.vietmapsdk.location.LocationComponentOptions
 import vn.vietmap.vietmapsdk.location.engine.LocationEngine
+import vn.vietmap.vietmapsdk.location.engine.LocationEngineCallback
+import vn.vietmap.vietmapsdk.location.engine.LocationEngineRequest
+import vn.vietmap.vietmapsdk.location.engine.LocationEngineResult
 import vn.vietmap.vietmapsdk.location.modes.CameraMode
 import vn.vietmap.vietmapsdk.location.modes.RenderMode
 import vn.vietmap.vietmapsdk.location.permissions.PermissionsManager
@@ -94,7 +95,6 @@ import vn.vietmap.vietmapsdk.style.layers.Property.LINE_JOIN_ROUND
 import vn.vietmap.vietmapsdk.style.layers.PropertyFactory.*
 import vn.vietmap.vietmapsdk.style.layers.SymbolLayer
 import vn.vietmap.vietmapsdk.style.sources.GeoJsonSource
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.*
 
@@ -118,14 +118,12 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     private var locationEngine: LocationEngine? = null
     private var navigationMapRoute: NavigationMapRoute? = null
     private var directionsRoutes: List<DirectionsRoute>? = null
-    private var markerList: ArrayList<MarkerOptions>? = ArrayList()
-    private var trackCameraPosition = false
     private var distanceToOffRoute = 30 //distance in meter
     private val navigationOptions =
         VietmapNavigationOptions.builder().maxTurnCompletionOffset(30.0).maneuverZoneRadius(40.0)
             .maximumDistanceOffRoute(50.0).deadReckoningTimeInterval(5.0)
             .maxManipulatedCourseAngle(25.0).userLocationSnapDistance(20.0).secondsBeforeReroute(3)
-            .enableOffRouteDetection(true).enableFasterRouteDetection(true).snapToRoute(true)
+            .enableOffRouteDetection(true).enableFasterRouteDetection(false).snapToRoute(false)
             .manuallyEndNavigationUponCompletion(false).defaultMilestonesEnabled(true)
             .minimumDistanceBeforeRerouting(10.0).metersRemainingTillArrival(20.0)
             .isFromNavigationUi(false).isDebugLoggingEnabled(false)
@@ -157,7 +155,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             .locationAcceptableAccuracyInMetersThreshold(100)
             .build()
      */
-    private var navigation: VietmapNavigation
+    private var navigation: VietmapNavigation? = null
     private var mapReady = false
     private var isDisposed = false
     private var isRefreshing = false
@@ -167,7 +165,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     private var isOverviewing = false
     private var isNextTurnHandling = false
     private var currentCenterPoint: CurrentCenterPoint? = null
-    private val routeUtils = RouteUtils()
+    private var routeUtils = RouteUtils()
     private val snapEngine = SnapToRoute()
     private var apikey: String? = null
     private var speechPlayer: SpeechPlayer? = null
@@ -219,6 +217,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             )
         }
         configSpeechPlayer()
+
     }
 
     companion object {
@@ -231,11 +230,11 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         var navigationMode = DirectionsCriteria.PROFILE_DRIVING_TRAFFIC
         var simulateRoute = false
         var mapStyleURL: String? = null
-        var navigationLanguage = Locale("en")
+        var navigationLanguage = Locale("vi")
         var navigationVoiceUnits = DirectionsCriteria.IMPERIAL
         var zoom = 20.0
-        var bearing = 10000.0
-        var tilt = 10000.0
+        var bearing = 0.0
+        var tilt = 0.0
         var distanceRemaining: Double? = null
         var durationRemaining: Double? = null
         var alternatives = true
@@ -250,8 +249,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
         var padding: IntArray = intArrayOf(150, 500, 150, 500)
 
-        private val LAT_LON_FORMATTER = DecimalFormat("#.#####")
-        private const val STATE_MARKER_LIST = "markerList"
     }
 
 
@@ -264,7 +261,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     }
 
     private fun configSpeechPlayer() {
-
         var speechPlayerProvider = SpeechPlayerProvider(context, "vi", true);
         this.speechPlayer = NavigationSpeechPlayer(speechPlayerProvider)
     }
@@ -284,7 +280,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 buildRouteAndStartNavigation(methodCall, result)
             }
             "clearRoute" -> {
-                clearRoute(methodCall, result)
+                clearRoute(  result)
             }
             "startNavigation" -> {
                 startNavigation(methodCall, result)
@@ -298,7 +294,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 }
             }
             "finishNavigation" -> {
-                finishNavigation(methodCall, result)
+                finishNavigation( result)
             }
             "getDistanceRemaining" -> {
                 result.success(distanceRemaining)
@@ -306,9 +302,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             "addMarkerGroup" -> {
                 addMarkerGroup(methodCall, result)
             }
-//            "removeMarkerGroup" -> {
-//                removeMarkerGroup(methodCall, result)
-//            }
             "addMarkers" -> {
                 addMarker(methodCall, result)
             }
@@ -340,7 +333,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                     isDisposed = true
                     mapReady = false
                     mapView.onStop()
-                    navigation.onDestroy()
+                    navigation?.onDestroy()
                     mapView.onDestroy()
                     result.success(true)
                 } catch (e: Exception) {
@@ -476,7 +469,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         }
     }
 
-    private fun clearRoute(methodCall: MethodCall, result: MethodChannel.Result) {
+    private fun clearRoute( result: MethodChannel.Result) {
         if (navigationMapRoute != null) {
             navigationMapRoute?.removeRoute()
         }
@@ -499,7 +492,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         }
     }
 
-    private fun finishNavigation(methodCall: MethodCall, result: MethodChannel.Result) {
+    private fun finishNavigation( result: MethodChannel.Result) {
         finishNavigation()
         if (currentRoute != null) {
             result.success(true)
@@ -519,23 +512,23 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             if (simulateRoute) {
                 val mockLocationEngine = ReplayRouteLocationEngine()
                 mockLocationEngine.assign(currentRoute)
-                navigation.locationEngine = mockLocationEngine
+                navigation?.locationEngine = mockLocationEngine
             } else {
                 locationEngine?.let {
-                    navigation.locationEngine = it
+                    navigation?.locationEngine = it
                 }
             }
             isRunning = true
             vietmapGL?.locationComponent?.locationEngine = null
-            navigation.addNavigationEventListener(this)
-            navigation.addFasterRouteListener(this)
-            navigation.addMilestoneEventListener(this)
-            navigation.addOffRouteListener(this)
-            navigation.addProgressChangeListener(this)
-            navigation.snapEngine = snapEngine
+            navigation?.addNavigationEventListener(this)
+            navigation?.addFasterRouteListener(this)
+            navigation?.addMilestoneEventListener(this)
+            navigation?.addOffRouteListener(this)
+            navigation?.addProgressChangeListener(this)
+            navigation?.snapEngine = snapEngine
             currentRoute?.let {
                 isNavigationInProgress = true
-                navigation.startNavigation(currentRoute!!)
+                navigation?.startNavigation(currentRoute!!)
                 PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_RUNNING)
                 recenter()
             }
@@ -549,9 +542,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         tilt = 0.0
         isNavigationCanceled = true
 
-//        destinationPoint?.let {
-//            moveCamera(LatLng(it.latitude(), it.longitude()),null)
-//        }
         if (!isOffRouted) {
             isNavigationInProgress = false
             moveCameraToOriginOfRoute()
@@ -559,12 +549,12 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
         if (currentRoute != null) {
             isRunning = false
-            navigation.stopNavigation()
-            navigation.removeFasterRouteListener(this)
-            navigation.removeMilestoneEventListener(this)
-            navigation.removeNavigationEventListener(this)
-            navigation.removeOffRouteListener(this)
-            navigation.removeProgressChangeListener(this)
+            navigation?.stopNavigation()
+            navigation?.removeFasterRouteListener(this)
+            navigation?.removeMilestoneEventListener(this)
+            navigation?.removeNavigationEventListener(this)
+            navigation?.removeOffRouteListener(this)
+            navigation?.removeProgressChangeListener(this)
         }
 
     }
@@ -702,7 +692,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         if (longPressDestinationEnabled) vietmapGL?.addOnMapLongClickListener(this)
 
 
-//        markerViewManager = MarkerViewManager(mapView, vietmapGL)
 
         if (initialLatitude != null && initialLongitude != null) moveCamera(
             LatLng(
@@ -719,7 +708,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
     private fun initMapRoute() {
         if (vietmapGL != null) {
-            navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!,"vmadmin_province")
+            navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!, "vmadmin_province")
         }
 
         navigationMapRoute?.setOnRouteSelectionChangeListener {
@@ -758,7 +747,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         return false
     }
 
-    fun Context.addDestinationIconSymbolLayer(loadedMapStyle: Style) {
+    private fun Context.addDestinationIconSymbolLayer(loadedMapStyle: Style) {
         val geoJsonSource = GeoJsonSource("destination-source-id")
         loadedMapStyle.addSource(geoJsonSource)
         val destinationSymbolLayer =
@@ -784,64 +773,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         )
     }
 
-    private fun moveCamera(location: LatLng, bearing: Float?, tilt: Double, zoom: Double) {
-
-        val cameraPosition = CameraPosition.Builder().target(location).zoom(zoom).tilt(tilt)
-
-        if (bearing != null) {
-            cameraPosition.bearing(bearing.toDouble())
-        }
-
-        var duration = 3000
-        if (!animateBuildRoute) duration = 1
-        vietmapGL?.animateCamera(
-            CameraUpdateFactory.newCameraPosition(cameraPosition.build()), duration
-        )
-    }
-
-    private fun addCustomMarker(
-        location: LatLng,
-        @DrawableRes markerIcon: Int,
-        rotationFrom: Double? = null,
-        rotationTo: Double? = null
-    ) {
-        val markerView = ImageView(context)
-        markerView.setImageResource(markerIcon)
-        markerView.layoutParams = ViewGroup.LayoutParams(100, 100)
-
-        rotationTo?.let {
-            markerView.rotation = rotationTo.toFloat()
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            markerView.elevation = 16.0f
-        }
-    }
-
-    private fun addLocationMarker(location: LatLng, @DrawableRes markerIcon: Int) {
-
-        val markerView = ImageView(context)
-        markerView.setImageResource(markerIcon)
-        markerView.layoutParams = ViewGroup.LayoutParams(100, 100)
-
-
-    }
-
-    private fun buildRoute(point: LatLng) {
-        val lastLocation = vietmapGL?.locationComponent?.lastKnownLocation
-        if (lastLocation?.longitude != null) {
-            wayPoints.add(
-                Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
-
-            )
-
-            originPoint = Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
-        }
-        wayPoints.add(Point.fromLngLat(point.longitude, point.latitude))
-
-        destinationPoint = Point.fromLngLat(point.longitude, point.latitude)
-        fetchRouteWithBearing(false, profile)
-    }
 
     private fun getRoute(
         context: Context, isStartNavigation: Boolean, bearing: Float?, profile: String
@@ -885,7 +816,8 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 if (navigationMapRoute != null) {
                     navigationMapRoute?.removeRoute()
                 } else {
-                    navigationMapRoute = NavigationMapRoute(mapView, vietmapGL!!,"vmadmin_province")
+                    navigationMapRoute =
+                        NavigationMapRoute(mapView, vietmapGL!!, "vmadmin_province")
                 }
 
                 //show multiple route to map
@@ -995,6 +927,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                     if (!isDisposed && !isBuildingRoute) {
                         val snappedLocation: Location =
                             snapEngine.getSnappedLocation(location, routeProgress)
+
                         vietmapGL?.locationComponent?.forceLocationUpdate(snappedLocation)
                     }
 
@@ -1006,12 +939,43 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                         isRefreshing = true
                     }
                 }
-                handleProgressChange(location, routeProgress)
+                handleProgressChange(routeProgress)
             } catch (e: java.lang.Exception) {
             }
         }
     }
+    fun snapLocationToClosestLatLng(targetLocation: LatLng, latLngList: List<LatLng>): LatLng? {
+        var closestLatLng: LatLng? = null
+        var closestDistance = Double.MAX_VALUE
 
+        for (latLng in latLngList) {
+            val distance = calculateHaversineDistance(targetLocation, latLng)
+            if (distance < closestDistance) {
+                closestDistance = distance
+                closestLatLng = latLng
+            }
+        }
+
+        return closestLatLng
+    }
+
+    private fun calculateHaversineDistance(point1: LatLng, point2: LatLng): Double {
+        val lat1 = Math.toRadians(point1.latitude)
+        val lon1 = Math.toRadians(point1.longitude)
+        val lat2 = Math.toRadians(point2.latitude)
+        val lon2 = Math.toRadians(point2.longitude)
+
+        val dLat = lat2 - lat1
+        val dLon = lon2 - lon1
+
+        val a = sin(dLat / 2).pow(2) + cos(lat1) * cos(lat2) * sin(dLon / 2).pow(2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        // Radius of the Earth in kilometers (mean value)
+        val earthRadius = 6371.0
+
+        return earthRadius * c
+    }
     override fun userOffRoute(location: Location) {
         if (checkIfUserOffRoute(location)) {
             speechPlayer!!.onOffRoute()
@@ -1020,8 +984,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 "{\"latitude\":${location.latitude},\"longitude\":${location.longitude}}"
             )
             doOnNewRoute(Point.fromLngLat(location.longitude, location.latitude))
-        } else {
-
         }
     }
 
@@ -1034,16 +996,21 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 //            location.bearing.toDouble(), snapLocation.bearing.toDouble()
 //        )
     }
-    private fun checkIfUserIsDrivingToOtherRoute(location: Location):Boolean{
+
+    private fun checkIfUserIsDrivingToOtherRoute(location: Location): Boolean {
         directionsRoutes?.forEach {
             //get list point
-            snapLocationLatLng(location, it.routeOptions()?.coordinates() as List<Point>)?.let { snapLocation ->
+            snapLocationLatLng(
+                location,
+                it.routeOptions()?.coordinates() as List<Point>
+            )?.let { snapLocation ->
                 val distance: Double = calculateDistanceBetween2Point(location, snapLocation)
                 if (distance < 30) {
                     if (it != currentRoute) {
                         currentRoute = it
                         currentRoute?.toJson()?.let { it1 ->
-                            PluginUtilities.sendEvent(VietMapEvents.ON_NEW_ROUTE_SELECTED,
+                            PluginUtilities.sendEvent(
+                                VietMapEvents.ON_NEW_ROUTE_SELECTED,
                                 it1
                             )
                             return false
@@ -1055,6 +1022,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         }
         return true
     }
+
     private fun snapLocationLatLng(location: Location, stepCoordinates: List<Point>): Location? {
         val snappedLocation = Location(location)
         val locationToPoint = Point.fromLngLat(location.longitude, location.latitude)
@@ -1065,20 +1033,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             snappedLocation.latitude = point.latitude()
         }
         return snappedLocation
-    }
-
-    private fun areBearingsClose(bearing1: Double, bearing2: Double): Boolean {
-
-        // Normalize the bearings to be in the range [0, 360] degrees
-        val normalizedBearing1 = (bearing1 + 360) % 360
-        val normalizedBearing2 = (bearing2 + 360) % 360
-
-        // Calculate the absolute difference between the two normalized bearings
-        val bearingDifference = abs(normalizedBearing1 - normalizedBearing2)
-        println(bearingDifference)
-        println("--------------------------------")
-        // Check if the difference is less than or equal to the maximum allowed difference
-        return bearingDifference <= maxDifference
     }
 
     private fun calculateDistanceBetween2Point(location1: Location, location2: Location): Double {
@@ -1099,6 +1053,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     override fun onMilestoneEvent(
         routeProgress: RouteProgress, instruction: String, milestone: Milestone
     ) {
+
         if (voiceInstructionsEnabled) {
             playVoiceAnnouncement(milestone)
         }
@@ -1124,7 +1079,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
     override fun onCancelNavigation() {
         PluginUtilities.sendEvent(VietMapEvents.NAVIGATION_CANCELLED)
-        navigation.stopNavigation()
+        navigation?.stopNavigation()
         isRunning = false
     }
 
@@ -1313,7 +1268,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         if (isNavigationInProgress) {
             finishNavigation()
         }
-        navigation.onDestroy()
+        navigation?.onDestroy()
 
         mapView.onStop()
         mapView.onDestroy()
@@ -1341,7 +1296,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     }
 
     override fun onDidFinishRenderingMap(p0: Boolean) {
-        TODO("Not yet implemented")
     }
 
     private fun buildRouteInformationFromProgress(routeProgress: RouteProgress?): RouteInformation {
@@ -1360,9 +1314,9 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     private fun animateCameraForRouteOverview(
         routeInformation: RouteInformation, padding: IntArray
     ) {
-        val cameraEngine = navigation.cameraEngine
-        val routePoints = cameraEngine.overview(routeInformation)
-        if (routePoints.isNotEmpty()) {
+        val cameraEngine = navigation?.cameraEngine
+        val routePoints = cameraEngine?.overview(routeInformation)
+        if (routePoints?.isNotEmpty()==true) {
             animateVietmapGLForRouteOverview(padding, routePoints)
         }
     }
@@ -1405,10 +1359,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         val byteArray: ByteArray? = call.argument<ByteArray>("imageBytes")
         val iconBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
 
-        val icon = IconFactory.getInstance(context).fromBitmap(iconBitmap)
-        val markerOption = MarkerOptions().icon(icon).title("Marker falks fansdf aoweifof  fa")
-            .snippet("lorem ipsum dolor sit amet consectur adispicing elit ")
-            .position(LatLng(10.762528, 106.753099))
 
         vietmapGL!!.setOnMarkerClickListener { marker ->
             if (marker != null) {
@@ -1420,12 +1370,11 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         vietmapGL!!.style!!.addImage(markerGroupId, iconBitmap)
     }
 
-    private fun handleProgressChange(location: Location, routeProgress: RouteProgress) {
+    private fun handleProgressChange(routeProgress: RouteProgress) {
         val distanceRemainingToNextTurn =
             routeProgress.currentLegProgress()?.currentStepProgress()?.distanceRemaining()
-        if (distanceRemainingToNextTurn != null && distanceRemainingToNextTurn < 30 ) {
+        if (distanceRemainingToNextTurn != null && distanceRemainingToNextTurn < 30) {
             isNextTurnHandling = true
-
             val resetPosition: CameraPosition =
                 CameraPosition.Builder().tilt(0.0).zoom(17.0).build()
             val cameraUpdate = CameraUpdateFactory.newCameraPosition(resetPosition)
@@ -1433,8 +1382,9 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 cameraUpdate, 1000
             )
         } else {
-            println(routeProgress.currentLegProgress().currentStepProgress().distanceTraveled())
-            if(routeProgress.currentLegProgress().currentStepProgress().distanceTraveled() > 30 && !isOverviewing) {
+            if (routeProgress.currentLegProgress().currentStepProgress()
+                    .distanceTraveled() > 30 && !isOverviewing
+            ) {
                 isNextTurnHandling = false
                 recenter()
             }

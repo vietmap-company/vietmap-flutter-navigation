@@ -18,7 +18,7 @@ import '../../core/failures/exception_failure.dart';
 class VietmapApiRepositories implements VietmapApiRepository {
   late Dio _dio;
   String baseUrl = 'https://maps.vietmap.vn/api/';
-  String apiKey = '89cb1c3c260c27ea71a115ece3c8d7cec462e7a4c14f0944';
+  String apiKey = '6411732992b3c4def7a117893215b9163a15e69065c0874d';
   VietmapApiRepositories() {
     _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
@@ -47,6 +47,7 @@ class VietmapApiRepositories implements VietmapApiRepository {
         return const Left(ApiServerFailure('Có lỗi xảy ra'));
       }
     } on DioException catch (ex) {
+      print(ex);
       if (ex.type == DioExceptionType.receiveTimeout) {
         return Left(ApiTimeOutFailure());
       } else {
