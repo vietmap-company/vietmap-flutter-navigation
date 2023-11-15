@@ -74,10 +74,9 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
 
-    _navigationOption.apiKey =
-        '6411732992b3c4def7a117893215b9163a15e69065c0874d';
+    _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=6411732992b3c4def7a117893215b9163a15e69065c0874d";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
     _navigationOption.customLocationCenterIcon =
         await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);

@@ -66,7 +66,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         super.init()
         
         self.eventChannel.setStreamHandler(self)
-        
+//        self.navigationMapView.logoView.isHidden = false
         self.channel.setMethodCallHandler { [weak self](call, result) in
             
             guard let strongSelf = self else { return }
@@ -158,6 +158,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         mapView.delegate = self
         mapView.navigationMapDelegate = self
         mapView.userTrackingMode = .follow
+        mapView.logoView.isHidden = false
     }
     // MARK: - Setup MapView
     private func setupMapView()
