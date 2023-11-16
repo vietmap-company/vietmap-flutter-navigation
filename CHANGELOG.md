@@ -1,20 +1,27 @@
+## 1.3.2
+* Update draw route below road name for `iOS`
+* Update document for `pod install` error when build `iOS`
+## 1.3.1
+* Update android mapview SDK
+## 1.3.0
+* Update iOS native SDK to `1.1.0`
+* Update android native SDK to `2.1.0`
 ## 1.2.8
 * Update draw route below road name for android
 ## 1.2.7
 * Remove unnecessary library
 * Update README.md document
 ## 1.2.6
-* Update target development to 12 for iOS
+* Update target development to `12` for iOS
 ## 1.2.5
-* Update xcode 15
-* Update route under name address iOS
+* Update `xcode 15`
 ## 1.2.4
 * Fix crash when build route
 ## 1.2.3
-* Update README.md document
+* Update `README.md `document
 * Update map style url
 ## 1.2.2
-- Optimize UX when user direction to next turn
+- Optimize UX when user direction to next turn on `Android`
 ## 1.2.1
 - Add `addMarkers` from image or flutter widget feature
 ## 1.2.0

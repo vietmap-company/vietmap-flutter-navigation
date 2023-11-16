@@ -58,6 +58,8 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
 <string>This app requires location permission to working normally</string>
 ```
 
+- If the project shows an issue when upgrading to the new version when running the `pod install` command, please remove the `ios/.symlinks`, `ios/Pods` folder, and `Podfile.lock` files, then run the `pod install --repo-update` command to update the pod file. 
+
 
 ## Main characteristics
 
