@@ -6,18 +6,18 @@ import 'models/voice_units.dart';
 import 'models/way_point.dart';
 import 'package:flutter/widgets.dart';
 
-class VietMapNavigationPlugin {
-  static final VietMapNavigationPlugin _instance = VietMapNavigationPlugin();
+class VietmapNavigationPlugin {
+  static final VietmapNavigationPlugin _instance = VietmapNavigationPlugin();
 
   /// get current instance of this class
-  static VietMapNavigationPlugin get instance => _instance;
+  static VietmapNavigationPlugin get instance => _instance;
 
   MapOptions _defaultOptions = MapOptions(
     apiKey: '',
     mapStyle: '',
     zoom: 18,
-    tilt: 10000,
-    bearing: 10000,
+    tilt: 0,
+    bearing: 0,
     enableRefresh: false,
     alternatives: true,
     voiceInstructionsEnabled: true,

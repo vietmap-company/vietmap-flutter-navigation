@@ -418,15 +418,18 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     }
     // MARK: - onProgressChange
     @objc func progressDidChange(_ notification: NSNotification) {
+
         let routeProgress = notification.userInfo![RouteControllerNotificationUserInfoKey.routeProgressKey] as! RouteProgress
         let location = notification.userInfo![RouteControllerNotificationUserInfoKey.locationKey] as! CLLocation
+        let rawLocation = notification.userInfo![RouteControllerNotificationUserInfoKey.rawLocationKey] as! CLLocation
         // Update the user puck
-        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, altitude: 250, pitch: 60, heading: location.course)
+        let camera = MGLMapCamera(lookingAtCenter: location.coordinate, altitude: 250, pitch: 60, heading: location.course) 
+        
         navigationMapView.updateCourseTracking(location: location, camera: camera, animated: true)
         _distanceRemaining = routeProgress.distanceRemaining
         _durationRemaining = routeProgress.durationRemaining
         sendEvent(eventType: MapEventType.navigationRunning)
-        let routeProgressData = encodeRouteProgress(routeProgress: routeProgress)
+        let routeProgressData = encodeRouteProgress(routeProgress: routeProgress,location:location,rawLocation:rawLocation)
         sendEvent(eventType: MapEventType.progressChange, data: routeProgressData)
     }
     

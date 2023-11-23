@@ -44,7 +44,7 @@ class VietMapNavigationScreen extends StatefulWidget {
 class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
-  final _vietmapNavigationPlugin = VietMapNavigationPlugin();
+  final _vietmapNavigationPlugin = VietmapNavigationPlugin();
 
   List<WayPoint> wayPoints = [
     WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
@@ -78,7 +78,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption.mapStyle =
         "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
     _navigationOption.customLocationCenterIcon =
-        await VietMapHelper.getBytesFromAsset('assets/download.jpeg');
+        await VietmapHelper.getBytesFromAsset('assets/download.jpeg');
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 
@@ -126,7 +126,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
               },
               onMapRendered: () async {
                 _controller?.setCenterIcon(
-                    await VietMapHelper.getBytesFromAsset(
+                    await VietmapHelper.getBytesFromAsset(
                         'assets/download.jpeg'));
               },
               onMapLongClick: (WayPoint? point) async {
@@ -163,6 +163,10 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 }, (r) => _showBottomSheetInfo(r));
               },
               onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
+                print('---------------------');
+                print(routeProgressEvent.currentLocation?.bearing);
+                print(routeProgressEvent.currentLocation?.latitude);
+                print(routeProgressEvent.currentLocation?.longitude);
                 setState(() {
                   this.routeProgressEvent = routeProgressEvent;
                 });

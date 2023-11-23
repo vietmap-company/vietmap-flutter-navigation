@@ -13,7 +13,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    VietMapNavigationPlugin demoPlugin = VietMapNavigationPlugin();
+    VietmapNavigationPlugin demoPlugin = VietmapNavigationPlugin();
 
     expect(await demoPlugin.getPlatformVersion(), '42');
   });
