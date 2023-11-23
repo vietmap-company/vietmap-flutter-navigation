@@ -1,3 +1,7 @@
+## 1.4.0
+* Update response data for `onProgressChange` callback
+* Upgrade `vietmap_gl_platform_interface` to `0.1.0`
+
 ## 1.3.2
 * Update draw route below road name for `iOS`
 * Update document for `pod install` error when build `iOS`

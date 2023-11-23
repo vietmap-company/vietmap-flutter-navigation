@@ -4,6 +4,9 @@ class DirectionRoute {
   String? routeIndex;
   num? distance;
   num? duration;
+
+  /// This is the encoded string of the route, you can decode it to get the list of coordinates
+  /// using [VietmapPolylineDecoder.decodePolyline] method from [VietmapPolylineDecoder] class
   String? geometry;
   num? weight;
   String? weightName;

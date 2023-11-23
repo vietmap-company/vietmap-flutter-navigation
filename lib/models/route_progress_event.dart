@@ -1,3 +1,4 @@
+import 'current_location.dart';
 import 'route_leg.dart';
 import '../helpers.dart';
 
@@ -12,12 +13,15 @@ class RouteProgressEvent {
   double? durationRemaining;
   // Khoảng cách đã đi được
   double? distanceTraveled;
-  // Khoảng cách
+  // Khỏang cách đã đi được của tuyến đường hiện tại
   double? currentLegDistanceTraveled;
+  // Khoảng cách còn lại của tuyến đường hiện tại
   double? currentLegDistanceRemaining;
-  // Chỉ dẫn
+
+  /// Text instruction for the current step the user is on.
   String? currentStepInstruction;
 
+  /// Current leg the user is traversing along.
   RouteLeg? currentLeg;
 
   RouteLeg? priorLeg;
@@ -30,12 +34,23 @@ class RouteProgressEvent {
 
   bool? isProgressEvent;
 
+  /// Distance to the next turn, in meters.
   double? distanceToNextTurn;
 
+  ///  Current modifier of the step the user is on.
+  /// currentModifierType and currentModifier is an additional instruction on how to complete the current step.
   String? currentModifierType;
 
+  /// currentModifierType and currentModifier is an additional instruction on how to complete the current step.
   String? currentModifier;
 
+  /// Current location of the user, this is the raw location from the location provider
+  CurrentLocation? currentLocation;
+
+  /// Current snapped location of the user, this is the location snapped to the route
+  /// This value will stable if the user is not moving
+  /// The location is always on the route, if the user is off route, the location will be snapped to the nearest point on the route
+  CurrentLocation? snappedLocation;
   RouteProgressEvent(
       {this.arrived,
       this.distanceRemaining,
@@ -55,6 +70,13 @@ class RouteProgressEvent {
       this.distanceToNextTurn});
 
   RouteProgressEvent.fromJson(Map<String, dynamic> json) {
+    currentLocation = json['location'] == null
+        ? null
+        : CurrentLocation.fromJson(json['location'] as Map<String, dynamic>);
+    snappedLocation = json['snappedLocation'] == null
+        ? null
+        : CurrentLocation.fromJson(
+            json['snappedLocation'] as Map<String, dynamic>);
     currentModifier = json['currentModifier'];
     currentModifierType = json['currentModifierType'];
     distanceToNextTurn = json['distanceToNextTurn'];

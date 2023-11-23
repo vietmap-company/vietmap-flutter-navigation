@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
@@ -129,7 +127,6 @@ class _NavigationViewState extends State<NavigationView> {
 
   /// handle all events from the native side and response to the user callback function
   Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {
-    log(e.eventType.toString());
     switch (e.eventType) {
       case MapEvent.progressChange:
         if (widget.onRouteProgressChange != null) {

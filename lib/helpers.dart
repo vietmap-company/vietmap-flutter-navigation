@@ -17,7 +17,7 @@ Map<String, dynamic> decodeJson({required String data}) {
   return map;
 }
 
-class VietMapHelper {
+class VietmapHelper {
   static Future<Uint8List> getBytesFromAsset(String path) async {
     final ByteData bytes = await rootBundle.load(path);
     return bytes.buffer.asUint8List();

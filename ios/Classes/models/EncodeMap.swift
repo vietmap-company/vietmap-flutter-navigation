@@ -177,9 +177,32 @@ func convertComponent(components: [VietMapDirections.ComponentRepresentable]) ->
 }
 
 // MARK: encode route progress
-func encodeRouteProgress(routeProgress: RouteProgress) -> String {
+func encodeRouteProgress(routeProgress: RouteProgress,location: CLLocation,rawLocation: CLLocation) -> String {
     // TODO: Add parameter on routeDictionary.
+    let locationDictionary:[String:Any] = [
+        "latitude":location.coordinate.latitude
+        ,"longitude":location.coordinate.longitude,
+        "provider":location.description,
+        "speed":location.speed,
+        "bearing":location.course,
+        "altitude":location.altitude,
+        "accuracy":location.horizontalAccuracy,
+        "speedAccuracyMetersPerSecond":location.speedAccuracy
+    ]
+    
+    let rawLocationDictionary:[String:Any] = [
+        "latitude":rawLocation.coordinate.latitude
+        ,"longitude":rawLocation.coordinate.longitude,
+        "provider":rawLocation.description,
+        "speed":rawLocation.speed,
+        "bearing":rawLocation.course,
+        "altitude":rawLocation.altitude,
+        "accuracy":rawLocation.horizontalAccuracy,
+        "speedAccuracyMetersPerSecond":rawLocation.speedAccuracy
+    ]
     let routeDictionary: [String: Any] = [
+        "location":rawLocationDictionary,
+        "snappedLocation":locationDictionary,
         "distanceRemaining": routeProgress.distanceRemaining,
         "durationRemaining": routeProgress.durationRemaining,
         "distanceTraveled": routeProgress.distanceTraveled,
