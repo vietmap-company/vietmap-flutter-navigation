@@ -6,11 +6,11 @@ import 'models/voice_units.dart';
 import 'models/way_point.dart';
 import 'package:flutter/widgets.dart';
 
-class VietmapNavigationPlugin {
-  static final VietmapNavigationPlugin _instance = VietmapNavigationPlugin();
+class VietMapNavigationPlugin {
+  static final VietMapNavigationPlugin _instance = VietMapNavigationPlugin();
 
   /// get current instance of this class
-  static VietmapNavigationPlugin get instance => _instance;
+  static VietMapNavigationPlugin get instance => _instance;
 
   MapOptions _defaultOptions = MapOptions(
     apiKey: '',

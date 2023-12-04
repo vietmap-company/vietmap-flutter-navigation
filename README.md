@@ -31,40 +31,57 @@ at the repositories block
 
 
 ```gradle
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
-    }
-}
+  allprojects {
+      repositories {
+          google()
+          mavenCentral()
+          maven { url "https://jitpack.io" }
+      }
+  }
 ```
 
+Upgrade the minSdkVersion to a minimum is 24 in the build.gradle (app) file, at path **android/app/build.gradle**
+```gradle
+  minSdkVersion 24
+```
 
 ## iOS config
 Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_KEY_HERE** 
-```
-<key>VietMapURL</key>
-<string>https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE</string>
-<key>VietMapAPIBaseURL</key>
-<string>https://maps.vietmap.vn/api/navigations/route/</string>
-<key>VietMapAccessToken</key>
-<string>YOUR_API_KEY</string>
-<string>This app requires location permission to working normally</string>
-<key>NSLocationAlwaysUsageDescription</key>
-<string>This app requires location permission to working normally</string>
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>This app requires location permission to working normally</string>
+```ruby
+  <key>VietMapURL</key>
+  <string>https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE</string>
+  <key>VietMapAPIBaseURL</key>
+  <string>https://maps.vietmap.vn/api/navigations/route/</string>
+  <key>VietMapAccessToken</key>
+  <string>YOUR_API_KEY</string>  
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>Your request location description</string>
+  <key>NSLocationAlwaysUsageDescription</key>
+  <string>Your request location description</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Your request location description</string>
 ```
 
-- If the project shows an issue when upgrading to the new version when running the `pod install` command, please remove the `ios/.symlinks`, `ios/Pods` folder, and `Podfile.lock` files, then run the `pod install --repo-update` command to update the pod file. 
+Upgrade min ios version to 12.0 in the Podfile (iOS) file, at path **ios/Podfile** (uncomment the line below)
+
+```ruby
+  platform :ios, '12.0' 
+```
+
+In your terminal, cd to the ios folder and run the command below to install the pod file
+```bash
+  cd ios && pod install
+```
+
+- If the project shows an issue when upgrading to the new version when running the `pod install` command, please remove the `ios/.symlinks`, `ios/Pods` folders, and `Podfile.lock` file, then run the `pod install --repo-update` command to update the pod file. 
 
 
 ## Main characteristics
-
+### Define necessary variables
 ```dart
+  // Define the map options
   late MapOptions _navigationOption;
+
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
   List<WayPoint> wayPoints = [
@@ -76,8 +93,16 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
   Widget instructionImage = const SizedBox.shrink();
 
   Widget recenterButton = const SizedBox.shrink();
+  
+  /// RouteProgressEvent contains the route information, current location, next turn, distance, duration,...
+  /// This variable is update real time when the navigation is started
   RouteProgressEvent? routeProgressEvent;
-
+  
+  /// The controller to control the navigation, such as start, stop, recenter, overview,... 
+  MapNavigationViewController? _navigationController;
+```
+Add the `initialize` function to `initState` function to initialize the map options
+```dart
   @override
   void initState() {
     super.initState();
@@ -87,6 +112,7 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
   Future<void> initialize() async {
     if (!mounted) return;
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
+    /// set the simulate route to true to test the navigation without the real location
     _navigationOption.simulateRoute = false;
 
     _navigationOption.apiKey =
@@ -97,32 +123,26 @@ Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_K
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 ```
+- Replace your apikey which is provided by VietMap to YOUR_API_KEY_HERE tag to the application work normally
 
-Display the Navigation view, include map view, route and navigation
+### Display the Navigation view, include map view, route and navigation
 ```dart
-          NavigationView(
-            mapOptions: _navigationOption,
-            onMapCreated: (controller) {
-              _controller = controller;
-            },
-            onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
-              setState(() {
-                this.routeProgressEvent = routeProgressEvent;
-              });
-              _setInstructionImage(routeProgressEvent.currentModifier,
-                  routeProgressEvent.currentModifierType);
-            },
-          ),
+  NavigationView(
+    mapOptions: _navigationOption,
+    onMapCreated: (controller) {
+      _navigationController = controller;
+    },
+    onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
+      setState(() {
+        this.routeProgressEvent = routeProgressEvent;
+      });
+      _setInstructionImage(routeProgressEvent.currentModifier,
+          routeProgressEvent.currentModifierType);
+    },
+  ),
 ```
 
-Add banner instruction to display icon, route name,...
-```dart
-            BannerInstructionView(
-              routeProgressEvent: routeProgressEvent,
-              instructionIcon: instructionImage,
-            )
-```
-Set instruction icon from routeProgress data.
+### Set instruction icon from routeProgress data.
 ```dart
   _setInstructionImage(String? modifier, String? type) {
     if (modifier != null && type != null) {
@@ -137,65 +157,75 @@ Set instruction icon from routeProgress data.
     }
   }
 ```
+We use [flutter_svg](https://pub.dev/packages/flutter_svg) to display the svg image.
+
 Instruction icon [here](./example/assets/navigation_symbol), copy and paste to your project.
 
-Figma design [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)
+Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)
 
-Add the Bottom view, which contains the overview route, recenter and stop navigation button.
+### Add banner instructions to display icon, route name, next turn guide,...
 ```dart
-            BottomActionView(
-              recenterButton: recenterButton,
-              controller: _controller,
-              onOverviewCallback: _showRecenterButton,
-              onStopNavigationCallback: _onStopNavigation,
-              routeProgressEvent: routeProgressEvent
-            )
+  BannerInstructionView(
+    routeProgressEvent: routeProgressEvent,
+    instructionIcon: instructionImage,
+  )
 ```
-
-Add the dispose function for the navigation controller
+![.images/banner_instruction.png](./images/banner_instruction.png)
+### Add the Bottom view, which contains the overview route, recenter, and the stop navigation button.
+```dart
+  BottomActionView(
+    recenterButton: recenterButton,
+    controller: _navigationController, 
+    routeProgressEvent: routeProgressEvent
+  )
+```
+![.images/bottom_action.png](./images/bottom_action.png)
+You can customize all of the widgets above to fit your design.
+All data is provided by the `routeProgressEvent` variable.
+### Add the dispose function for the navigation controller
 ```dart
   @override
   void dispose() {
-    _controller?.dispose();
+    _navigationController?.onDispose();
     super.dispose();
   }
 ```
-Useful function
+### Useful function
 ```dart
-          /// Find a new route between two locations, 
-          /// waypoint1 is origin, waypoint2 is destination.
-            _controller?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
+  /// Find a new route between two locations, 
+  /// waypoint1 is origin, waypoint2 is destination.
+  _navigationController?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
 
-          /// Start navigation, call after the buildRoute have a response.
-            _controller?.startNavigation();
+  /// Start navigation, call after the buildRoute have a response.
+  _navigationController?.startNavigation();
 
 
-          /// Find route and start when the api response at least 1 route
-            _controller?.buildAndStartNavigation(
-                wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
-                profile: DrivingProfile.drivingTraffic);
-          
-          /// recenter to the navigation
-          _controller?.recenter();
+  /// Find route and start when the api response at least 1 route
+  _navigationController?.buildAndStartNavigation(
+      wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
+      profile: DrivingProfile.drivingTraffic);
+  
+  /// recenter to the navigation
+  _navigationController?.recenter();
 
-          /// Overview the route
-          _controller?.overview();
+  /// Overview the route
+  _navigationController?.overview();
 
-          /// Turn on/off the navigation voice guide
-          _controller?.mute();
+  /// Turn on/off the navigation voice guide
+  _navigationController?.mute();
 
-          /// Stop the navigation
-          _controller?.finishNavigation();
+  /// Stop the navigation
+  _navigationController?.finishNavigation();
 ```
 
 ## Add a marker to the map
-  We `addImageMarkers` function to add multiple marker to the map
+  We provide the `addImageMarkers` function to add multiple marker to the map
   - Add a marker from assets image  
 
 ### Marker from assets image
 ```dart
   /// Add a marker to the map
-  List<Marker>? markers = await _controller?.addImageMarkers([
+  List<Marker>? markers = await _navigationController?.addImageMarkers([
     Marker(
         imagePath: 'assets/50.png',
       latLng: const LatLng(10.762528, 106.653099)),
@@ -206,17 +236,24 @@ Useful function
 ``` 
 
 ## Troubleshooting
-- We strongly recommend you call the **_controller?.buildRouteAndStartNavigation()** in a button or onMapRendered callback, which is called when the map is rendered successfully. 
+- We strongly recommend you call the **_navigationController?.buildRouteAndStartNavigation()** in a `button` or `onMapRendered` callback, which is called when the map is rendered successfully to ensure that the application does not crash while executing some function while our SDK is rendering the map. 
 ```dart
-    onMapRendered: () {
-      _controller?.buildAndStartNavigation(
-      wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
-      profile: DrivingProfile.drivingTraffic);  
-    }
+  onMapRendered: () {
+    _navigationController?.buildAndStartNavigation(
+    wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
+    profile: DrivingProfile.drivingTraffic);  
+  }
 ```
 
 Demo code [here](./example/lib/main.dart)
-# Note: Replace apikey which is provided by VietMap to all YOUR_API_KEY_HERE tag to the application work normally
+
+We have a demo app with [flutter_bloc](https://pub.dev/packages/flutter_bloc) and clean architecture pattern [here](https://github.com/vietmap-company/flutter-navigation-example).
+Please clone and run the app to see how it works.
+
+You can also [download the example app](https://vmnavigation.page.link/navigation_demo) to see how it works.
+
+
+## Note: Replace apikey which is provided by VietMap to all YOUR_API_KEY_HERE tag to the application work normally
 
 
 

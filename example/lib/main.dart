@@ -44,7 +44,7 @@ class VietMapNavigationScreen extends StatefulWidget {
 class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   MapNavigationViewController? _controller;
   late MapOptions _navigationOption;
-  final _vietmapNavigationPlugin = VietmapNavigationPlugin();
+  final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
   List<WayPoint> wayPoints = [
     WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
