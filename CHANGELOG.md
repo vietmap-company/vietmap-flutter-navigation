@@ -1,3 +1,8 @@
+## 1.4.1
+* Fix screen not keep awake when navigation on `iOS`
+* Update `README.md` document
+* Update `License` to `BSD 3-Clause License`
+
 ## 1.4.0
 * Update response data for `onProgressChange` callback
 * Upgrade `vietmap_gl_platform_interface` to `0.1.0`

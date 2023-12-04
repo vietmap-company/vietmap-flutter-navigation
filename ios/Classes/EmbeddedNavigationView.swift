@@ -94,7 +94,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
                 result(strongSelf._durationRemaining ?? 0.0)
             }
             else if(call.method == "finishNavigation")
-            {
+            { 
                 //                strongSelf.endNavigation(result: result)
                 strongSelf.cancelNavigation()
             }
@@ -104,6 +104,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "startNavigation")
             {
+                UIApplication.shared.isIdleTimerDisabled = true
                 strongSelf.startNavigationEmbedded(result: result)
             }
             else if(call.method == "recenter")
@@ -118,10 +119,12 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             }
             else if(call.method == "navigationCancelled")
             {
+                UIApplication.shared.isIdleTimerDisabled = false
                 strongSelf.cancelNavigation()
             }
             else if(call.method == "buildAndStartNavigation")
             {
+                UIApplication.shared.isIdleTimerDisabled = true
                 strongSelf.buildAndStartNavigation(arguments: arguments, flutterResult: result)
             }
             else if(call.method == "mute")
@@ -318,6 +321,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         navigationMapView.removeWaypoints()
         _wayPoints.removeAll()
         sendEvent(eventType: MapEventType.navigationCancelled)
+        UIApplication.shared.isIdleTimerDisabled = false
     }
     // MARK: - endNavigationEmbedded
     func endNavigationEmbedded(result: FlutterResult?) {
@@ -326,6 +330,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             navigationMapView.recenterMap()
             suspendNotifications()
             sendEvent(eventType: MapEventType.navigationCancelled)
+            
+            UIApplication.shared.isIdleTimerDisabled = false
             if(result != nil)
             {
                 result!(true)
@@ -449,6 +455,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         routeController?.endNavigation()
         navigationMapView.recenterMap()
         suspendNotifications()
+        UIApplication.shared.isIdleTimerDisabled = false
         sendEvent(eventType: MapEventType.navigationCancelled)
     }
     
@@ -606,6 +613,7 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
 // MARK: - RouteControllerDelegate
 extension FlutterMapNavigationView: RouteControllerDelegate {
     public func routeController(_ routeController: RouteController, didArriveAt waypoint: Waypoint) -> Bool {
+        UIApplication.shared.isIdleTimerDisabled = false
         sendEvent(eventType: MapEventType.onArrival)
         return true
     }
@@ -613,6 +621,7 @@ extension FlutterMapNavigationView: RouteControllerDelegate {
     public override func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
         if(canceled)
         {
+            UIApplication.shared.isIdleTimerDisabled = false
             sendEvent(eventType: MapEventType.navigationCancelled)
             sendEvent(eventType: MapEventType.navigationFinished)
         }

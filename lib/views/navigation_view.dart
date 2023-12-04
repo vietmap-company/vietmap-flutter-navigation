@@ -177,7 +177,7 @@ class _NavigationViewState extends State<NavigationView> {
           if (e.data != null) {
             var data = decodeJson(data: e.data);
             WayPoint wayPoint = WayPoint(
-                name: 'map_long_click',
+                name: 'map_click',
                 latitude: data['latitude'],
                 longitude: data['longitude']);
             widget.onMapClick!(wayPoint);
