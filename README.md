@@ -46,14 +46,14 @@ Upgrade the minSdkVersion to a minimum is 24 in the build.gradle (app) file, at 
 ```
 
 ## iOS config
-Add the below codes to the Info.plist file. Replace your API key to **YOUR_API_KEY_HERE** 
+Add the below codes to the Info.plist file. Replace the **`YOUR_API_KEY_HERE`** with your API key.
 ```ruby
   <key>VietMapURL</key>
   <string>https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE</string>
   <key>VietMapAPIBaseURL</key>
   <string>https://maps.vietmap.vn/api/navigations/route/</string>
   <key>VietMapAccessToken</key>
-  <string>YOUR_API_KEY</string>  
+  <string>YOUR_API_KEY_HERE</string>  
   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
   <string>Your request location description</string>
   <key>NSLocationAlwaysUsageDescription</key>
@@ -68,7 +68,7 @@ Upgrade min ios version to 12.0 in the Podfile (iOS) file, at path **ios/Podfile
   platform :ios, '12.0' 
 ```
 
-In your terminal, cd to the ios folder and run the command below to install the pod file
+In your terminal, cd to the ios folder and run the command below to install the pod file `(you can skip this step if you only build for Android or run the app on the Windows/Linux PC)`
 ```bash
   cd ios && pod install
 ```
@@ -77,6 +77,10 @@ In your terminal, cd to the ios folder and run the command below to install the 
 
 
 ## Main characteristics
+### Import the library
+```dart
+  import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
+```
 ### Define necessary variables
 ```dart
   // Define the map options
@@ -123,9 +127,9 @@ Add the `initialize` function to `initState` function to initialize the map opti
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 ```
-- Replace your apikey which is provided by VietMap to YOUR_API_KEY_HERE tag to the application work normally
+- Replace your apikey which is provided by VietMap with `YOUR_API_KEY_HERE` tag to the application works normally
 
-### Display the Navigation view, include map view, route and navigation
+### Display the Navigation view, including map view, route, and navigation
 ```dart
   NavigationView(
     mapOptions: _navigationOption,
@@ -142,7 +146,7 @@ Add the `initialize` function to `initState` function to initialize the map opti
   ),
 ```
 
-### Set instruction icon from routeProgress data.
+### Set the instruction icon from routeProgressEvent data.
 ```dart
   _setInstructionImage(String? modifier, String? type) {
     if (modifier != null && type != null) {
@@ -157,11 +161,11 @@ Add the `initialize` function to `initState` function to initialize the map opti
     }
   }
 ```
-We use [flutter_svg](https://pub.dev/packages/flutter_svg) to display the svg image.
+We use [flutter_svg](https://pub.dev/packages/flutter_svg) to display the SVG image.
 
-Instruction icon [here](./example/assets/navigation_symbol), copy and paste to your project.
+Instruction icon [here](https://vietmapcorp-my.sharepoint.com/:u:/g/personal/thanhdt_vietmap_vn/EU0Heb0gMh1KtgCaoy5oih8BrOL6YKPWJUO-vXeGBp99hA?e=woyAvH), download, extract, and add to the assets folder.
 
-Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1)
+Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1), please copy and design your own icon.
 
 ### Add banner instructions to display icon, route name, next turn guide,...
 ```dart
@@ -170,8 +174,8 @@ Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l
     instructionIcon: instructionImage,
   )
 ```
-![.images/banner_instruction.png](./images/banner_instruction.png)
-### Add the Bottom view, which contains the overview route, recenter, and the stop navigation button.
+![Banner instruction view](https://github.com/vietmap-company/vietmap-flutter-navigation/raw/main/images/banner_instruction_en.png)
+### Add the bottom view, which contains the overview route, recenter, and the stop navigation button.
 ```dart
   BottomActionView(
     recenterButton: recenterButton,
@@ -179,7 +183,7 @@ Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l
     routeProgressEvent: routeProgressEvent
   )
 ```
-![.images/bottom_action.png](./images/bottom_action.png)
+![Bottom action](https://github.com/vietmap-company/vietmap-flutter-navigation/raw/main/images/bottom_action_en.png)
 You can customize all of the widgets above to fit your design.
 All data is provided by the `routeProgressEvent` variable.
 ### Add the dispose function for the navigation controller
@@ -192,13 +196,11 @@ All data is provided by the `routeProgressEvent` variable.
 ```
 ### Useful function
 ```dart
-  /// Find a new route between two locations, 
-  /// waypoint1 is origin, waypoint2 is destination.
+  /// Find a new route between two locations (you can add more than 2 locations)
   _navigationController?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
 
   /// Start navigation, call after the buildRoute have a response.
   _navigationController?.startNavigation();
-
 
   /// Find route and start when the api response at least 1 route
   _navigationController?.buildAndStartNavigation(
@@ -219,8 +221,8 @@ All data is provided by the `routeProgressEvent` variable.
 ```
 
 ## Add a marker to the map
-  We provide the `addImageMarkers` function to add multiple marker to the map
-  - Add a marker from assets image  
+We provide the `addImageMarkers` function to add multiple markers to the map
+- Add a marker from the asset image  
 
 ### Marker from assets image
 ```dart
@@ -244,6 +246,7 @@ All data is provided by the `routeProgressEvent` variable.
     profile: DrivingProfile.drivingTraffic);  
   }
 ```
+- Please ensure that the location permission has been granted before navigating. We recommend you use the [geolocator](https://pub.dev/packages/geolocator) package to handle the location permission and get the current location of the device.
 
 Demo code [here](./example/lib/main.dart)
 
@@ -253,7 +256,7 @@ Please clone and run the app to see how it works.
 You can also [download the example app](https://vmnavigation.page.link/navigation_demo) to see how it works.
 
 
-## Note: Replace apikey which is provided by VietMap to all YOUR_API_KEY_HERE tag to the application work normally
+## Note: Replace apikey which is provided by VietMap to all `YOUR_API_KEY_HERE` tag to the application work normally
 
 
 
@@ -266,7 +269,7 @@ Contact for [support](https://vietmap.vn/lien-he)
 
 Vietmap API document [here](https://maps.vietmap.vn/docs/map-api/overview/)
 
-Have a bug to report? [Open an issue](https://github.com/vietmap-company/flutter-map-sdk/issues). If possible, include a full log and information which shows the issue.
+Have a bug to report? [Open an issue](https://github.com/vietmap-company/flutter-map-sdk/issues). If possible, include a full log and information that shows the issue.
 
 
 Have a feature request? [Open an issue](https://github.com/vietmap-company/flutter-map-sdk/issues). Tell us what the feature should do and why you want the feature.

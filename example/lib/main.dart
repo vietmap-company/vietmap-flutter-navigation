@@ -2,19 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:vietmap_flutter_navigation/embedded/controller.dart';
 import 'package:vietmap_flutter_navigation/helpers.dart';
-import 'package:vietmap_flutter_navigation/models/options.dart';
-import 'package:vietmap_flutter_navigation/models/route_progress_event.dart';
-import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:vietmap_flutter_navigation/navigation_plugin.dart';
-import 'package:vietmap_flutter_navigation/views/banner_instruction.dart';
-import 'package:vietmap_flutter_navigation/views/bottom_action.dart';
-import 'package:vietmap_flutter_navigation/views/navigation_view.dart';
+import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 
 import 'components/bottom_sheet_address_info.dart';
 import 'components/floating_search_bar.dart';
