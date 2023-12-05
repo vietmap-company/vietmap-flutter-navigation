@@ -1,3 +1,5 @@
+## 1.4.4
+* Update `README.md` document
 ## 1.4.1
 * Fix screen not keep awake when navigation on `iOS`
 * Update `README.md` document
