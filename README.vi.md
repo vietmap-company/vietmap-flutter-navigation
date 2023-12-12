@@ -4,6 +4,8 @@
 
 Liên hệ [vietmap.vn](https://bit.ly/vietmap-api) để đăng kí key hợp lệ.
 
+[English document](./README.md)
+
 ## Getting started
 
 Thêm thư viện vào file pubspec.yaml
@@ -51,7 +53,7 @@ Thêm đoạn code sau vào file Info.plist
   <string>https://maps.vietmap.vn/api/navigations/route/</string>
   <key>VietMapAccessToken</key>
   <string>YOUR_API_KEY_HERE</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
   <string>This app requires location permission to working normally</string>
   <key>NSLocationAlwaysUsageDescription</key>
   <string>This app requires location permission to working normally</string>
@@ -106,7 +108,7 @@ Thêm hàm `initialize` vào `initState` để khởi tạo các tùy chọn cho
     initialize();
   }
 
-  Future<void> initialize() async {
+  Future<void> initialize() {
     if (!mounted) return;
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
@@ -114,7 +116,7 @@ Thêm hàm `initialize` vào `initState` để khởi tạo các tùy chọn cho
     _navigationOption.apiKey =
         'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "YOUR_STYLE_HERE";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
@@ -138,7 +140,7 @@ Thêm hàm `initialize` vào `initState` để khởi tạo các tùy chọn cho
   ),
 ```
 
-### Hàm set hình ảnh dẫn đường
+### Hàm hiển thị hình ảnh dẫn đường
 ```dart
   _setInstructionImage(String? modifier, String? type) {
     if (modifier != null && type != null) {
@@ -180,7 +182,7 @@ File thiết kế figma có thể tham khảo [tại đây](https://www.figma.co
 
 ![Bottom action](https://github.com/vietmap-company/vietmap-flutter-navigation/raw/main/images/bottom_action.png)
 Bạn có thể tuỳ chỉnh các widget này theo ý muốn.
-Toàn bộ data được trả về từ hàm `onRouteProgressChange` được lưu trong biến `routeProgressEvent`.
+Toàn bộ data sử dụng để hiển thị 2 widget này được lưu trong biến `routeProgressEvent`.
 ### Thêm hàm dispose cho controller
 ```dart
   @override
@@ -223,11 +225,11 @@ Chúng tôi cung cấp hàm `addImageMarkers` để thêm marker từ hình ản
 ### Marker
 ```dart
   /// Add a marker to the map
-  List<Marker>? markers = await _navigationController?.addImageMarkers([
-    Marker(
+  List<NavigationMarker>? markers = await _navigationController?.addImageMarkers([
+    NavigationMarker(
         imagePath: 'assets/50.png',
       latLng: const LatLng(10.762528, 106.653099)),
-    Marker(
+    NavigationMarker(
         imagePath: 'assets/40.png',
         latLng: const LatLng(10.762528, 106.753099)),
   ]);

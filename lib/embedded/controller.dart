@@ -122,11 +122,12 @@ class MapNavigationViewController {
   }
 
   /// Add a Marker Group to the Map
-  /// imagePath is the path to the image asset, allow only image in [png], [jpeg], [jpg] format
+  /// [imagePath] is the path to the image asset, allow only image in [png], [jpeg], [jpg] format
 
-  Future<List<Marker>> addImageMarkers(List<Marker> markers) async {
+  Future<List<NavigationMarker>> addImageMarkers(
+      List<NavigationMarker> markers) async {
     List<Map<String, dynamic>> markerList = [];
-    await Future.forEach(markers, (Marker marker) async {
+    await Future.forEach(markers, (NavigationMarker marker) async {
       try {
         var data = await rootBundle.load(marker.imagePath);
         var jsonData = marker.toJson();

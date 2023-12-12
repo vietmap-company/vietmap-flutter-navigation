@@ -1,5 +1,8 @@
+## 1.4.5
+* Update `vietmap_gl_platform_interface` to `0.1.2`
 ## 1.4.4
 * Update `README.md` document
+* Refactor `Marker` to `NavigationMarker`
 ## 1.4.1
 * Fix screen not keep awake when navigation on `iOS`
 * Update `README.md` document
