@@ -4,6 +4,8 @@
 
 Contact [vietmap.vn](https://bit.ly/vietmap-api) to register a valid key.
 
+[Tài liệu tiếng Việt](./README.vi.md)
+
 ## Getting started
 
 Add library to pubspec.yaml file
@@ -113,7 +115,7 @@ Add the `initialize` function to `initState` function to initialize the map opti
     initialize();
   }
 
-  Future<void> initialize() async {
+  Future<void> initialize() {
     if (!mounted) return;
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     /// set the simulate route to true to test the navigation without the real location
@@ -166,6 +168,27 @@ We use [flutter_svg](https://pub.dev/packages/flutter_svg) to display the SVG im
 Instruction icon [here](https://vietmapcorp-my.sharepoint.com/:u:/g/personal/thanhdt_vietmap_vn/EU0Heb0gMh1KtgCaoy5oih8BrOL6YKPWJUO-vXeGBp99hA?e=woyAvH), download, extract, and add to the assets folder.
 
 Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l8tPEE9Tkl/VietMap-navigation-symbol?type=design&node-id=1%3A457&mode=design&t=yszRZCTouxAdYXXJ-1), please copy and design your own icon.
+### Build a route between two locations
+- We provide the `buildRoute` function to build a route between two locations. You can add more than 2 locations to the `wayPoints` variable.
+<div style="width:100%; text-align:center" >
+  <img src="https://github.com/vietmap-company/vietmap-flutter-navigation/raw/main/images/navigation.gif"  alt="drawing" width="400"/>
+</div>
+- We're adding the `onMapLongClick` callback to the `NavigationView` to build a route when the user long clicks on the map.
+
+```dart
+  NavigationView(
+        ...
+        onMapLongClick: (Waypoint clickedLocation) {
+          if (p0 == null) return;
+          _navigationController?.buildRoute(wayPoints: [
+            /// Replace the latitude and longitude with your origin location
+            WayPoint(
+                name: 'origin location', latitude: 10.759173, longitude: 106.675879),
+            clickedLocation
+          ], profile: DrivingProfile.cycling);
+        },
+      ),
+```
 
 ### Add banner instructions to display icon, route name, next turn guide,...
 ```dart
@@ -227,11 +250,11 @@ We provide the `addImageMarkers` function to add multiple markers to the map
 ### Marker from assets image
 ```dart
   /// Add a marker to the map
-  List<Marker>? markers = await _navigationController?.addImageMarkers([
-    Marker(
+  List<NavigationMarker>? markers = await _navigationController?.addImageMarkers([
+    NavigationMarker(
         imagePath: 'assets/50.png',
       latLng: const LatLng(10.762528, 106.653099)),
-    Marker(
+    NavigationMarker(
         imagePath: 'assets/40.png',
         latLng: const LatLng(10.762528, 106.753099)),
   ]);

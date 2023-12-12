@@ -6,3 +6,5 @@ export 'package:vietmap_flutter_navigation/navigation_plugin.dart';
 export 'package:vietmap_flutter_navigation/views/navigation_view.dart';
 export 'package:vietmap_flutter_navigation/views/banner_instruction.dart';
 export 'package:vietmap_flutter_navigation/views/bottom_action.dart';
+export 'package:vietmap_flutter_navigation/models/marker.dart';
+export 'package:vietmap_flutter_navigation/models/navmode.dart';
