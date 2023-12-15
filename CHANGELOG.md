@@ -1,3 +1,10 @@
+## 1.5.0
+* Update `vietmap_gl_platform_interface` to `0.1.3`
+## 1.4.8
+* Provide `queryRenderedFeatures` method to get point data from map
+* Provide user clicked point data to `onMapClick` and `onMapLongClick` callback
+## 1.4.7
+* Update `README.md` document
 ## 1.4.5
 * Update `vietmap_gl_platform_interface` to `0.1.2`
 ## 1.4.4

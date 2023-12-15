@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PointF
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Build
@@ -21,10 +22,13 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.BannerInstructions
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import com.mapbox.turf.TurfMisc
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -81,13 +85,13 @@ import vn.vietmap.vietmapsdk.geometry.LatLngBounds
 import vn.vietmap.vietmapsdk.location.LocationComponentActivationOptions
 import vn.vietmap.vietmapsdk.location.LocationComponentOptions
 import vn.vietmap.vietmapsdk.location.engine.LocationEngine
-import vn.vietmap.vietmapsdk.location.engine.LocationEngineCallback
 import vn.vietmap.vietmapsdk.location.modes.CameraMode
 import vn.vietmap.vietmapsdk.location.modes.RenderMode
 import vn.vietmap.vietmapsdk.location.permissions.PermissionsManager
 import vn.vietmap.vietmapsdk.maps.*
 import vn.vietmap.vietmapsdk.maps.MapView.OnDidFinishRenderingMapListener
 import vn.vietmap.vietmapsdk.maps.VietMapGL.OnMoveListener
+import vn.vietmap.vietmapsdk.style.expressions.Expression
 import vn.vietmap.vietmapsdk.style.layers.LineLayer
 import vn.vietmap.vietmapsdk.style.layers.Property.LINE_CAP_ROUND
 import vn.vietmap.vietmapsdk.style.layers.Property.LINE_JOIN_ROUND
@@ -295,6 +299,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             "finishNavigation" -> {
                 finishNavigation(result)
             }
+            
             "getDistanceRemaining" -> {
                 result.success(distanceRemaining)
             }
@@ -326,6 +331,44 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                     speechPlayer!!.isMuted = methodCall.argument<Boolean>("isMute") ?: false
                     result.success(speechPlayer!!.isMuted)
                 }
+            }
+            "queryRenderedFeatures" ->{
+
+                val reply: MutableMap<String, Any> = HashMap()
+                val features: List<Feature>
+                val layerIds = (methodCall.argument<List<String>>("layerIds")?: listOf<String>()).toTypedArray<String>()
+                var jsonElement: JsonElement? = null
+                if(methodCall.argument<List<Any>>("filter")!=null) {
+                    val filter: List<Any> = methodCall.argument<List<Any>>("filter")!!
+                    jsonElement = if (filter == null) null else Gson().toJsonTree(filter)
+                }
+                var jsonArray: JsonArray? = null
+                if (jsonElement != null && jsonElement!!.isJsonArray) {
+                    jsonArray = jsonElement.asJsonArray
+                }
+                val filterExpression =
+                    if (jsonArray == null) null else Expression.Converter.convert(jsonArray)
+                features = if (methodCall.hasArgument("x")) {
+                    val x: Double = methodCall.argument("x")!!
+                    val y: Double = methodCall.argument("y")!!
+                    val pixel = PointF(x.toFloat(), y.toFloat())
+                    vietmapGL!!.queryRenderedFeatures(pixel, filterExpression, *layerIds)
+                } else {
+                    val left: Double = methodCall.argument("left")!!
+                    val top: Double = methodCall.argument("top")!!
+                    val right: Double = methodCall.argument("right")!!
+                    val bottom: Double = methodCall.argument("bottom")!!
+                    val rectF = RectF(
+                        left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat()
+                    )
+                    vietmapGL!!.queryRenderedFeatures(rectF, filterExpression, *layerIds)
+                }
+                val featuresJson: MutableList<String> = ArrayList()
+                for (feature in features) {
+                    featuresJson.add(feature.toJson())
+                }
+                reply["features"] = featuresJson
+                result.success(reply)
             }
             "onDispose" -> {
                 try {
@@ -752,12 +795,14 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     }
 
     override fun onMapLongClick(point: LatLng): Boolean {
+        val pointf = vietmapGL!!.projection.toScreenLocation(point)
         if (wayPoints.size === 2) {
             wayPoints.clear()
         }
         PluginUtilities.sendEvent(
             VietMapEvents.ON_MAP_LONG_CLICK,
-            "{\"latitude\":${point.latitude},\"longitude\":${point.longitude}}"
+
+            "{\"latitude\":${point.latitude},\"longitude\":${point.longitude},\"x\":${pointf.x},\"y\":${pointf.y}}"
         )
         return false
     }
@@ -1325,9 +1370,10 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             return true
         }
 
+        val pointf = vietmapGL!!.projection.toScreenLocation(point)
         PluginUtilities.sendEvent(
             VietMapEvents.ON_MAP_CLICK,
-            "{\"latitude\":${point.latitude},\"longitude\":${point.longitude}}"
+            "{\"latitude\":${point.latitude},\"longitude\":${point.longitude},\"x\":${pointf.x},\"y\":${pointf.y}}"
         )
         return true
     }

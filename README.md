@@ -147,6 +147,7 @@ Add the `initialize` function to `initState` function to initialize the map opti
     },
   ),
 ```
+- In the `routeProgressEvent` response, we provide the `currentLocation` and `snappedLocation`, which are the raw location of the device and the snapped location on the route, respectively. You can use one of them to track the location of the device.
 
 ### Set the instruction icon from routeProgressEvent data.
 ```dart
@@ -171,15 +172,18 @@ Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l
 ### Build a route between two locations
 - We provide the `buildRoute` function to build a route between two locations. You can add more than 2 locations to the `wayPoints` variable.
 <div style="width:100%; text-align:center" >
-  <img src="https://github.com/vietmap-company/vietmap-flutter-navigation/raw/main/images/navigation.gif"  alt="drawing" width="400"/>
+  <img src="https://github.com/vietmap-company/vietmap-flutter-navigation/raw/main/images/navigation.gif"  alt="Vietmap navigation demo gif" width="400"/>
 </div>
+
 - We're adding the `onMapLongClick` callback to the `NavigationView` to build a route when the user long clicks on the map.
 
 ```dart
   NavigationView(
+
         ...
-        onMapLongClick: (Waypoint clickedLocation) {
-          if (p0 == null) return;
+  
+        onMapLongClick: (WayPoint? clickedLocation) {
+          if (clickedLocation == null) return;
           _navigationController?.buildRoute(wayPoints: [
             /// Replace the latitude and longitude with your origin location
             WayPoint(
@@ -189,7 +193,27 @@ Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l
         },
       ),
 ```
+### Start navigation when the route is built successfully
+- We provide the `onRouteBuilt` callback which responds the route when it is built successfully. Only the first route of the response list will be returned.
+- We provide the `onNewRouteSelected` callback which responds the route while the user selects another route from the map.
+```dart
+  NavigationView(
 
+    ...
+
+    onRouteBuilt: (DirectionRoute route) {
+      
+    },
+    onNewRouteSelected: (DirectionRoute route) {
+      
+    },
+  ),
+```
+-  You can start the navigation when the route is built successfully by calling the `_navigationController?.startNavigation` function.
+```dart
+  _navigationController?.startNavigation();
+```
+ 
 ### Add banner instructions to display icon, route name, next turn guide,...
 ```dart
   BannerInstructionView(
@@ -218,6 +242,7 @@ All data is provided by the `routeProgressEvent` variable.
   }
 ```
 ### Useful function
+- Build a route and start navigation. The below functions are used to build a route to start navigation.
 ```dart
   /// Find a new route between two locations (you can add more than 2 locations)
   _navigationController?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
@@ -229,8 +254,11 @@ All data is provided by the `routeProgressEvent` variable.
   _navigationController?.buildAndStartNavigation(
       wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
       profile: DrivingProfile.drivingTraffic);
-  
-  /// recenter to the navigation
+```
+
+- Recenter to the current location, overview the route, turn on/off the navigation voice guide, and stop the navigation. The below functions are used to control the navigation and call after the navigation is started.
+```dart
+  /// recenter to the user location
   _navigationController?.recenter();
 
   /// Overview the route
