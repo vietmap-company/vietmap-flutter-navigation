@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -122,32 +123,39 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                     await VietmapHelper.getBytesFromAsset(
                         'assets/download.jpeg'));
               },
-              onMapLongClick: (WayPoint? point) async {
+              onMapLongClick: (WayPoint? wayPoint, Point? point) async {
                 if (_isRunning) return;
                 EasyLoading.show();
                 var data =
                     await GetLocationFromLatLngUseCase(VietmapApiRepositories())
                         .call(LocationPoint(
-                            lat: point?.latitude ?? 0,
-                            long: point?.longitude ?? 0));
+                            lat: wayPoint?.latitude ?? 0,
+                            long: wayPoint?.longitude ?? 0));
                 EasyLoading.dismiss();
                 data.fold((l) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Có lỗi xảy ra')));
                 }, (r) => _showBottomSheetInfo(r));
               },
-              onMapClick: (WayPoint? point) async {
+              onMapClick: (WayPoint? wayPoint, Point? point) async {
                 if (_isRunning) return;
                 if (focusNode.hasFocus) {
                   FocusScope.of(context).requestFocus(FocusNode());
                   return;
                 }
+
+                var dataQuery = await _controller?.queryRenderedFeatures(
+                    point: Point(
+                        point?.x.toDouble() ?? 0, point?.y.toDouble() ?? 0));
+                log(dataQuery.toString());
+                if (dataQuery?.isNotEmpty == true) {}
+
                 EasyLoading.show();
                 var data =
                     await GetLocationFromLatLngUseCase(VietmapApiRepositories())
                         .call(LocationPoint(
-                            lat: point?.latitude ?? 0,
-                            long: point?.longitude ?? 0));
+                            lat: wayPoint?.latitude ?? 0,
+                            long: wayPoint?.longitude ?? 0));
                 EasyLoading.dismiss();
                 data.fold((l) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

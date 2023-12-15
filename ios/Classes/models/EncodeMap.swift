@@ -244,12 +244,29 @@ func convertStep(steps: [VietMapDirections.RouteStep]) -> Array<Any> {
     return result
 }
 
-// MARK: encode long click, click, reroute
+// MARK: encode reroute
 func encodeLocation(location: CLLocationCoordinate2D) -> String {
     // TODO: Add parameter on routeDictionary.
     let routeDictionary: [String: Any] = [
         "latitude": location.latitude,
-        "longitude": location.longitude
+        "longitude": location.longitude, 
+    ]
+
+    if let jsonData = try? JSONSerialization.data(withJSONObject: routeDictionary, options: []) {
+        if let jsonData = String(data: jsonData, encoding: .utf8) {
+            return jsonData
+        }
+    }
+    return "{}"
+}
+// MARK: encode long click, click
+func encodeClickPosition(location: CLLocationCoordinate2D, position: CGPoint) -> String {
+    // TODO: Add parameter on routeDictionary.
+    let routeDictionary: [String: Any] = [
+        "latitude": location.latitude,
+        "longitude": location.longitude,
+        "x": position.x,
+        "y": position.y
     ]
 
     if let jsonData = try? JSONSerialization.data(withJSONObject: routeDictionary, options: []) {

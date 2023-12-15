@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
@@ -87,11 +88,11 @@ class NavigationView extends StatefulWidget {
 
   /// This callback will called when the user long click on the map and response a [WayPoint] object
   /// which contains all information about the location where user long click
-  final Function(WayPoint?)? onMapLongClick;
+  final Function(WayPoint?, Point?)? onMapLongClick;
 
   /// This callback will called when the user click on the map and response a [WayPoint] object
   /// which contains all information about the location where user click
-  final Function(WayPoint?)? onMapClick;
+  final Function(WayPoint?, Point?)? onMapClick;
 
   /// This callback will called when the user is off route and response a [WayPoint] object
   /// which contains all information about the location where user off route
@@ -180,7 +181,8 @@ class _NavigationViewState extends State<NavigationView> {
                 name: 'map_click',
                 latitude: data['latitude'],
                 longitude: data['longitude']);
-            widget.onMapClick!(wayPoint);
+            Point point = Point(data['x']?.toDouble(), data['y']?.toDouble());
+            widget.onMapClick!(wayPoint, point);
           }
         }
         break;
@@ -192,7 +194,8 @@ class _NavigationViewState extends State<NavigationView> {
                 name: 'map_long_click',
                 latitude: data['latitude'],
                 longitude: data['longitude']);
-            widget.onMapLongClick!(wayPoint);
+            Point point = Point(data['x']?.toDouble(), data['y']?.toDouble());
+            widget.onMapLongClick!(wayPoint, point);
           }
         }
         break;

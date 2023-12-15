@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' hide log;
 import 'package:vietmap_flutter_navigation/extension.dart';
 import 'package:vietmap_flutter_navigation/models/events.dart';
 import 'package:vietmap_flutter_navigation/models/method_channel_event.dart';
@@ -234,6 +235,28 @@ class MapNavigationViewController {
     return await _methodChannel
         .invokeMethod(MethodChannelEvent.buildAndStartNavigation, args)
         .then<bool>((dynamic result) => result);
+  }
+
+  /// Query the map for rendered features
+  /// We only response the data of [Point] while click on the map.
+  Future<List> queryRenderedFeatures(
+      {required Point<double> point,
+      List<String>? layerIds,
+      List<Object>? filter}) async {
+    try {
+      final Map<dynamic, dynamic> reply = await _methodChannel.invokeMethod(
+        MethodChannelEvent.queryRenderedFeatures,
+        <String, Object?>{
+          'x': point.x,
+          'y': point.y,
+          'layerIds': layerIds,
+          'filter': filter,
+        },
+      );
+      return reply['features'].map((feature) => jsonDecode(feature)).toList();
+    } on PlatformException catch (e) {
+      return Future.error(e);
+    }
   }
 
   ///Ends Navigation and Closes the Navigation View

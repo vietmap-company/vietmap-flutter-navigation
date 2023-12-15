@@ -107,6 +107,57 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
                 UIApplication.shared.isIdleTimerDisabled = true
                 strongSelf.startNavigationEmbedded(result: result)
             }
+            else if(call.method == "queryRenderedFeatures")
+            {
+                
+                guard let arguments = call.arguments as? [String: Any] else { return }
+                var styleLayerIdentifiers: Set<String>?
+                if let layerIds = arguments["layerIds"] as? [String] {
+                    if(!layerIds.isEmpty){
+                        styleLayerIdentifiers = Set<String>(layerIds)
+                    }
+                }
+                var filterExpression: NSPredicate?
+                if let filter = arguments["filter"] as? [Any] {
+                    filterExpression = NSPredicate(mglJSONObject: filter)
+                }
+                var reply = [String: NSObject]()
+                var features: [MGLFeature] = []
+                if let x = arguments["x"] as? Double, let y = arguments["y"] as? Double {
+                    features = self!.navigationMapView.visibleFeatures(
+                        at: CGPoint(x: x, y: y),
+                        styleLayerIdentifiers: styleLayerIdentifiers,
+                        predicate: filterExpression
+                    )
+                }
+                if let top = arguments["top"] as? Double,
+                   let bottom = arguments["bottom"] as? Double,
+                   let left = arguments["left"] as? Double,
+                   let right = arguments["right"] as? Double
+                {
+                    var width = right - left
+                    var height = bottom - top
+                    features = self!.navigationMapView.visibleFeatures(in: CGRect(x: left, y: top, width: width, height: height), styleLayerIdentifiers: styleLayerIdentifiers, predicate: filterExpression)
+                }
+                var featuresJson = [String]()
+                for feature in features {
+                    let dictionary = feature.geoJSONDictionary()
+                    let geometry = dictionary["geometry"] as? [String:Any]
+                    if((geometry?["type"] as? String) == "Point")
+                    {
+                        if let theJSONData = try? JSONSerialization.data(
+                            withJSONObject: dictionary,
+                            options: []
+                        ),
+                            let theJSONText = String(data: theJSONData, encoding: .utf8)
+                        {
+                            featuresJson.append(theJSONText)
+                        }
+                    }
+                }
+                reply["features"] = featuresJson as NSObject
+                result(reply)
+            }
             else if(call.method == "recenter")
             {
                 //used to recenter map from user action during navigation
@@ -559,7 +610,9 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
     @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .ended else { return }
         let location = navigationMapView.convert(gesture.location(in: navigationMapView), toCoordinateFrom: navigationMapView)
-        sendEvent(eventType: MapEventType.onMapLongClick, data: encodeLocation(location: location))
+        
+        let screenPosition = gesture.location(in: navigationMapView)
+        sendEvent(eventType: MapEventType.onMapClick, data: encodeClickPosition(location: location,position: screenPosition))
     }
     
     @objc func handlePress(_ gesture: UITapGestureRecognizer) {
@@ -569,7 +622,8 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
         //            return
         //        }
         let location = navigationMapView.convert(gesture.location(in: navigationMapView), toCoordinateFrom: navigationMapView)
-        sendEvent(eventType: MapEventType.onMapClick, data: encodeLocation(location: location))
+        let screenPosition = gesture.location(in: navigationMapView)
+        sendEvent(eventType: MapEventType.onMapClick, data: encodeClickPosition(location: location,position: screenPosition))
     }
     
     @objc func handlePanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
