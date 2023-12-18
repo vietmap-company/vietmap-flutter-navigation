@@ -1,9 +1,10 @@
+import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
+
 import 'navigation_plugin_platform_interface.dart';
 import 'models/navmode.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
 import 'models/voice_units.dart';
-import 'models/way_point.dart';
 import 'package:flutter/widgets.dart';
 
 class VietMapNavigationPlugin {
@@ -62,7 +63,7 @@ class VietMapNavigationPlugin {
   /// [wayPoints] must not be null and have at least 1 item. The way points will
   /// be inserted after the currently navigating waypoint
   /// in the existing navigation
-  Future<dynamic> addWayPoints({required List<WayPoint> wayPoints}) async {
+  Future<dynamic> addWayPoints({required List<LatLng> wayPoints}) async {
     return VietmapNavigationPluginPlatform.instance
         .addWayPoints(wayPoints: wayPoints);
   }

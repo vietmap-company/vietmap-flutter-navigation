@@ -3,7 +3,6 @@ import 'dart:math' hide log;
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:vietmap_flutter_navigation/helpers.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -40,10 +39,9 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   late MapOptions _navigationOption;
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
-  List<WayPoint> wayPoints = [
-    WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
-    WayPoint(
-        name: "destination point", latitude: 10.762528, longitude: 106.653099)
+  List<LatLng> waypoints = const [
+    LatLng(10.759091, 106.675817),
+    LatLng(10.762528, 106.653099)
   ];
   Widget instructionImage = const SizedBox.shrink();
   String guideDirection = "";
@@ -71,8 +69,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
         "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
-    _navigationOption.customLocationCenterIcon =
-        await VietmapHelper.getBytesFromAsset('assets/download.jpeg');
+
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 
@@ -117,27 +114,24 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                   EasyLoading.dismiss();
                   _isRouteBuilt = true;
                 });
+                print(p0.geometry);
               },
-              onMapRendered: () async {
-                _controller?.setCenterIcon(
-                    await VietmapHelper.getBytesFromAsset(
-                        'assets/download.jpeg'));
-              },
-              onMapLongClick: (WayPoint? wayPoint, Point? point) async {
+              onMapRendered: () async {},
+              onMapLongClick: (LatLng? latLng, Point? point) async {
                 if (_isRunning) return;
                 EasyLoading.show();
                 var data =
                     await GetLocationFromLatLngUseCase(VietmapApiRepositories())
                         .call(LocationPoint(
-                            lat: wayPoint?.latitude ?? 0,
-                            long: wayPoint?.longitude ?? 0));
+                            lat: latLng?.latitude ?? 0,
+                            long: latLng?.longitude ?? 0));
                 EasyLoading.dismiss();
                 data.fold((l) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Có lỗi xảy ra')));
                 }, (r) => _showBottomSheetInfo(r));
               },
-              onMapClick: (WayPoint? wayPoint, Point? point) async {
+              onMapClick: (LatLng? latLng, Point? point) async {
                 if (_isRunning) return;
                 if (focusNode.hasFocus) {
                   FocusScope.of(context).requestFocus(FocusNode());
@@ -154,8 +148,8 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 var data =
                     await GetLocationFromLatLngUseCase(VietmapApiRepositories())
                         .call(LocationPoint(
-                            lat: wayPoint?.latitude ?? 0,
-                            long: wayPoint?.longitude ?? 0));
+                            lat: latLng?.latitude ?? 0,
+                            long: latLng?.longitude ?? 0));
                 EasyLoading.dismiss();
                 data.fold((l) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -164,10 +158,10 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 }, (r) => _showBottomSheetInfo(r));
               },
               onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
-                print('---------------------');
-                print(routeProgressEvent.currentLocation?.bearing);
-                print(routeProgressEvent.currentLocation?.latitude);
-                print(routeProgressEvent.currentLocation?.longitude);
+                // print('---------------------');
+                // print(routeProgressEvent.currentLocation?.bearing);
+                // print(routeProgressEvent.currentLocation?.latitude);
+                // print(routeProgressEvent.currentLocation?.longitude);
                 setState(() {
                   this.routeProgressEvent = routeProgressEvent;
                 });
@@ -217,19 +211,14 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                         }, (r) {
                           data = r;
                         });
-                        wayPoints.clear();
+                        waypoints.clear();
                         var location = await Geolocator.getCurrentPosition();
-                        wayPoints.add(WayPoint(
-                            name: 'destination',
-                            latitude: location.latitude,
-                            longitude: location.longitude));
+                        waypoints
+                            .add(LatLng(location.latitude, location.longitude));
                         if (data?.lat != null) {
-                          wayPoints.add(WayPoint(
-                              name: '',
-                              latitude: data?.lat,
-                              longitude: data?.lng));
+                          waypoints.add(LatLng(data?.lat ?? 0, data?.lng ?? 0));
                         }
-                        _controller?.buildRoute(wayPoints: wayPoints);
+                        _controller?.buildRoute(waypoints: waypoints);
                       },
                     )),
             _isRouteBuilt && !_isRunning
@@ -342,35 +331,27 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
               data: data,
               buildRoute: () async {
                 EasyLoading.show();
-                wayPoints.clear();
+                waypoints.clear();
                 var location = await Geolocator.getCurrentPosition();
 
-                wayPoints.add(WayPoint(
-                    name: 'destination',
-                    latitude: location.latitude,
-                    longitude: location.longitude));
+                waypoints.add(LatLng(location.latitude, location.longitude));
                 if (data.lat != null) {
-                  wayPoints.add(WayPoint(
-                      name: '', latitude: data.lat, longitude: data.lng));
+                  waypoints.add(LatLng(data.lat ?? 0, data.lng ?? 0));
                 }
-                _controller?.buildRoute(wayPoints: wayPoints);
+                _controller?.buildRoute(waypoints: waypoints);
                 if (!mounted) return;
                 Navigator.pop(context);
               },
               buildAndStartRoute: () async {
                 EasyLoading.show();
-                wayPoints.clear();
+                waypoints.clear();
                 var location = await Geolocator.getCurrentPosition();
-                wayPoints.add(WayPoint(
-                    name: 'destination',
-                    latitude: location.latitude,
-                    longitude: location.longitude));
+                waypoints.add(LatLng(location.latitude, location.longitude));
                 if (data.lat != null) {
-                  wayPoints.add(WayPoint(
-                      name: '', latitude: data.lat, longitude: data.lng));
+                  waypoints.add(LatLng(data.lat ?? 0, data.lng ?? 0));
                 }
                 _controller?.buildAndStartNavigation(
-                    wayPoints: wayPoints,
+                    waypoints: waypoints,
                     profile: DrivingProfile.drivingTraffic);
                 setState(() {
                   _isRunning = true;

@@ -9,7 +9,6 @@ import 'package:vietmap_flutter_navigation/models/method_channel_event.dart';
 import 'package:vietmap_flutter_navigation/models/navmode.dart';
 import 'package:vietmap_flutter_navigation/models/options.dart';
 import 'package:vietmap_flutter_navigation/models/route_event.dart';
-import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -52,31 +51,28 @@ class MapNavigationViewController {
 
   ///Build the Route Used for the Navigation
   ///
-  /// [wayPoints] must not be null. A collection of [WayPoint](longitude, latitude and name). Must be at least 2 or at most 25. Cannot use drivingWithTraffic mode if more than 3-waypoints.
+  /// [waypoints] must not be null. A collection of [LatLng](longitude, latitude and name). Must be at least 2 or at most 25. Cannot use drivingWithTraffic mode if more than 3-waypoints.
   /// [options] options used to generate the route and used while navigating
   ///
   Future<bool> buildRoute(
-      {required List<WayPoint> wayPoints,
+      {required List<LatLng> waypoints,
       MapOptions? options,
       DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
-    assert(wayPoints.length > 1);
-    if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
+    assert(waypoints.length > 1);
+    if (Platform.isIOS && waypoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,
           "Error: Cannot use drivingWithTraffic Mode when you have more than 3 Stops");
     }
     List<Map<String, Object?>> pointList = [];
 
-    for (int i = 0; i < wayPoints.length; i++) {
-      var wayPoint = wayPoints[i];
-      assert(wayPoint.name != null);
-      assert(wayPoint.latitude != null);
-      assert(wayPoint.longitude != null);
+    for (int i = 0; i < waypoints.length; i++) {
+      var latLng = waypoints[i];
 
       final pointMap = <String, dynamic>{
         "Order": i,
-        "Name": wayPoint.name,
-        "Latitude": wayPoint.latitude,
-        "Longitude": wayPoint.longitude,
+        "Name": i.toString(),
+        "Latitude": latLng.latitude,
+        "Longitude": latLng.longitude,
       };
       pointList.add(pointMap);
     }
@@ -200,25 +196,21 @@ class MapNavigationViewController {
   }
 
   Future<bool> buildAndStartNavigation(
-      {required List<WayPoint> wayPoints,
+      {required List<LatLng> waypoints,
       MapOptions? options,
       DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
-    assert(wayPoints.length > 1);
-    if (Platform.isIOS && wayPoints.length > 3 && options?.mode != null) {
+    assert(waypoints.length > 1);
+    if (Platform.isIOS && waypoints.length > 3 && options?.mode != null) {
       assert(options!.mode != MapNavigationMode.drivingWithTraffic,
           "Error: Cannot use drivingWithTraffic Mode when you have more than 3 Stops");
     }
     List<Map<String, Object?>> pointList = [];
 
-    for (int i = 0; i < wayPoints.length; i++) {
-      var wayPoint = wayPoints[i];
-      assert(wayPoint.name != null);
-      assert(wayPoint.latitude != null);
-      assert(wayPoint.longitude != null);
+    for (int i = 0; i < waypoints.length; i++) {
+      var wayPoint = waypoints[i];
 
       final pointMap = <String, dynamic>{
         "Order": i,
-        "Name": wayPoint.name,
         "Latitude": wayPoint.latitude,
         "Longitude": wayPoint.longitude,
       };

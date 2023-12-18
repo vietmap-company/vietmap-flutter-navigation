@@ -1,12 +1,15 @@
+## 1.5.1
+* Deprecate `WayPoint` class, use `LatLng` instead
+* Upgrade `vietmap_gl_platform_interface` to `0.1.4`
 ## 1.5.0
-* Update `vietmap_gl_platform_interface` to `0.1.3`
+* Upgrade `vietmap_gl_platform_interface` to `0.1.3`
 ## 1.4.8
 * Provide `queryRenderedFeatures` method to get point data from map
 * Provide user clicked point data to `onMapClick` and `onMapLongClick` callback
 ## 1.4.7
 * Update `README.md` document
 ## 1.4.5
-* Update `vietmap_gl_platform_interface` to `0.1.2`
+* Upgrade `vietmap_gl_platform_interface` to `0.1.2`
 ## 1.4.4
 * Update `README.md` document
 * Refactor `Marker` to `NavigationMarker`

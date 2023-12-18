@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:vietmap_flutter_navigation/helpers.dart';
-import 'package:vietmap_flutter_navigation/models/way_point.dart';
 import 'package:flutter/material.dart';
+import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 
 import '../embedded/controller.dart';
 import '../embedded/view.dart';
@@ -86,18 +86,18 @@ class NavigationView extends StatefulWidget {
   /// This callback will called when the user click on the marker and response a [int], which is the marker id
   final Function(int?)? onMarkerClicked;
 
-  /// This callback will called when the user long click on the map and response a [WayPoint] object
+  /// This callback will called when the user long click on the map and response a [LatLng] object
   /// which contains all information about the location where user long click
-  final Function(WayPoint?, Point?)? onMapLongClick;
+  final Function(LatLng?, Point?)? onMapLongClick;
 
-  /// This callback will called when the user click on the map and response a [WayPoint] object
+  /// This callback will called when the user click on the map and response a [LatLng] object
   /// which contains all information about the location where user click
-  final Function(WayPoint?, Point?)? onMapClick;
+  final Function(LatLng?, Point?)? onMapClick;
 
-  /// This callback will called when the user is off route and response a [WayPoint] object
+  /// This callback will called when the user is off route and response a [LatLng] object
   /// which contains all information about the location where user off route
   /// (user is off route when user is not follow the route)
-  final Function(WayPoint?)? userOffRoute;
+  final Function(LatLng?)? userOffRoute;
 
   /// This callback will called when the user select a new route and response a [DirectionRoute] object
   /// which contains all information about the new route
@@ -177,12 +177,9 @@ class _NavigationViewState extends State<NavigationView> {
         if (widget.onMapClick != null) {
           if (e.data != null) {
             var data = decodeJson(data: e.data);
-            WayPoint wayPoint = WayPoint(
-                name: 'map_click',
-                latitude: data['latitude'],
-                longitude: data['longitude']);
+            LatLng latLng = LatLng(data['latitude'], data['longitude']);
             Point point = Point(data['x']?.toDouble(), data['y']?.toDouble());
-            widget.onMapClick!(wayPoint, point);
+            widget.onMapClick!(latLng, point);
           }
         }
         break;
@@ -190,12 +187,9 @@ class _NavigationViewState extends State<NavigationView> {
         if (widget.onMapLongClick != null) {
           if (e.data != null) {
             var data = decodeJson(data: e.data);
-            WayPoint wayPoint = WayPoint(
-                name: 'map_long_click',
-                latitude: data['latitude'],
-                longitude: data['longitude']);
+            LatLng latLng = LatLng(data['latitude'], data['longitude']);
             Point point = Point(data['x']?.toDouble(), data['y']?.toDouble());
-            widget.onMapLongClick!(wayPoint, point);
+            widget.onMapLongClick!(latLng, point);
           }
         }
         break;
@@ -212,11 +206,8 @@ class _NavigationViewState extends State<NavigationView> {
         if (widget.userOffRoute != null) {
           if (e.data != null) {
             var data = jsonDecode(e.data);
-            WayPoint wayPoint = WayPoint(
-                name: 'user_off_route',
-                latitude: data['latitude'],
-                longitude: data['longitude']);
-            widget.userOffRoute!(wayPoint);
+            LatLng latLng = LatLng(data['latitude'], data['longitude']);
+            widget.userOffRoute!(latLng);
           }
         }
         break;

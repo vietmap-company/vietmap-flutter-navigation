@@ -90,12 +90,11 @@ In your terminal, cd to the ios folder and run the command below to install the 
 
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
-  List<WayPoint> wayPoints = [
-    WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
-    WayPoint(
-        name: "destination point", latitude: 10.762528, longitude: 106.653099)
+  List<LatLng> waypoints = const [
+    LatLng(10.759091, 106.675817),
+    LatLng(10.762528, 106.653099)
   ];
-  /// Display the guide instruction image to the next turn
+  /// Display the guide instruction image to the next turn 
   Widget instructionImage = const SizedBox.shrink();
 
   Widget recenterButton = const SizedBox.shrink();
@@ -129,7 +128,7 @@ Add the `initialize` function to `initState` function to initialize the map opti
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
 ```
-- Replace your apikey which is provided by VietMap with `YOUR_API_KEY_HERE` tag to the application works normally
+- Replace `your apikey` which is provided by VietMap with `YOUR_API_KEY_HERE` tag to the application works normally
 
 ### Display the Navigation view, including map view, route, and navigation
 ```dart
@@ -182,13 +181,12 @@ Figma design for the instruction [here](https://www.figma.com/file/rWyQ5TNtt6E5l
 
         ...
   
-        onMapLongClick: (WayPoint? clickedLocation) {
-          if (clickedLocation == null) return;
+        onMapLongClick: (LatLng? latLng, Point? point) {
+          if (latLng == null) return;
           _navigationController?.buildRoute(wayPoints: [
             /// Replace the latitude and longitude with your origin location
-            WayPoint(
-                name: 'origin location', latitude: 10.759173, longitude: 106.675879),
-            clickedLocation
+            LatLng(10.759173, 106.675879),
+            latLng
           ], profile: DrivingProfile.cycling);
         },
       ),
@@ -245,14 +243,14 @@ All data is provided by the `routeProgressEvent` variable.
 - Build a route and start navigation. The below functions are used to build a route to start navigation.
 ```dart
   /// Find a new route between two locations (you can add more than 2 locations)
-  _navigationController?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
+  _navigationController?.buildRoute(wayPoints: <LatLng>[currentLocation, destinationLocation]);
 
   /// Start navigation, call after the buildRoute have a response.
   _navigationController?.startNavigation();
 
   /// Find route and start when the api response at least 1 route
   _navigationController?.buildAndStartNavigation(
-      wayPoints: wayPoints: <Waypoint>[waypoint1,waypoint2],
+      wayPoints: wayPoints: <LatLng>[currentLocation, destinationLocation],
       profile: DrivingProfile.drivingTraffic);
 ```
 

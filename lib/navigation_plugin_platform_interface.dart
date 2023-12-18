@@ -1,9 +1,9 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 
 import 'navigation_plugin_method_channel.dart';
 import 'models/options.dart';
 import 'models/route_event.dart';
-import 'models/way_point.dart';
 
 import 'package:flutter/widgets.dart';
 
@@ -74,7 +74,7 @@ abstract class VietmapNavigationPluginPlatform extends PlatformInterface {
   /// [wayPoints] must not be null and have at least 1 item. The way points will
   /// be inserted after the currently navigating \
   /// waypoint in the existing navigation
-  Future<dynamic> addWayPoints({required List<WayPoint> wayPoints}) {
+  Future<dynamic> addWayPoints({required List<LatLng> wayPoints}) {
     throw UnimplementedError(
       'addWayPoints({required wayPoints }) has not been implemented.',
     );
