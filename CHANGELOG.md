@@ -1,3 +1,4 @@
+## 1.5.2
 ## 1.5.1
 * Deprecate `WayPoint` class, use `LatLng` instead
 * Upgrade `vietmap_gl_platform_interface` to `0.1.4`

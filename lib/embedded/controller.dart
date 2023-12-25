@@ -53,7 +53,7 @@ class MapNavigationViewController {
   ///
   /// [waypoints] must not be null. A collection of [LatLng](longitude, latitude and name). Must be at least 2 or at most 25. Cannot use drivingWithTraffic mode if more than 3-waypoints.
   /// [options] options used to generate the route and used while navigating
-  ///
+  /// Deprecate [WayPoint] class, use [LatLng] instead
   Future<bool> buildRoute(
       {required List<LatLng> waypoints,
       MapOptions? options,
