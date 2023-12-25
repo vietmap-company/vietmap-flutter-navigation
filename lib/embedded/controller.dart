@@ -149,7 +149,7 @@ class MapNavigationViewController {
 
     List<Object?> listMarkerId = await _methodChannel.invokeMethod(
         MethodChannelEvent.addMarkers, markerMap);
-    print(listMarkerId);
+    debugPrint(listMarkerId.toString());
     if (listMarkerId.isNotEmpty) {
       for (var element in markers) {
         element.markerId = listMarkerId[markers.indexOf(element)] as int?;

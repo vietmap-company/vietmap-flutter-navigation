@@ -82,20 +82,4 @@ jobs:
         with:
           name: Runner.app
           path: example/build/ios/iphonesimulator
-
-  # build-web:
-  #   name: "Build web"
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: example
-
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - uses: subosito/flutter-action@v2.8.0
-  #     with:
-  #       channel: ${{ env.FLUTTER_CHANNEL }}
-  #       cache: true
-  #   - run: flutter pub get
-  #   - name: Build web
-  #     run: flutter build web
+ 

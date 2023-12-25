@@ -1,6 +1,5 @@
 import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
 
-
 class DirectionRoute {
   String? routeIndex;
   num? distance;
