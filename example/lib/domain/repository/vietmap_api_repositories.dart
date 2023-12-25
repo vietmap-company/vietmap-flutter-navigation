@@ -47,7 +47,7 @@ class VietmapApiRepositories implements VietmapApiRepository {
         return const Left(ApiServerFailure('Có lỗi xảy ra'));
       }
     } on DioException catch (ex) {
-      print(ex);
+      debugPrint(ex.toString());
       if (ex.type == DioExceptionType.receiveTimeout) {
         return Left(ApiTimeOutFailure());
       } else {

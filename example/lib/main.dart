@@ -97,7 +97,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
           children: [
             NavigationView(
               onMarkerClicked: (p0) {
-                print(p0.toString());
+                debugPrint(p0.toString());
                 log("marker clicked");
                 _controller?.removeMarkers([p0 ?? 0]);
               },
@@ -114,7 +114,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                   EasyLoading.dismiss();
                   _isRouteBuilt = true;
                 });
-                print(p0.geometry);
+                debugPrint(p0.geometry);
               },
               onMapRendered: () async {},
               onMapLongClick: (LatLng? latLng, Point? point) async {
