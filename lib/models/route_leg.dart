@@ -1,4 +1,5 @@
-import 'way_point.dart';
+import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
+
 import 'route_step.dart';
 import '../helpers.dart';
 
@@ -11,14 +12,23 @@ class RouteLeg {
   String? name;
   double? distance;
   double? expectedTravelTime;
-  WayPoint? source;
-  WayPoint? destination;
+  LatLng? source;
+  LatLng? destination;
   List<RouteStep>? steps;
 
   RouteLeg(this.profileIdentifier, this.name, this.distance,
       this.expectedTravelTime, this.source, this.destination, this.steps);
 
   RouteLeg.fromJson(Map<String, dynamic> json) {
+    var sourceJson = {};
+    var destinationJson = {};
+
+    if (json['source'] != null) {
+      sourceJson = json['source'];
+    }
+    if (json['destination'] != null) {
+      destinationJson = json['destination'];
+    }
     profileIdentifier = json["profileIdentifier"];
     name = json["name"];
     distance = isNullOrZero(json["distance"]) ? 0.0 : json["distance"] + .0;
@@ -27,10 +37,10 @@ class RouteLeg {
         : json["expectedTravelTime"] + .0;
     source = json['source'] == null
         ? null
-        : WayPoint.fromJson(json['source'] as Map<String, dynamic>);
+        : LatLng(sourceJson['latitude'], sourceJson['longitude']);
     destination = json['destination'] == null
         ? null
-        : WayPoint.fromJson(json['destination'] as Map<String, dynamic>);
+        : LatLng(destinationJson['latitude'], destinationJson['longitude']);
     steps = (json['steps'] as List?)
         ?.map((e) =>
             e == null ? null : RouteStep.fromJson(e as Map<String, dynamic>))

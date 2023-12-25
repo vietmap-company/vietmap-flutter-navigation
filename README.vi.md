@@ -87,11 +87,12 @@ Tại terminal, cd vào thư mục ios và chạy lệnh sau để cài đặt p
   late MapOptions _navigationOption;
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
-  List<WayPoint> wayPoints = [
-    WayPoint(name: "origin point", latitude: 10.759091, longitude: 106.675817),
-    WayPoint(
-        name: "destination point", latitude: 10.762528, longitude: 106.653099)
+
+  List<LatLng> waypoints = const [
+    LatLng(10.759091, 106.675817),
+    LatLng(10.762528, 106.653099)
   ];
+
   /// Hiển thị hình ảnh dẫn đường vào ngã rẽ tiếp theo
   Widget instructionImage = const SizedBox.shrink();
 
@@ -195,7 +196,7 @@ Các hàm thường sử dụng
 ```dart
   /// Tìm đường mới từ 2 điểm, waypoint1 là điểm bắt đầu, 
   /// waypoint2 là điểm kết thúc.
-  _navigationController?.buildRoute(wayPoints: <Waypoint>[waypoint1,waypoint2]);
+  _navigationController?.buildRoute(wayPoints: <LatLng>[currentLocation, destinationLocation]);
 
   /// Bắt đầu dẫn đường, gọi sau khi đã gọi hàm buildRoute phía trên
   _navigationController?.startNavigation();

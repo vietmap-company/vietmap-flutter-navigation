@@ -1,4 +1,5 @@
-import 'way_point.dart';
+import 'package:vietmap_gl_platform_interface/vietmap_gl_platform_interface.dart';
+
 
 class DirectionRoute {
   String? routeIndex;
@@ -63,16 +64,14 @@ class DirectionRoute {
   }
 
   // get list of coordinates
-  List<WayPoint> get getCoordinates {
-    var coordinates = <WayPoint>[];
+  List<LatLng> get getCoordinates {
+    var coordinates = <LatLng>[];
     for (var leg in legs!) {
       for (var step in leg.steps!) {
         if (step.maneuver?.location != null &&
             step.maneuver!.location!.length == 2) {
-          coordinates.add(WayPoint(
-              name: '',
-              latitude: step.maneuver!.location!.first.toDouble(),
-              longitude: step.maneuver!.location!.last.toDouble()));
+          coordinates.add(LatLng(step.maneuver!.location!.first.toDouble(),
+              step.maneuver!.location!.last.toDouble()));
         }
       }
     }

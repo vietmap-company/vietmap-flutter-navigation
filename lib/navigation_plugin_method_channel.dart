@@ -5,12 +5,10 @@ import 'dart:developer';
 import 'package:vietmap_flutter_navigation/models/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 
 import 'navigation_plugin_platform_interface.dart';
-import 'models/options.dart';
 import 'models/route_event.dart';
-import 'models/route_progress_event.dart';
-import 'models/way_point.dart';
 
 /// An implementation of [VietmapNavigationPluginPlatform] that uses method channels.
 class MethodChannelVietmapNavigationPlugin
@@ -78,7 +76,7 @@ class MethodChannelVietmapNavigationPlugin
   }
 
   @override
-  Future<dynamic> addWayPoints({required List<WayPoint> wayPoints}) async {
+  Future<dynamic> addWayPoints({required List<LatLng> wayPoints}) async {
     assert(wayPoints.isNotEmpty, 'Error: WayPoints must be at least 1');
     final pointList = _getPointListFromWayPoints(wayPoints);
     var i = 0;
@@ -146,22 +144,17 @@ class MethodChannelVietmapNavigationPlugin
   }
 
   List<Map<String, Object?>> _getPointListFromWayPoints(
-    List<WayPoint> wayPoints,
+    List<LatLng> wayPoints,
   ) {
     final pointList = <Map<String, Object?>>[];
 
     for (var i = 0; i < wayPoints.length; i++) {
       final wayPoint = wayPoints[i];
-      assert(wayPoint.name != null, 'Error: waypoints need name');
-      assert(wayPoint.latitude != null, 'Error: waypoints need latitude');
-      assert(wayPoint.longitude != null, 'Error: waypoints need longitude');
 
       final pointMap = <String, dynamic>{
         'Order': i,
-        'Name': wayPoint.name,
         'Latitude': wayPoint.latitude,
         'Longitude': wayPoint.longitude,
-        'IsSilent': wayPoint.isSilent,
       };
       pointList.add(pointMap);
     }
