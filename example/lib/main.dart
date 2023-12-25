@@ -39,9 +39,9 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   late MapOptions _navigationOption;
   final _vietmapNavigationPlugin = VietMapNavigationPlugin();
 
-  List<LatLng> waypoints = const [
-    LatLng(10.759091, 106.675817),
-    LatLng(10.762528, 106.653099)
+  List<LatLng> waypoints = [
+    const LatLng(10.759091, 106.675817),
+    const LatLng(10.762528, 106.653099)
   ];
   Widget instructionImage = const SizedBox.shrink();
   String guideDirection = "";

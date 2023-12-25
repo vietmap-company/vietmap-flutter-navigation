@@ -810,6 +810,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     private fun Context.addDestinationIconSymbolLayer(loadedMapStyle: Style) {
         val geoJsonSource = GeoJsonSource("destination-source-id")
         loadedMapStyle.addSource(geoJsonSource)
+
         val destinationSymbolLayer =
             SymbolLayer("destination-symbol-layer-id", "destination-source-id")
         destinationSymbolLayer.withProperties(
@@ -826,7 +827,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             cameraPosition.bearing(bearing.toDouble())
         }
 
-        var duration = 3000
+        var duration = 1000
         if (!animateBuildRoute) duration = 1
         vietmapGL?.animateCamera(
             CameraUpdateFactory.newCameraPosition(cameraPosition.build()), duration
