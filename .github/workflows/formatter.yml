@@ -22,7 +22,7 @@ jobs:
         run: |
           dart format .
           git config --global user.name "Format Bot"
-          git config --global user.email "format-bot-flutter-maplibre-gl@localhost"
+          git config --global user.email "format-bot-vietmap-flutter-navigation@localhost"
           git add .
           git commit -m "format: ${{ github.event.commits[0].id }}"
           git push
