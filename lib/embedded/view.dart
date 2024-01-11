@@ -44,12 +44,12 @@ class MapNavigationView extends StatelessWidget {
           );
         },
         onCreatePlatformView: (params) {
-          return PlatformViewsService.initExpensiveAndroidView(
+          return PlatformViewsService.initAndroidView(
             id: params.id,
             viewType: viewType,
             layoutDirection: TextDirection.ltr,
             creationParams: options.toMap(),
-            creationParamsCodec: const StandardMessageCodec(),
+            creationParamsCodec: _decoder,
             onFocus: () {
               params.onFocusChanged(true);
             },

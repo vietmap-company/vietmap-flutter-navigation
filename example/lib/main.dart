@@ -265,7 +265,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                       ),
                     ),
                   )
-                : const SizedBox.shrink()
+                : const SizedBox.shrink(),
           ],
         ),
       ),

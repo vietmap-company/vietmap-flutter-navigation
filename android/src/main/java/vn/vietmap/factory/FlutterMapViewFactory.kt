@@ -87,7 +87,6 @@ import vn.vietmap.vietmapsdk.location.LocationComponentOptions
 import vn.vietmap.vietmapsdk.location.engine.LocationEngine
 import vn.vietmap.vietmapsdk.location.modes.CameraMode
 import vn.vietmap.vietmapsdk.location.modes.RenderMode
-import vn.vietmap.vietmapsdk.location.permissions.PermissionsManager
 import vn.vietmap.vietmapsdk.maps.*
 import vn.vietmap.vietmapsdk.maps.MapView.OnDidFinishRenderingMapListener
 import vn.vietmap.vietmapsdk.maps.VietMapGL.OnMoveListener
@@ -343,7 +342,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                     jsonElement = if (filter == null) null else Gson().toJsonTree(filter)
                 }
                 var jsonArray: JsonArray? = null
-                if (jsonElement != null && jsonElement!!.isJsonArray) {
+                if (jsonElement != null && jsonElement.isJsonArray) {
                     jsonArray = jsonElement.asJsonArray
                 }
                 val filterExpression =
@@ -447,16 +446,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
             )
         }
 
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
     }
 
     private fun overViewRoute() {
@@ -1266,23 +1255,19 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun fetchRouteWithBearing(isStartNavigation: Boolean, profile: String) {
-        if (ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
             fusedLocationClient?.lastLocation?.addOnSuccessListener(
                 activity
             ) { location: Location? ->
                 if (location != null) {
                     getRoute(context, isStartNavigation, location.bearing, profile)
+                }else{
+
+                    getRoute(context, isStartNavigation, null, profile)
                 }
             }
-        } else {
-            getRoute(context, isStartNavigation, null, profile)
-        }
+
     }
 
     override fun onRerouteAlong(directionsRoute: DirectionsRoute?) {
@@ -1296,13 +1281,11 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     }
 
 
-    private fun enableLocationComponent(@NonNull loadedMapStyle: Style) {
-        if (PermissionsManager.areLocationPermissionsGranted(context)) {
+    @SuppressLint("MissingPermission")
+    private fun enableLocationComponent(loadedMapStyle: Style) {
             val customLocationComponentOptions =
                 LocationComponentOptions.builder(context).pulseEnabled(true)
 //                .backgroundDrawable()
-
-
                     .build()
             vietmapGL?.locationComponent?.let { locationComponent ->
                 locationComponent.activateLocationComponent(
@@ -1323,19 +1306,9 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
                 locationComponent.renderMode = RenderMode.GPS
                 locationComponent.locationEngine = locationEngine
 
-                if (ActivityCompat.checkSelfPermission(
-                        context, Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                        context, Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    return
-                }
-
                 locationComponent.isLocationComponentEnabled = true
             }
 
-        }
     }
 
     override fun dispose() {

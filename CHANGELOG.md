@@ -1,3 +1,9 @@
+## 1.5.4
+* Fix android `LocationComponent` overload
+## 1.5.3
+* Upgrade `vietmap_gl_platform_interface` to version `0.1.5`
+## 1.5.2 
+* Fix `NavigationView` display over another widget, when the user pushes from the navigation view to another screen, then hide the app and open the app again
 ## 1.5.1
 * Deprecate `WayPoint` class, use `LatLng` instead
 * Upgrade `vietmap_gl_platform_interface` to `0.1.4`
