@@ -5,12 +5,12 @@ import '../models/route_progress_event.dart';
 
 class BottomActionView extends StatelessWidget {
   const BottomActionView(
-      {Key? key,
+      {super.key,
       this.controller,
       this.routeProgressEvent,
       required this.recenterButton,
       this.onOverviewCallback,
-      this.onStopNavigationCallback}):super(key: key);
+      this.onStopNavigationCallback});
 
   /// this widget use [MapNavigationViewController] to control the map (overview, finish navigation)
   final MapNavigationViewController? controller;
