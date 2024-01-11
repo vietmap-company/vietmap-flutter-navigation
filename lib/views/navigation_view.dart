@@ -17,7 +17,7 @@ class NavigationView extends StatefulWidget {
   /// it will response all events from the map and navigation
   /// and return all information about the route
   const NavigationView(
-      {super.key,
+      {Key? key,
       required this.mapOptions,
       required this.onMapCreated,
       this.onRouteProgressChange,
@@ -36,7 +36,8 @@ class NavigationView extends StatefulWidget {
       this.onMapRendered,
       this.onMapLongClick,
       this.onMapClick,
-      this.onNewRouteSelected});
+      this.onNewRouteSelected})
+      : super(key: key);
 
   /// Setting navigation options for the map
   final MapOptions mapOptions;
