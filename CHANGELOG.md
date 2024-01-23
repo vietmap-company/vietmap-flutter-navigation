@@ -1,3 +1,6 @@
+## 2.0.0-beta
+* Created a new feature to ensure that the API key provided by Vietmap can only be used by the application(s) that register with our system.
+* Add encrypted data for API key verification that cannot be used by 3rd parties without consent from Vietmap or your organization
 ## 1.5.4
 * Fix android `LocationComponent` overload
 ## 1.5.3
