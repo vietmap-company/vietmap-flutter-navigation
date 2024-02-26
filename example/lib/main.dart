@@ -66,8 +66,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
 
-    _navigationOption.apiKey =
-        'YOUR_API_KEY_HERE';
+    _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
         "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${_navigationOption.apiKey}";
 
@@ -88,7 +87,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
 
               _controller?.buildRoute(waypoints: [
                 LatLng(location.latitude, location.longitude),
-                LatLng(10.350045832740465, 107.07618713378906)
+                const LatLng(10.350045832740465, 107.07618713378906)
               ], profile: DrivingProfile.cycling);
             },
             child: const Icon(Icons.delete),
