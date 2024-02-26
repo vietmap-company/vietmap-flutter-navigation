@@ -66,9 +66,10 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
     _navigationOption = _vietmapNavigationPlugin.getDefaultOptions();
     _navigationOption.simulateRoute = false;
 
-    _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
+    _navigationOption.apiKey =
+        'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${_navigationOption.apiKey}";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }
@@ -78,19 +79,24 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: Column(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     FloatingActionButton(
-      //       onPressed: () {
-      //         _controller?.removeAllMarkers();
-      //       },
-      //       child: const Icon(Icons.delete),
-      //     ),
-      //     FloatingActionButton(
-      //         child: const Icon(Icons.mark_email_read), onPressed: () async {}),
-      //   ],
-      // ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () async {
+              var location = await Geolocator.getCurrentPosition();
+
+              _controller?.buildRoute(waypoints: [
+                LatLng(location.latitude, location.longitude),
+                LatLng(10.350045832740465, 107.07618713378906)
+              ], profile: DrivingProfile.cycling);
+            },
+            child: const Icon(Icons.delete),
+          ),
+          FloatingActionButton(
+              child: const Icon(Icons.mark_email_read), onPressed: () async {}),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Stack(
