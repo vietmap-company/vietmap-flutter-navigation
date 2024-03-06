@@ -68,7 +68,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
 
     _navigationOption.apiKey = 'YOUR_API_KEY_HERE';
     _navigationOption.mapStyle =
-        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${_navigationOption.apiKey}";
+        "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=YOUR_API_KEY_HERE";
 
     _vietmapNavigationPlugin.setDefaultOptions(_navigationOption);
   }

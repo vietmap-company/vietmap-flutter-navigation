@@ -4,6 +4,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:enableOnBackInvokedCallback="true"
+
         android:theme="@style/Theme.AppCompat.Light">
         <activity
             android:name=".MainActivity"

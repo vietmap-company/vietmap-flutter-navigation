@@ -1,8 +1,10 @@
 package vn.vietmap.navigation_plugin;
 
 
+import static androidx.core.content.ContextCompat.RECEIVER_EXPORTED;
 import static vn.vietmap.services.android.navigation.v5.navigation.NavigationConstants.NAVIGATION_NOTIFICATION_CHANNEL;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -16,6 +18,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import vn.vietmap.services.android.navigation.v5.navigation.notification.NavigationNotification;
 import vn.vietmap.services.android.navigation.v5.routeprogress.RouteProgress;
@@ -62,15 +65,22 @@ public class CustomNavigationNotification implements NavigationNotification {
     public void onNavigationStopped(Context context) {
         try {
             context.unregisterReceiver(stopNavigationReceiver);
-        }catch(Exception e){}
+        } catch (Exception e) {
+        }
         notificationManager.cancel(CUSTOM_NOTIFICATION_ID);
     }
 
     public void register(BroadcastReceiver stopNavigationReceiver, Context applicationContext) {
         this.stopNavigationReceiver = stopNavigationReceiver;
-        applicationContext.registerReceiver(stopNavigationReceiver, new IntentFilter(STOP_NAVIGATION_ACTION));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            applicationContext.registerReceiver(stopNavigationReceiver, new IntentFilter(STOP_NAVIGATION_ACTION), RECEIVER_EXPORTED);
+        } else {
+            applicationContext.registerReceiver(stopNavigationReceiver, new IntentFilter(STOP_NAVIGATION_ACTION));
+        }
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     private PendingIntent createPendingStopIntent(Context context) {
         Intent stopNavigationIntent = new Intent(STOP_NAVIGATION_ACTION);
         return PendingIntent.getBroadcast(context, 0, stopNavigationIntent, PendingIntent.FLAG_IMMUTABLE);

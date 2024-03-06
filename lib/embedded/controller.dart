@@ -210,6 +210,7 @@ class MapNavigationViewController {
       var wayPoint = waypoints[i];
 
       final pointMap = <String, dynamic>{
+        "Name": i.toString(),
         "Order": i,
         "Latitude": wayPoint.latitude,
         "Longitude": wayPoint.longitude,
