@@ -316,7 +316,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         }
         else if(_navigationMode == "motorcycle")
         {
-            mode = .automobile
+            mode = .init("mapbox/motorcycle")
         }
         
         let routeOptions = NavigationRouteOptions(waypoints: _wayPoints, profileIdentifier: mode)

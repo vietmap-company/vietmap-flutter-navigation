@@ -78,19 +78,24 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: Column(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     FloatingActionButton(
-      //       onPressed: () {
-      //         _controller?.removeAllMarkers();
-      //       },
-      //       child: const Icon(Icons.delete),
-      //     ),
-      //     FloatingActionButton(
-      //         child: const Icon(Icons.mark_email_read), onPressed: () async {}),
-      //   ],
-      // ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () async {
+              var location = await Geolocator.getCurrentPosition();
+
+              _controller?.buildRoute(waypoints: [
+                LatLng(location.latitude, location.longitude),
+                const LatLng(10.350045832740465, 107.07618713378906)
+              ], profile: DrivingProfile.cycling);
+            },
+            child: const Icon(Icons.delete),
+          ),
+          FloatingActionButton(
+              child: const Icon(Icons.mark_email_read), onPressed: () async {}),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Stack(

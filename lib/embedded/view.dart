@@ -34,6 +34,14 @@ class MapNavigationView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
       // using Hybrid Composition
+
+      // return AndroidView(
+      //   viewType: viewType,
+      //   onPlatformViewCreated: _onPlatformViewCreated,
+      //   gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+      //   creationParams: options.toMap(),
+      //   creationParamsCodec: const StandardMessageCodec(),
+      // );
       return PlatformViewLink(
         viewType: viewType,
         surfaceFactory: (context, controller) {
