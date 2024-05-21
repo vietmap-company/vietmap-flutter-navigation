@@ -1,11 +1,9 @@
 package vn.vietmap.factory
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -17,8 +15,8 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.NonNull
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
@@ -224,6 +222,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
     companion object {
 
+        private var disposed = false
         //Config
         var initialLatitude: Double? = null
         var initialLongitude: Double? = null
@@ -918,6 +917,59 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
 
     }
 
+
+    override fun onCreate(owner: LifecycleOwner) {
+        if (disposed) {
+            return
+        }
+        mapView.onCreate(null)
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        if (disposed) {
+            return
+        }
+        mapView.onStart()
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        if (disposed) {
+            return
+        }
+        mapView.onResume()
+        recenter()
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        if (disposed) {
+            return
+        }
+        mapView.onPause()
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        if (disposed) {
+            return
+        }
+        mapView.onStop()
+    }
+
+
+    private fun destroyMapViewIfNecessary() {
+        if (mapView == null) {
+            return
+        }
+        mapView.onStop()
+        mapView.onDestroy()
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        owner.lifecycle.removeObserver(this)
+        if (disposed) {
+            return
+        }
+        destroyMapViewIfNecessary()
+    }
     override fun onActivityStarted(activity: Activity) {
 
         try {
@@ -925,6 +977,8 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
         } catch (e: java.lang.Exception) {
             Timber.i(String.format("onActivityStarted, %s", "Error: ${e.message}"))
         }
+
+        mapView.onResume()
     }
 
     override fun onActivityResumed(activity: Activity) {
@@ -1314,6 +1368,12 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler,
     override fun dispose() {
         isDisposed = true
         mapReady = false
+
+        if (disposed) {
+            return
+        }
+        disposed = true
+        methodChannel.setMethodCallHandler(null)
         if (voiceInstructionsEnabled) {
             try {
                 speechPlayer?.onDestroy()

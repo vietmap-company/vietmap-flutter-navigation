@@ -1,3 +1,6 @@
+## 2.0.0
+* Release v2.0.0
+* Fix navigation view not show on first load with android 10
 ## 2.0.0-beta-4
 * Upgrade `targetSDK` and `compileSDK` to 34
 ## 2.0.0-beta-3
