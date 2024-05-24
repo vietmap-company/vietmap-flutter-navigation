@@ -4,11 +4,11 @@
 
 Contact [vietmap.vn](https://bit.ly/vietmap-api) to register a valid key.
 
-[Tài liệu tiếng Việt](./README.vi.md)
+<!-- [Tài liệu tiếng Việt](./README.vi.md) -->
 
 ## Getting started
 
-Add library to pubspec.yaml file
+Add library to `pubspec.yaml` file
 ```yaml
   vietmap_flutter_navigation: latest_version
 ```
