@@ -1,3 +1,9 @@
+## 2.1.1
+* Fix `NavigationView` display over another widget while hide the app and open the app again
+* Optimize `NavigationView` performance
+* Fix memory leaks while hide the app and open the app again with android 10 and above
+## 2.1.0
+* Add example project
 ## 2.0.0
 * Release v2.0.0
 * Fix navigation view not show on first load with android 10

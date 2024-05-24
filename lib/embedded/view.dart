@@ -5,7 +5,6 @@ import 'package:vietmap_flutter_navigation/models/route_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -35,38 +34,38 @@ class MapNavigationView extends StatelessWidget {
     if (Platform.isAndroid) {
       // using Hybrid Composition
 
-      // return AndroidView(
-      //   viewType: viewType,
-      //   onPlatformViewCreated: _onPlatformViewCreated,
-      //   gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
-      //   creationParams: options.toMap(),
-      //   creationParamsCodec: const StandardMessageCodec(),
-      // );
-      return PlatformViewLink(
+      return AndroidView(
         viewType: viewType,
-        surfaceFactory: (context, controller) {
-          return AndroidViewSurface(
-            controller: controller as AndroidViewController,
-            gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
-            hitTestBehavior: PlatformViewHitTestBehavior.opaque,
-          );
-        },
-        onCreatePlatformView: (params) {
-          return PlatformViewsService.initAndroidView(
-            id: params.id,
-            viewType: viewType,
-            layoutDirection: TextDirection.ltr,
-            creationParams: options.toMap(),
-            creationParamsCodec: _decoder,
-            onFocus: () {
-              params.onFocusChanged(true);
-            },
-          )
-            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-            ..addOnPlatformViewCreatedListener(_onPlatformViewCreated)
-            ..create();
-        },
+        onPlatformViewCreated: _onPlatformViewCreated,
+        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+        creationParams: options.toMap(),
+        creationParamsCodec: const StandardMessageCodec(),
       );
+      // return PlatformViewLink(
+      //   viewType: viewType,
+      //   surfaceFactory: (context, controller) {
+      //     return AndroidViewSurface(
+      //       controller: controller as AndroidViewController,
+      //       gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+      //       hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+      //     );
+      //   },
+      //   onCreatePlatformView: (params) {
+      //     return PlatformViewsService.initAndroidView(
+      //       id: params.id,
+      //       viewType: viewType,
+      //       layoutDirection: TextDirection.ltr,
+      //       creationParams: options.toMap(),
+      //       creationParamsCodec: _decoder,
+      //       onFocus: () {
+      //         params.onFocusChanged(true);
+      //       },
+      //     )
+      //       ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+      //       ..addOnPlatformViewCreatedListener(_onPlatformViewCreated)
+      //       ..create();
+      //   },
+      // );
     } else if (Platform.isIOS) {
       return UiKitView(
           viewType: viewType,
