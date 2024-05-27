@@ -1,3 +1,6 @@
+## 2.1.2
+* Fix error when fetch route on android 9 and below
+* Update navigation instruction icon for example project
 ## 2.1.1
 * Fix `NavigationView` display over another widget while hide the app and open the app again
 * Optimize `NavigationView` performance
