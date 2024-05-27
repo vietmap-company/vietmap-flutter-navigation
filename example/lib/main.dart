@@ -83,6 +83,11 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
         child: Stack(
           children: [
             NavigationView(
+              onRouteBuildFailed: (p0) {
+                EasyLoading.dismiss();
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Không thể tìm tuyến đường')));
+              },
               onMarkerClicked: (p0) {
                 debugPrint(p0.toString());
                 log("marker clicked");

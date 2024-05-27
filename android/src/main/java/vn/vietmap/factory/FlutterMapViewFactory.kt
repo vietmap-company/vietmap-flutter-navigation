@@ -176,7 +176,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
         eventChannel = EventChannel(messenger, "navigation_plugin/${viewId}/events")
         eventChannel.setStreamHandler(this)
 
-        fusedLocationClient = activity?.let { LocationServices.getFusedLocationProviderClient(it) }
+        fusedLocationClient = this.activity?.let { LocationServices.getFusedLocationProviderClient(it) }
         options =
             VietMapGLOptions.createFromAttributes(context).compassEnabled(false).logoEnabled(true)
 
@@ -673,7 +673,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     override fun onMapReady(map: VietMapGL) {
-        Log.d("Lifecycle", "onMapReady")
         if (mapReadyResult != null) {
             mapReadyResult!!.success(null)
             mapReadyResult = null
@@ -683,9 +682,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
         if (simulateRoute) {
             locationEngine = ReplayRouteLocationEngine()
         }
-        Log.d("Lifecycle", "----------------------------------------")
-        print(vietmapGL)
-        Log.d("Lifecycle", "----------------------------------------")
         vietmapGL?.setStyle(mapStyleURL?.let { Style.Builder().fromUri(it) }) { style ->
             vietmapGL?.addOnMoveListener(object : OnMoveListener {
                 override fun onMoveBegin(moveGestureDetector: MoveGestureDetector) {
@@ -903,7 +899,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
 
     override fun onCreate(owner: LifecycleOwner) {
-        Log.d("Lifecycle", "onCreate")
 
         if (disposed) {
             return
@@ -913,7 +908,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        Log.d("Lifecycle", "onStart")
         if (disposed) {
             return
         }
@@ -926,7 +920,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     override fun onResume(owner: LifecycleOwner) {
 
-        Log.d("Lifecycle", "onResume")
         if (disposed) {
             return
         }
@@ -936,7 +929,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     override fun onPause(owner: LifecycleOwner) {
 
-        Log.d("Lifecycle", "onPause")
         if (disposed) {
             return
         }
@@ -945,7 +937,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     override fun onStop(owner: LifecycleOwner) {
 
-        Log.d("Lifecycle", "onStop")
         if (disposed) {
             return
         }
@@ -955,7 +946,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     private fun destroyMapViewIfNecessary() {
 
-        Log.d("Lifecycle", "onDestroyMap")
         if (mapView == null) {
             return
         }
@@ -967,7 +957,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     override fun onDestroy(owner: LifecycleOwner) {
 
-        Log.d("Lifecycle", "onDestroy")
         owner.lifecycle.removeObserver(this)
         if (disposed) {
             return
@@ -977,7 +966,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     fun init() {
 
-        Log.d("Lifecycle", "addObserver")
         mapView = MapView(context, options)
 
         lifecycleProvider?.getVietMapLifecycle()?.addObserver(this)
@@ -998,10 +986,6 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
             )
         }
         configSpeechPlayer()
-        Log.d("Lifecycle", "getMapAsync")
-
-
-        Log.d("Lifecycle", "onInitCalled")
 
     }
 
