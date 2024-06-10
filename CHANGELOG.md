@@ -1,3 +1,5 @@
+## 2.2.0 
+* Upgrade `vietmap_gl_platform_interface` to version `0.2.0`
 ## 2.1.2
 * Fix error when fetch route on android 9 and below
 * Update navigation instruction icon for example project
