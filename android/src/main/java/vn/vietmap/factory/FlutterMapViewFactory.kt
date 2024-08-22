@@ -346,7 +346,26 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
                 reply["features"] = featuresJson
                 result.success(reply)
             }
+            "animateCamera" -> {
+                val location = LatLng(
+                    methodCall.argument("latitude")!! ,
+                    methodCall.argument("longitude")!!
+                )
 
+                PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
+                isOverviewing = true
+                 animateCamera(location, methodCall.argument("bearing") as? Float?, methodCall.argument("duration")?:1000,methodCall.argument("zoom") as? Double?,methodCall.argument("tilt") as? Double?)
+            }
+            "moveCamera" -> {
+                val location = LatLng(
+                    methodCall.argument("latitude")!!,
+                    methodCall.argument("longitude")!!
+                )
+
+                PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
+                isOverviewing = true
+                moveCameraWithoutAnimation(location, methodCall.argument("bearing") as? Float?, methodCall.argument("zoom") as? Double?, methodCall.argument("tilt") as? Double?)
+            } 
             "onDispose" -> {
                 try {
                     isDisposed = true
@@ -801,7 +820,41 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
             CameraUpdateFactory.newCameraPosition(cameraPosition.build()), duration
         )
     }
+    private  fun animateCamera(location: LatLng, bearing: Float?, duration: Int = 1000, zoom: Double? ,tilt: Double?) {
+        // println("Camera is moving")
+        val cameraPosition = CameraPosition.Builder().target(location)
+        zoom?.let {
+            cameraPosition.zoom(it)
+        }
+        tilt?.let {
+            cameraPosition.tilt(it)
+        }
 
+        if (bearing != null) {
+            cameraPosition.bearing(bearing.toDouble())
+        }
+        vietmapGL?.animateCamera(
+            CameraUpdateFactory.newCameraPosition(cameraPosition.build()), duration
+        )
+    }
+    private fun moveCameraWithoutAnimation(location: LatLng, bearing: Float?, zoom: Double? ,tilt: Double?) {
+        // println("Camera is moving")
+
+        val cameraPosition = CameraPosition.Builder().target(location)
+        zoom?.let {
+            cameraPosition.zoom(it)
+        }
+        tilt?.let {
+            cameraPosition.tilt(it)
+        }
+        if (bearing != null) {
+            cameraPosition.bearing(bearing.toDouble())
+        }
+
+        vietmapGL?.moveCamera(
+            CameraUpdateFactory.newCameraPosition(cameraPosition.build())
+        )
+    }
 
     private fun getRoute(
         context: Context, isStartNavigation: Boolean, bearing: Float?, profile: String

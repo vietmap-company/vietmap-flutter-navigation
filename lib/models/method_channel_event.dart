@@ -17,4 +17,6 @@ class MethodChannelEvent {
   static const String removeMarkers = "removeMarkers";
   static const String removeAllMarkers = "removeAllMarkers";
   static const String queryRenderedFeatures = "queryRenderedFeatures";
+  static const String moveCamera = "moveCamera";
+  static const String animateCamera = "animateCamera";
 }

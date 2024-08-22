@@ -101,4 +101,20 @@ abstract class VietmapNavigationPluginPlatform extends PlatformInterface {
       'registerEventListener() has not been implemented.',
     );
   }
+
+  Future<void> moveCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    throw UnimplementedError('moveCamera() has not been implemented.');
+  }
+
+  Future<void> animateCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    throw UnimplementedError('animateCamera() has not been implemented.');
+  }
 }

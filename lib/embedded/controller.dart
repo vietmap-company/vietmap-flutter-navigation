@@ -176,6 +176,38 @@ class MapNavigationViewController {
     //     MethodChannelEvent.setCenterIcon, centerIcon);
   }
 
+  // move camera to a specific location
+  Future<void> moveCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    return _methodChannel.invokeMethod(MethodChannelEvent.moveCamera, {
+      'latitude': latLng.latitude,
+      'longitude': latLng.longitude,
+      'bearing': bearing,
+      'zoom': zoom,
+      'tilt': tilt
+    });
+  }
+
+  // animate camera to a specific location
+  Future<void> animateCamera(
+      {required LatLng latLng,
+      double? bearing,
+      Duration duration = const Duration(milliseconds: 1000),
+      double? zoom,
+      double? tilt}) async {
+    return _methodChannel.invokeMethod(MethodChannelEvent.animateCamera, {
+      'latitude': latLng.latitude,
+      'longitude': latLng.longitude,
+      'bearing': bearing,
+      'zoom': zoom,
+      'tilt': tilt,
+      'duration': duration.inMilliseconds
+    });
+  }
+
   Future<void> recenter({MapOptions? options}) async {
     Map<String, dynamic>? args;
     if (options != null) args = options.toMap();

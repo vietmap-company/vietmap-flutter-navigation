@@ -1,8 +1,8 @@
 class VietmapReverse {
-  double? lat;
-  double? lng;
+  num? lat;
+  num? lng;
   String? refId;
-  double? distance;
+  num? distance;
   String? address;
   String? name;
   String? display;

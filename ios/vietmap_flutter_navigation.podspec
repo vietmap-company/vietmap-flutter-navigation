@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'vietmap_flutter_navigation'
-  s.version          = '0.0.1'
+  s.version          = '0.0.2'
   s.summary          = 'Vietmap flutter navigation.'
   s.description      = <<-DESC
 Vietmap flutter navigation.
@@ -15,8 +15,8 @@ Vietmap flutter navigation.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'VietMapNavigation', '2.1.8'
-  s.dependency 'VietMapCoreNavigation', '2.1.5'
+  s.dependency 'VietMapNavigation', '~> 3.0.1'
+  s.dependency 'VietMapCoreNavigation', '3.0.0'
   s.platform = :ios, '12.0'
   # Flutter.framework does not contain a i386 slice.
   # s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386', 'FRAMEWORK_SEARCH_PATHS' => '$(PROJECT_DIR)/Frameworks' }

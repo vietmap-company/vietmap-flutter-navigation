@@ -78,6 +78,16 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _controller?.moveCamera(
+              latLng: const LatLng(22.762528, 106.653099),
+              zoom: 8,
+              tilt: 0,
+              bearing: 0);
+        },
+        child: const Icon(Icons.animation),
+      ),
       body: SafeArea(
         top: false,
         child: Stack(
@@ -328,7 +338,8 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
 
                 waypoints.add(LatLng(location.latitude, location.longitude));
                 if (data.lat != null) {
-                  waypoints.add(LatLng(data.lat ?? 0, data.lng ?? 0));
+                  waypoints.add(LatLng(
+                      data.lat?.toDouble() ?? 0, data.lng?.toDouble() ?? 0));
                 }
                 _controller?.buildRoute(waypoints: waypoints);
                 if (!mounted) return;
@@ -340,7 +351,8 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 var location = await Geolocator.getCurrentPosition();
                 waypoints.add(LatLng(location.latitude, location.longitude));
                 if (data.lat != null) {
-                  waypoints.add(LatLng(data.lat ?? 0, data.lng ?? 0));
+                  waypoints.add(LatLng(
+                      data.lat?.toDouble() ?? 0, data.lng?.toDouble() ?? 0));
                 }
                 _controller?.buildAndStartNavigation(
                     waypoints: waypoints,

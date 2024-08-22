@@ -102,6 +102,38 @@ class MethodChannelVietmapNavigationPlugin
   }
 
   @override
+  Future<void> moveCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    final args = <String, dynamic>{
+      'latitude': latLng.latitude,
+      'longitude': latLng.longitude,
+      'bearing': bearing,
+      'zoom': zoom,
+      'tilt': tilt
+    };
+    await methodChannel.invokeMethod('moveCamera', args);
+  }
+
+  @override
+  Future<void> animateCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    final args = <String, dynamic>{
+      'latitude': latLng.latitude,
+      'longitude': latLng.longitude,
+      'bearing': bearing,
+      'zoom': zoom,
+      'tilt': tilt
+    };
+    await methodChannel.invokeMethod('animateCamera', args);
+  }
+
+  @override
   Future<dynamic> registerRouteEventListener(
     ValueSetter<RouteEvent> listener,
   ) async {
