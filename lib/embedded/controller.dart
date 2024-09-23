@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math' hide log;
-import 'dart:typed_data';
 
 import 'package:vietmap_flutter_navigation/extension.dart';
 import 'package:vietmap_flutter_navigation/models/events.dart';

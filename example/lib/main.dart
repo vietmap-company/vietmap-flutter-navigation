@@ -93,8 +93,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
           ),
           FloatingActionButton(
             onPressed: () async {
-              List<NavigationMarker>? markers =
-                  await _controller?.addImageMarkers([
+              await _controller?.addImageMarkers([
                 NavigationMarker(
                     width: 120,
                     height: 120,
@@ -261,7 +260,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                         children: [
                           ElevatedButton(
                               style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
+                                  shape: WidgetStateProperty.all<
                                           RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                           borderRadius:
@@ -275,7 +274,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                               child: const Text('Bắt đầu')),
                           ElevatedButton(
                               style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
+                                  shape: WidgetStateProperty.all<
                                           RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                           borderRadius:

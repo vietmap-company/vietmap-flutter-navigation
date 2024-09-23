@@ -1,4 +1,5 @@
 ## 3.1.0
+* Improve navigation UX on iOS
 * Add width and height for `NavigationMarker`.
 * Fix required iOS version
 * Snap user location to map
