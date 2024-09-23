@@ -7,18 +7,18 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - VietMap (2.0.0)
-  - vietmap_flutter_navigation (0.0.2):
+  - vietmap_flutter_navigation (0.0.3):
     - Flutter
-    - VietMapCoreNavigation (= 3.0.0)
-    - VietMapNavigation (~> 3.0.1)
-  - VietMapCoreNavigation (3.0.0):
+    - VietMapCoreNavigation (= 3.1.0)
+    - VietMapNavigation (= 3.1.0)
+  - VietMapCoreNavigation (3.1.0):
     - VietMapDirections.swift (~> 2.0.1)
     - VietMapTurf (~> 1.0.2)
   - VietMapDirections.swift (2.0.1):
     - VietMapPolyline (~> 1.0.4)
-  - VietMapNavigation (3.0.1):
+  - VietMapNavigation (3.1.0):
     - VietMap (~> 2.0.0)
-    - VietMapCoreNavigation (= 3.0.0)
+    - VietMapCoreNavigation (= 3.1.0)
     - VietMapSolar (~> 1.0.3)
     - VietMapSpeech (~> 2.0.1)
   - VietMapPolyline (1.0.6)
@@ -62,10 +62,10 @@ SPEC CHECKSUMS:
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
   VietMap: 1fc4a1e27896a19bc8b8a62e2227b1e0116a698d
-  vietmap_flutter_navigation: e3439dcfb08ff53c3955e077d8775bae54e218da
-  VietMapCoreNavigation: 1eda679fee729fd4d928af9e4d5a3811124c96d7
+  vietmap_flutter_navigation: 122c1ee0967f79ba98116aefb9bee0b2f5b09c1b
+  VietMapCoreNavigation: a5a6e2bed913c321abafca37286647b5b1dc52ed
   VietMapDirections.swift: d622c98e381281b39f7dcac2b0445ee2f6e1690e
-  VietMapNavigation: 256fedd742c12fdf501a3bcf28a422896e9d0a0f
+  VietMapNavigation: 5ce945d61be8a6d2c32e4b37a02c7c99fdffa053
   VietMapPolyline: e599c6d0a0a4b3672957881e2f666ba2141a4e83
   VietMapSolar: ef412e72efb00b700f2223e701cae66b446bf17b
   VietMapSpeech: fe5bd0c2ed2757aa7ac59337d74480e25e5a36ed

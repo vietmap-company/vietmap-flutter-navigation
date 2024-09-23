@@ -41,7 +41,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             navigationMapView?.showWaypoints(current)
         }
     }
-    
+    var currentLocation: CLLocation?
     var routeController: RouteController?
     var arguments: NSDictionary?
     var wayPoints = [Waypoint]()
@@ -52,6 +52,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
     var coordinates: [CLLocationCoordinate2D]?
     var isClickOnRoute:Bool=false
     var dataCustomImage: Data?
+    var markerWidth: Int?
+    var markerHeight: Int?
     var listMarker = [Int : Any]()
     // MARK: - Handle Flutter method
     init(messenger: FlutterBinaryMessenger, frame: CGRect, viewId: Int64, args: Any?)
@@ -200,6 +202,8 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
             {
                 //used to recenter map from user action during navigation
                 strongSelf.navigationMapView.recenterMap()
+                
+                strongSelf.navigationMapView.setCenter(CLLocationCoordinate2D(latitude: (strongSelf.currentLocation?.coordinate.latitude)!, longitude: (strongSelf.currentLocation?.coordinate.longitude)!), zoomLevel: self!._zoom, animated: true)
                 
                 strongSelf.navigationMapView.tracksUserCourse = true
                 
@@ -499,22 +503,55 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         result(true)
     }
     
+    // Function to resize the UIImage
+    func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+
+        // Determine the scale factor that preserves aspect ratio
+        let scaleFactor = min(widthRatio, heightRatio)
+
+        // Calculate the new size that preserves aspect ratio
+        let scaledImageSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
+
+        // Create a new context for the resized image
+        UIGraphicsBeginImageContextWithOptions(scaledImageSize, false, 0.0)
+        image.draw(in: CGRect(origin: .zero, size: scaledImageSize))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizedImage ?? image
+    }
+    
     func addMarker(arguments: NSDictionary?, result: @escaping FlutterResult) {
         let data = arguments?.allValues
         var listMarkerId = [Int]()
         for (_, element) in data!.enumerated() {
-            let myFlutterData = ((element as? NSDictionary)?["imageBase64"]) as? String
+            let el: NSDictionary? = (element as? NSDictionary?) ?? nil
+            let myFlutterData = (el?["imageBase64"]) as? String
             let myData = Data(base64Encoded:myFlutterData!)!
             dataCustomImage = myData
+            markerWidth = el?["width"] as? Int
+            markerHeight = el?["height"] as? Int
             let markerImage = UIImage(data: myData)
-            _ = MLNAnnotationImage(image: markerImage!, reuseIdentifier: "custom-marker")
+            var resizedImage : UIImage? = nil
+            if(el?["width"] != nil && el?["height"] != nil){
+                resizedImage = resizeImage(image: markerImage!, targetSize: CGSize(width: el!["width"] as! Int, height: el!["height"] as! Int))
+            }
+            else{
+                resizedImage = markerImage
+            }
+ 
+            
+            _ = MLNAnnotationImage(image: resizedImage!, reuseIdentifier: "custom-marker")
             // Create a custom MLNPointAnnotation
             let customMarker = MLNPointAnnotation()
-            customMarker.coordinate = CLLocationCoordinate2D(latitude: (element as? NSDictionary)!["latitude"]! as! CLLocationDegrees, longitude: (element as? NSDictionary)!["longitude"] as! CLLocationDegrees)
+            customMarker.coordinate = CLLocationCoordinate2D(latitude: el!["latitude"]! as! CLLocationDegrees, longitude: el!["longitude"] as! CLLocationDegrees)
             
             
-            customMarker.title = (element as? NSDictionary)!["title"] as? String
-            customMarker.subtitle = (element as? NSDictionary)!["snippet"] as? String
+            customMarker.title = el!["title"] as? String
+            customMarker.subtitle = el!["snippet"] as? String
             
             listMarker.updateValue(customMarker, forKey: markerId)
             // Add the annotation to the map
@@ -524,21 +561,26 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         }
         result(listMarkerId)
     }
-    
+//    func snapLocationToRoute(){
+//        let options = SnapToRouteOptions(route: routeController!.routeProgress.route, location: currentLocation!, distance: 50)
+//        let snappedCoordinate = navigationMapView.mapView.mapboxMap.coordinate(for: currentLocation!.coordinate)
+//        let snappedLocation = CLLocation(latitude: snappedCoordinate.latitude, longitude: snappedCoordinate.longitude)
+//        routeController?.locationManager.updateLocation(snappedLocation)
+//    }
     func suspendNotifications() {
         NotificationCenter.default.removeObserver(self, name: .routeControllerProgressDidChange, object: nil)
         NotificationCenter.default.removeObserver(self, name: .routeControllerWillReroute, object: nil)
     }
     // MARK: - onProgressChange
-    @objc func progressDidChange(_ notification: NSNotification) {
-
+    @objc func progressDidChange(_ notification: NSNotification) { 
         let routeProgress = notification.userInfo![RouteControllerNotificationUserInfoKey.routeProgressKey] as! RouteProgress
         let location = notification.userInfo![RouteControllerNotificationUserInfoKey.locationKey] as! CLLocation
+        currentLocation = location
         let rawLocation = notification.userInfo![RouteControllerNotificationUserInfoKey.rawLocationKey] as! CLLocation
         // Update the user puck
         let camera = MLNMapCamera(lookingAtCenter: location.coordinate, altitude: 250, pitch: 60, heading: location.course) 
         
-        navigationMapView.updateCourseTracking(location: location, camera: camera, animated: true)
+        navigationMapView.updateCourseTracking(location: location, camera: camera, animated: false)
         _distanceRemaining = routeProgress.distanceRemaining
         _durationRemaining = routeProgress.durationRemaining
         sendEvent(eventType: MapEventType.navigationRunning)
@@ -602,7 +644,15 @@ extension FlutterMapNavigationView : MLNMapViewDelegate {
     
     public func mapView(_ mapView: MLNMapView, imageFor annotation: MLNAnnotation) -> MLNAnnotationImage? {
         guard let dataCustomImage = dataCustomImage else { return annotation as? MLNAnnotationImage}
-        let image = UIImage(data: dataCustomImage)
+        let img = UIImage(data: dataCustomImage)
+        var image : UIImage? = nil
+        if(markerWidth != nil && markerHeight != nil){
+            image = resizeImage(image: img!, targetSize: CGSize(width: markerWidth!, height: markerHeight!))
+        }
+        else{
+            image = img
+        }
+        
         guard let image = image else { return annotation as? MLNAnnotationImage}
         if #available(iOS 13.0, *) {
             image.withTintColor(UIColor.red)
@@ -682,6 +732,7 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
         sendEvent(eventType: MapEventType.onMapClick, data: encodeClickPosition(location: location,position: screenPosition))
     }
     @objc public func mapViewRegionIsChanging(_ mapView: MLNMapView) {
+        navigationMapView.updateCourseTracking(location: currentLocation, animated: false) 
 //        throttler.throttle {
 //            print("Map is changinggggg")
 //            self.sendEvent(eventType: MapEventType.onMapMove)
@@ -697,6 +748,7 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
         if gestureRecognizer.state == .began {
         
         } else if gestureRecognizer.state == .changed {
+            navigationMapView.updateCourseTracking(location: currentLocation, animated: true)
             sendEvent(eventType: MapEventType.onMapMove)
         } else if gestureRecognizer.state == .ended {
             sendEvent(eventType: MapEventType.onMapMoveEnd)
@@ -726,7 +778,6 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
             return success(routes)
         }
         let apiUrl = Directions.shared.url(forCalculating: options)
-        print("API Request URL: \(apiUrl)")
         Directions.shared.calculate(options, completionHandler: handler)
     }
 }
@@ -739,13 +790,13 @@ extension FlutterMapNavigationView: RouteControllerDelegate {
         return true
     }
     
-    public override func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
-        if(canceled)
-        {
-            UIApplication.shared.isIdleTimerDisabled = false
-            sendEvent(eventType: MapEventType.navigationCancelled)
-            sendEvent(eventType: MapEventType.navigationFinished)
-        }
-    }
+//    public override func navigationViewControllerDidDismiss(_ navigationViewController: NavigationViewController, byCanceling canceled: Bool) {
+//        if(canceled)
+//        {
+//            UIApplication.shared.isIdleTimerDisabled = false
+//            sendEvent(eventType: MapEventType.navigationCancelled)
+//            sendEvent(eventType: MapEventType.navigationFinished)
+//        }
+//    }
 }
 

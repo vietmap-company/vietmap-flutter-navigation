@@ -91,7 +91,6 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
             return success(routes)
         }
         let apiUrl = Directions.shared.url(forCalculating: options)
-        print("API Request URL: \(apiUrl)")
         Directions.shared.calculate(options, completionHandler: handler)
     }
     
@@ -104,11 +103,12 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     func startNavigationWithRoute(simulated: Bool = false) {
         guard let route = _routes?.first else { return }
         
-        _navigationViewController = NavigationViewController(
-            for: route,
-            styles: [NightStyle()],
-            locationManager: getNavigationLocationManager(simulated: simulated)
-        )
+//        _navigationViewController = NavigationViewController(
+//            for: route,
+//            styles: [NightStyle()],
+//            locationManager: getNavigationLocationManager(simulated: simulated)
+//        )
+        _navigationViewController = NavigationViewController(dayStyle:DayStyle(mapStyleURL:URL(string: _url)!))
         _navigationViewController?.delegate = self
         configureMapView()
         let flutterViewController = UIApplication.shared.delegate?.window??.rootViewController as! FlutterViewController
@@ -116,11 +116,11 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     }
     
     private func configureMapView() {
-        _navigationViewController?.mapView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        _navigationViewController?.routeController.reroutesProactively = true
-        _navigationViewController?.mapView?.styleURL = URL(string: _url);
-        _navigationViewController?.mapView?.userTrackingMode = .follow
-        _navigationViewController?.mapView?.showsUserHeadingIndicator = true
+        _navigationViewController?.mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        _navigationViewController?.routeController?.reroutesProactively = true
+        _navigationViewController?.mapView.styleURL = URL(string: _url);
+        _navigationViewController?.mapView.userTrackingMode = .follow
+        _navigationViewController?.mapView.showsUserHeadingIndicator = true
     }
     
     func getNavigationLocationManager(simulated: Bool) -> NavigationLocationManager {
@@ -165,7 +165,7 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
         if(self._navigationViewController != nil)
         {
             endNotifications()
-            self._navigationViewController?.routeController.endNavigation()
+            self._navigationViewController?.routeController?.endNavigation()
             self._navigationViewController?.dismiss(animated: true, completion: {
                 self._navigationViewController = nil
                 if(result != nil)
@@ -186,9 +186,9 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
     
     @objc func reRouted(_ notification: NSNotification) {
         if let userInfo = notification.object as? RouteController {
-            self._navigationViewController?.mapView?.showRoutes([userInfo.routeProgress.route])
-            self._navigationViewController?.mapView?.tracksUserCourse = true
-            self._navigationViewController?.mapView?.recenterMap()
+            self._navigationViewController?.mapView.showRoutes([userInfo.routeProgress.route])
+            self._navigationViewController?.mapView.tracksUserCourse = true
+            self._navigationViewController?.mapView.recenterMap()
         }
     }
     

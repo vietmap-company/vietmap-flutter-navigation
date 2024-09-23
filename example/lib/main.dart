@@ -78,15 +78,38 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _controller?.moveCamera(
-              latLng: const LatLng(22.762528, 106.653099),
-              zoom: 8,
-              tilt: 0,
-              bearing: 0);
-        },
-        child: const Icon(Icons.animation),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              _controller?.moveCamera(
+                  latLng: const LatLng(22.762528, 106.653099),
+                  zoom: 8,
+                  tilt: 0,
+                  bearing: 0);
+            },
+            child: const Icon(Icons.animation),
+          ),
+          FloatingActionButton(
+            onPressed: () async {
+              List<NavigationMarker>? markers =
+                  await _controller?.addImageMarkers([
+                NavigationMarker(
+                    width: 120,
+                    height: 120,
+                    imagePath: 'assets/50.png',
+                    latLng: const LatLng(10.762528, 106.653099)),
+                NavigationMarker(
+                    imagePath: 'assets/40.png',
+                    latLng: const LatLng(10.762528, 106.753099),
+                    width: 80,
+                    height: 80),
+              ]);
+            },
+            child: const Icon(Icons.animation),
+          ),
+        ],
       ),
       body: SafeArea(
         top: false,
@@ -160,7 +183,10 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                 }, (r) => _showBottomSheetInfo(r));
               },
               onRouteProgressChange: (RouteProgressEvent routeProgressEvent) {
-                // print('---------------------');
+                // print('-----------ProgressChange----------');
+                // print(routeProgressEvent.currentLocation?.bearing);
+                // print(routeProgressEvent.currentLocation?.altitude);
+                // print(routeProgressEvent.currentLocation?.accuracy);
                 // print(routeProgressEvent.currentLocation?.bearing);
                 // print(routeProgressEvent.currentLocation?.latitude);
                 // print(routeProgressEvent.currentLocation?.longitude);

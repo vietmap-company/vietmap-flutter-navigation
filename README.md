@@ -311,9 +311,12 @@ We provide the `addImageMarkers` function to add multiple markers to the map
       latLng: const LatLng(10.762528, 106.653099)),
     NavigationMarker(
         imagePath: 'assets/40.png',
-        latLng: const LatLng(10.762528, 106.753099)),
+        latLng: const LatLng(10.762528, 106.753099),
+        width: 80,
+        height: 80),
   ]);
 ``` 
+- NOTE: The width and height must be both null or both have a value. If one of them has a value, the other must have a value too.
 
 ## Troubleshooting
 - We strongly recommend you call the **_navigationController?.buildRouteAndStartNavigation()** in a `button` or `onMapRendered` callback, which is called when the map is rendered successfully to ensure that the application does not crash while executing some function while our SDK is rendering the map. 

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math' hide log;
+import 'dart:typed_data';
+
 import 'package:vietmap_flutter_navigation/extension.dart';
 import 'package:vietmap_flutter_navigation/models/events.dart';
 import 'package:vietmap_flutter_navigation/models/method_channel_event.dart';
@@ -120,13 +122,12 @@ class MapNavigationViewController {
 
   /// Add a Marker Group to the Map
   /// [imagePath] is the path to the image asset, allow only image in [png], [jpeg], [jpg] format
-
   Future<List<NavigationMarker>> addImageMarkers(
       List<NavigationMarker> markers) async {
     List<Map<String, dynamic>> markerList = [];
     await Future.forEach(markers, (NavigationMarker marker) async {
       try {
-        var data = await rootBundle.load(marker.imagePath);
+        ByteData data = await rootBundle.load(marker.imagePath);
         var jsonData = marker.toJson();
         if (Platform.isAndroid) {
           var bytes =
@@ -149,7 +150,6 @@ class MapNavigationViewController {
 
     List<Object?> listMarkerId = await _methodChannel.invokeMethod(
         MethodChannelEvent.addMarkers, markerMap);
-    debugPrint(listMarkerId.toString());
     if (listMarkerId.isNotEmpty) {
       for (var element in markers) {
         element.markerId = listMarkerId[markers.indexOf(element)] as int?;

@@ -1,4 +1,7 @@
-## 3.1.0-pre.1
+## 3.1.0
+* Add width and height for `NavigationMarker`.
+* Fix required iOS version
+* Snap user location to map
 * Add `moveCamera` and `animateCamera` method for `MapNavigationViewController`
 ## 3.0.0
 * Fix route not build on android 12 and above
