@@ -1,3 +1,15 @@
+## 3.1.0
+* Add width and height for `NavigationMarker`.
+* Fix required iOS version
+* Snap user location to map
+* Add `moveCamera` and `animateCamera` method for `MapNavigationViewController`
+## 3.0.0
+* Fix route not build on android 12 and above
+* Fix navigation not working on android 12 and above
+* Fix crash on android 14
+* Migration to `Metal` render for `iOS`
+## 2.2.0 
+* Upgrade `vietmap_gl_platform_interface` to version `0.2.0`
 ## 2.1.2
 * Fix error when fetch route on android 9 and below
 * Update navigation instruction icon for example project

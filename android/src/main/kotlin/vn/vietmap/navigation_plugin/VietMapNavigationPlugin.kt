@@ -31,9 +31,10 @@ class VietMapNavigationPlugin : FlutterPlugin, ActivityAware, EventChannel.Strea
     private var activity: Activity? = null
     private lateinit var progressEventChannel: EventChannel
     private var currentContext: Context? = null
-    private lateinit var flutterPluginBinding: FlutterPlugin.FlutterPluginBinding
+    private var flutterPluginBinding: FlutterPlugin.FlutterPluginBinding?=null
     private var flutterAssets: FlutterAssets? = null
     private var lifecycle: Lifecycle? = null
+    private var isInitialized = false
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         Log.d("onAttachedToEngine", "--------------------------------")
         this.flutterPluginBinding = flutterPluginBinding
@@ -47,24 +48,28 @@ class VietMapNavigationPlugin : FlutterPlugin, ActivityAware, EventChannel.Strea
         platformViewRegistry = flutterPluginBinding.platformViewRegistry
         binaryMessenger = messenger
 
-        flutterPluginBinding
-            .platformViewRegistry
-            .registerViewFactory(
-                viewId,
-                MapViewFactory(
-                    binaryMessenger!!,
-                    object : LifecycleProvider {
-                        override fun getVietMapLifecycle(): Lifecycle? {
-                            return lifecycle
-                        }
-                    }, activity
-                )
-            )
+        registerFlutterBinding()
 //        if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
 
 //        }
     }
-
+    private fun registerFlutterBinding(){
+        if(flutterPluginBinding!=null&&activity!=null&&!isInitialized) {
+            isInitialized = true
+            flutterPluginBinding!!.platformViewRegistry
+                .registerViewFactory(
+                    viewId,
+                    MapViewFactory(
+                        binaryMessenger!!,
+                        object : LifecycleProvider {
+                            override fun getVietMapLifecycle(): Lifecycle? {
+                                return lifecycle
+                            }
+                        }, activity
+                    )
+                )
+        }
+    }
     companion object {
 
         var eventSink: EventChannel.EventSink? = null
@@ -97,7 +102,7 @@ class VietMapNavigationPlugin : FlutterPlugin, ActivityAware, EventChannel.Strea
         Log.d("PackageLifecycle", "onReattachedToActivityForConfigChanges")
 //        activity
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
             activity = binding.activity
 
         } else {
@@ -108,13 +113,14 @@ class VietMapNavigationPlugin : FlutterPlugin, ActivityAware, EventChannel.Strea
 
     override fun onDetachedFromActivity() {
         Log.d("PackageLifecycle", "onDetachedFromActivity")
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
             activity?.finish()
             activity = null
         } else {
             currentActivity!!.finish()
             currentActivity = null
         }
+        registerFlutterBinding()
         lifecycle = null;
     }
 
@@ -122,11 +128,12 @@ class VietMapNavigationPlugin : FlutterPlugin, ActivityAware, EventChannel.Strea
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             if (currentActivity == null) {
                 currentActivity = binding.activity
+                activity = binding.activity
             }
         } else {
             activity = binding.activity
-
         }
+        registerFlutterBinding()
         if (currentContext == null) {
             currentContext = binding.activity.applicationContext
         }

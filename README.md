@@ -42,6 +42,18 @@ at the repositories block
   }
 ```
 
+Add below code to AndroidManifest (for android 14 and above)
+```xml
+<application>
+...
+  <!-- Add this code block -->
+  <service
+      android:name="vn.vietmap.services.android.navigation.v5.navigation.NavigationService"
+      android:foregroundServiceType="location"
+      android:exported="false">
+  </service>
+</application>
+```
 Upgrade the minSdkVersion to a minimum is 24 in the build.gradle (app) file, at path **android/app/build.gradle**
 ```gradle
   minSdkVersion 24
@@ -268,7 +280,24 @@ All data is provided by the `routeProgressEvent` variable.
   /// Stop the navigation
   _navigationController?.finishNavigation();
 ```
-
+- Move the camera to the specific location
+```dart
+  /// Move the camera to the specific location
+  _navigationController?.moveCamera(
+      latLng: const LatLng(22.762528, 106.653099),
+      zoom: 8,
+      tilt: 0,
+      bearing: 0);
+```
+- Animate the camera to the specific location
+```dart
+  /// Animate the camera to the specific location 
+  _navigationController?.animateCamera(
+    latLng: const LatLng(22.762528, 106.653099),
+    zoom: 8,
+    tilt: 0,
+    bearing: 0);
+```
 ## Add a marker to the map
 We provide the `addImageMarkers` function to add multiple markers to the map
 - Add a marker from the asset image  
@@ -282,9 +311,12 @@ We provide the `addImageMarkers` function to add multiple markers to the map
       latLng: const LatLng(10.762528, 106.653099)),
     NavigationMarker(
         imagePath: 'assets/40.png',
-        latLng: const LatLng(10.762528, 106.753099)),
+        latLng: const LatLng(10.762528, 106.753099),
+        width: 80,
+        height: 80),
   ]);
 ``` 
+- NOTE: The width and height must be both null or both have a value. If one of them has a value, the other must have a value too.
 
 ## Troubleshooting
 - We strongly recommend you call the **_navigationController?.buildRouteAndStartNavigation()** in a `button` or `onMapRendered` callback, which is called when the map is rendered successfully to ensure that the application does not crash while executing some function while our SDK is rendering the map. 

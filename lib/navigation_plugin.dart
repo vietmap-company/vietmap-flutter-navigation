@@ -100,4 +100,28 @@ class VietMapNavigationPlugin {
     return VietmapNavigationPluginPlatform.instance
         .registerRouteEventListener(listener);
   }
+
+  /// Move the camera to a specific location
+  /// [latLng] the location to move the camera to
+  /// [bearing] the bearing of the camera
+  Future<void> moveCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    return VietmapNavigationPluginPlatform.instance
+        .moveCamera(latLng: latLng, bearing: bearing, zoom: zoom, tilt: tilt);
+  }
+
+  /// Animate the camera to a specific location
+  /// [latLng] the location to animate the camera to
+  /// [bearing] the bearing of the camera
+  Future<void> animateCamera(
+      {required LatLng latLng,
+      double? bearing,
+      double? zoom,
+      double? tilt}) async {
+    return VietmapNavigationPluginPlatform.instance.animateCamera(
+        latLng: latLng, bearing: bearing, zoom: zoom, tilt: tilt);
+  }
 }

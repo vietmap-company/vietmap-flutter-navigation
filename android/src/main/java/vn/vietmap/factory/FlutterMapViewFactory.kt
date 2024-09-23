@@ -346,7 +346,26 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
                 reply["features"] = featuresJson
                 result.success(reply)
             }
+            "animateCamera" -> {
+                val location = LatLng(
+                    methodCall.argument("latitude")!! ,
+                    methodCall.argument("longitude")!!
+                )
 
+                PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
+                isOverviewing = true
+                 animateCamera(location, methodCall.argument("bearing") as? Float?, methodCall.argument("duration")?:1000,methodCall.argument("zoom") as? Double?,methodCall.argument("tilt") as? Double?)
+            }
+            "moveCamera" -> {
+                val location = LatLng(
+                    methodCall.argument("latitude")!!,
+                    methodCall.argument("longitude")!!
+                )
+
+                PluginUtilities.sendEvent(VietMapEvents.ON_MAP_MOVE)
+                isOverviewing = true
+                moveCameraWithoutAnimation(location, methodCall.argument("bearing") as? Float?, methodCall.argument("zoom") as? Double?, methodCall.argument("tilt") as? Double?)
+            } 
             "onDispose" -> {
                 try {
                     isDisposed = true
@@ -801,7 +820,41 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
             CameraUpdateFactory.newCameraPosition(cameraPosition.build()), duration
         )
     }
+    private  fun animateCamera(location: LatLng, bearing: Float?, duration: Int = 1000, zoom: Double? ,tilt: Double?) {
+        // println("Camera is moving")
+        val cameraPosition = CameraPosition.Builder().target(location)
+        zoom?.let {
+            cameraPosition.zoom(it)
+        }
+        tilt?.let {
+            cameraPosition.tilt(it)
+        }
 
+        if (bearing != null) {
+            cameraPosition.bearing(bearing.toDouble())
+        }
+        vietmapGL?.animateCamera(
+            CameraUpdateFactory.newCameraPosition(cameraPosition.build()), duration
+        )
+    }
+    private fun moveCameraWithoutAnimation(location: LatLng, bearing: Float?, zoom: Double? ,tilt: Double?) {
+        // println("Camera is moving")
+
+        val cameraPosition = CameraPosition.Builder().target(location)
+        zoom?.let {
+            cameraPosition.zoom(it)
+        }
+        tilt?.let {
+            cameraPosition.tilt(it)
+        }
+        if (bearing != null) {
+            cameraPosition.bearing(bearing.toDouble())
+        }
+
+        vietmapGL?.moveCamera(
+            CameraUpdateFactory.newCameraPosition(cameraPosition.build())
+        )
+    }
 
     private fun getRoute(
         context: Context, isStartNavigation: Boolean, bearing: Float?, profile: String
@@ -1498,7 +1551,25 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
         }
     }
 
+    fun calculateInSampleSize(
+        options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int
+    ): Int {
+        // Raw height and width of image
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
 
+        if (height > reqHeight || width > reqWidth) {
+            // Calculate ratios of height and width to requested height and width
+            val heightRatio: Int = Math.round(height.toFloat() / reqHeight.toFloat())
+            val widthRatio: Int = Math.round(width.toFloat() / reqWidth.toFloat())
+
+            // Choose the smallest ratio as inSampleSize value to ensure the final image
+            // is larger than the requested width and height
+            inSampleSize = if (heightRatio < widthRatio) heightRatio else widthRatio
+        }
+
+        return inSampleSize
+    }
     private fun addMarker(call: MethodCall, result: MethodChannel.Result) {
         val data = call.arguments as Map<String, Any>
         val listMarkerId = ArrayList<Long>()
@@ -1509,10 +1580,15 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
                 val d = it.value as Map<String, Any>
                 val position = LatLng(d["latitude"] as Double, d["longitude"] as Double)
                 val byteArray: ByteArray? = d["imageBytes"] as ByteArray?
-                // println(byteArray)
-                val iconBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+                val width :Int? = d["width"] as? Int?
+                val height :Int? = d["height"] as? Int?
+                var iconBitmap: Bitmap?= BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+                if(width != null&&height !=null){
+                   iconBitmap =
+                       iconBitmap?.let { it1 -> Bitmap.createScaledBitmap(it1, width, height, false) }
+                }
+                val icon = iconBitmap?.let { it1 -> IconFactory.getInstance(context).fromBitmap(it1) }
 
-                val icon = IconFactory.getInstance(context).fromBitmap(iconBitmap)
                 val markerOption = MarkerOptions().icon(icon).title((d["title"] ?: "") as String)
                     .snippet((d["snippet"] ?: "") as String).position(position)
 
