@@ -91,6 +91,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
             },
             child: const Icon(Icons.animation),
           ),
+          // AbsorbPointer()
           FloatingActionButton(
             onPressed: () async {
               await _controller?.addImageMarkers([

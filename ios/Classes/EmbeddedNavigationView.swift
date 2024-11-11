@@ -460,7 +460,7 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         routeController?.delegate = self
         routeController?.reroutesProactively = true
         routeController?.resume()
-        navigationMapView.recenterMap()
+        navigationMapView.recenterMap() 
         navigationMapView.showsUserLocation = true
         resumeNotifications()
         result(true)
@@ -580,6 +580,12 @@ public class FlutterMapNavigationView : NavigationFactory, FlutterPlatformView
         // Update the user puck
         let camera = MLNMapCamera(lookingAtCenter: location.coordinate, altitude: 250, pitch: 60, heading: location.course) 
         
+        // Add maneuver arrow
+        if routeProgress.currentLegProgress.followOnStep != nil {
+            navigationMapView.addArrow(route: routeProgress.route, legIndex: routeProgress.legIndex, stepIndex: routeProgress.currentLegProgress.stepIndex + 1)
+        } else {
+            navigationMapView.removeArrow()
+        }
         navigationMapView.updateCourseTracking(location: location, camera: camera, animated: false)
         _distanceRemaining = routeProgress.distanceRemaining
         _durationRemaining = routeProgress.durationRemaining
@@ -767,6 +773,8 @@ extension FlutterMapNavigationView : UIGestureRecognizerDelegate {
         
         let routeOptions = NavigationRouteOptions(waypoints: [userWaypoint, destinationWaypoint])
         routeOptions.shapeFormat = .polyline6
+        
+        
         routeOptions.locale = Locale(identifier: "vi")
         requestRoute(with: routeOptions, success: defaultSuccess, failure: defaultFailure)
     }
@@ -800,3 +808,18 @@ extension FlutterMapNavigationView: RouteControllerDelegate {
 //    }
 }
 
+extension UIColor {
+    convenience init(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+        var rgb: UInt64 = 0
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+
+        let r = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
+        let g = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
+        let b = CGFloat(rgb & 0x0000FF) / 255.0
+
+        self.init(red: r, green: g, blue: b, alpha: 1.0)
+    }
+}

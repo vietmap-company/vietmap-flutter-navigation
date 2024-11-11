@@ -1,4 +1,8 @@
-## 3.1.0
+## 3.3.0
+* Draw route arrow maneuver below road name on `iOS` and `Android`
+## 3.2.0
+* Draw route arrow maneuver on `iOS` and `Android`
+## 3.1.1
 * Improve navigation UX on iOS
 * Add width and height for `NavigationMarker`.
 * Fix required iOS version
