@@ -45,7 +45,9 @@ import vn.vietmap.models.VietMapEvents
 import vn.vietmap.models.VietMapLocation
 import vn.vietmap.models.VietMapRouteProgressEvent
 import vn.vietmap.navigation_plugin.LifecycleProvider
+import vn.vietmap.navigation_plugin.R
 import vn.vietmap.navigation_plugin.VietMapNavigationPlugin
+import vn.vietmap.services.android.navigation.ui.v5.ThemeSwitcher
 import vn.vietmap.services.android.navigation.ui.v5.camera.CameraOverviewCancelableCallback
 import vn.vietmap.services.android.navigation.ui.v5.listeners.BannerInstructionsListener
 import vn.vietmap.services.android.navigation.ui.v5.listeners.NavigationListener
@@ -566,6 +568,11 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
             navigation?.addOffRouteListener(this)
             navigation?.addProgressChangeListener(this)
             navigation?.snapEngine = snapEngine
+
+            navigationMapRoute!!.updateRouteArrowVisibilityTo(true)
+            navigationMapRoute!!.showAlternativeRoutes(true)
+            navigationMapRoute!!.updateRouteVisibilityTo(true)
+            navigationMapRoute!!.showAlternativeRoutes(true)
             currentRoute?.let {
                 isNavigationInProgress = true
                 navigation?.startNavigation(currentRoute!!)
@@ -753,7 +760,18 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
     private fun initMapRoute() {
         if (vietmapGL != null) {
-            navigationMapRoute = NavigationMapRoute(mapView!!, vietmapGL!!, "vmadmin_province")
+            val routeStyleRes = ThemeSwitcher.retrieveNavigationViewStyle(
+                        mapView!!.context,
+                        R.attr.navigationViewRouteStyle
+                    )
+            navigationMapRoute =
+                        NavigationMapRoute(
+                            navigation,
+                            mapView!!,
+                            vietmapGL!!,
+                            routeStyleRes,
+                            "vmadmin_province"
+                        )
         }
 
         navigationMapRoute?.setOnRouteSelectionChangeListener {
@@ -898,8 +916,18 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
                 if (navigationMapRoute != null) {
                     navigationMapRoute?.removeRoute()
                 } else {
+                    val routeStyleRes = ThemeSwitcher.retrieveNavigationViewStyle(
+                        mapView!!.context,
+                        R.attr.navigationViewRouteStyle
+                    )
                     navigationMapRoute =
-                        NavigationMapRoute(mapView!!, vietmapGL!!, "vmadmin_province")
+                        NavigationMapRoute(
+                            navigation,
+                            mapView!!,
+                            vietmapGL!!,
+                            routeStyleRes,
+                            "vmadmin_province"
+                        )
                 }
 
                 //show multiple route to map
