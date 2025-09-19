@@ -1,6 +1,6 @@
 name: vietmap_flutter_navigation
 description: A Flutter plugin for find a route and navigating user using Vietmap api and vietmap_flutter_gl. Supports Android and iOS.
-version: 3.3.0
+version: 4.1.0-pre.4
 repository: https://github.com/vietmap-company/vietmap-flutter-navigation/
 homepage: https://maps.vietmap.vn
 
@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2 
-  vietmap_gl_platform_interface: ^0.2.0
+  vietmap_gl_platform_interface: 1.0.0 
 
 
 

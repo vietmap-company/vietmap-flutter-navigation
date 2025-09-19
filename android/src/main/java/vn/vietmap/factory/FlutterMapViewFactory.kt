@@ -11,9 +11,6 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -45,7 +42,6 @@ import vn.vietmap.models.VietMapEvents
 import vn.vietmap.models.VietMapLocation
 import vn.vietmap.models.VietMapRouteProgressEvent
 import vn.vietmap.navigation_plugin.LifecycleProvider
-import vn.vietmap.navigation_plugin.R
 import vn.vietmap.navigation_plugin.VietMapNavigationPlugin
 import vn.vietmap.services.android.navigation.ui.v5.ThemeSwitcher
 import vn.vietmap.services.android.navigation.ui.v5.camera.CameraOverviewCancelableCallback
@@ -159,7 +155,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
         viewId: Int,
         args: Any?,
         lifecycle: LifecycleProvider,
-        activity: Activity?
+        activity: Activity?,
     ) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
@@ -482,7 +478,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     private fun buildRouteAndStartNavigation(
-        methodCall: MethodCall, result: MethodChannel.Result
+        methodCall: MethodCall, result: MethodChannel.Result,
     ) {
         isNavigationCanceled = false
         isNavigationInProgress = false
@@ -762,7 +758,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
         if (vietmapGL != null) {
             val routeStyleRes = ThemeSwitcher.retrieveNavigationViewStyle(
                         mapView!!.context,
-                        R.attr.navigationViewRouteStyle
+                vn.vietmap.services.android.navigation.R.attr.navigationViewRouteStyle
                     )
             navigationMapRoute =
                         NavigationMapRoute(
@@ -875,7 +871,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     private fun getRoute(
-        context: Context, isStartNavigation: Boolean, bearing: Float?, profile: String
+        context: Context, isStartNavigation: Boolean, bearing: Float?, profile: String,
     ) {
 
         if (!PluginUtilities.isNetworkAvailable(context)) {
@@ -895,9 +891,10 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
             ///walking
             ///motorcycle
             .profile(profile).build()
+
         builder.getRoute(object : Callback<DirectionsResponse> {
             override fun onResponse(
-                call: Call<DirectionsResponse?>, response: Response<DirectionsResponse?>
+                call: Call<DirectionsResponse>, response: Response<DirectionsResponse>,
             ) {
                 if (response.body() == null || response.body()!!.routes().size < 1) {
                     PluginUtilities.sendEvent(VietMapEvents.ROUTE_BUILD_FAILED, "No routes found")
@@ -918,7 +915,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
                 } else {
                     val routeStyleRes = ThemeSwitcher.retrieveNavigationViewStyle(
                         mapView!!.context,
-                        R.attr.navigationViewRouteStyle
+                        vn.vietmap.services.android.navigation.R.attr.navigationViewRouteStyle
                     )
                     navigationMapRoute =
                         NavigationMapRoute(
@@ -1241,7 +1238,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     override fun onMilestoneEvent(
-        routeProgress: RouteProgress, instruction: String, milestone: Milestone
+        routeProgress: RouteProgress, instruction: String, milestone: Milestone,
     ) {
 
         if (voiceInstructionsEnabled) {
@@ -1496,7 +1493,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     private fun animateCameraForRouteOverview(
-        routeInformation: RouteInformation, padding: IntArray
+        routeInformation: RouteInformation, padding: IntArray,
     ) {
         val cameraEngine = navigation?.cameraEngine
         val routePoints = cameraEngine?.overview(routeInformation)
@@ -1522,7 +1519,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     private fun buildOverviewCameraUpdate(
-        padding: IntArray, routePoints: List<Point>
+        padding: IntArray, routePoints: List<Point>,
     ): CameraUpdate {
         val routeBounds = convertRoutePointsToLatLngBounds(routePoints)
         return newLatLngBounds(
@@ -1580,7 +1577,7 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
     }
 
     fun calculateInSampleSize(
-        options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int
+        options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int,
     ): Int {
         // Raw height and width of image
         val (height: Int, width: Int) = options.run { outHeight to outWidth }
