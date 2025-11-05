@@ -15,7 +15,7 @@ Vietmap flutter navigation.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'VietMapNavigation', '3.2.3'
+  s.dependency 'VietMapNavigation', '3.3.0'
   s.dependency 'VietMapCoreNavigation', '3.1.0'
   s.platform = :ios, '12.0'
   # Flutter.framework does not contain a i386 slice.

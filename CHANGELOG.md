@@ -1,3 +1,5 @@
+## 4.1.0
+* Fix 16kb page size error on Android
 ## 4.0.0
 * Upgrade `vietmap_gl_platform_interface` to `1.0.0`
 * Migrate to new Flutter Gradle configuration 
