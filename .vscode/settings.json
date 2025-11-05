@@ -1,8 +1,7 @@
 {
-    "cSpell.words": [
-        "Vietmap"
-    ],
-    "cSpell.language": "en,vi",
-    "dart.flutterSdkPath": "/Users/dev/fvm/default/bin"
-
+  "cSpell.words": [
+    "Vietmap"
+  ],
+  "cSpell.language": "en,vi",
+  "dart.flutterSdkPath": ".fvm/versions/3.29.2"
 }

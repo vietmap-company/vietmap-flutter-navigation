@@ -60,10 +60,6 @@ class MapNavigationViewController {
       MapOptions? options,
       DrivingProfile profile = DrivingProfile.drivingTraffic}) async {
     assert(waypoints.length > 1);
-    if (Platform.isIOS && waypoints.length > 3 && options?.mode != null) {
-      assert(options!.mode != MapNavigationMode.drivingWithTraffic,
-          "Error: Cannot use drivingWithTraffic Mode when you have more than 3 Stops");
-    }
     List<Map<String, Object?>> pointList = [];
 
     for (int i = 0; i < waypoints.length; i++) {

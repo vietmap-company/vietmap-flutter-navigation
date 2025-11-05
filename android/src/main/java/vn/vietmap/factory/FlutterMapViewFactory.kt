@@ -466,9 +466,11 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
                 val longitude = point["Longitude"] as Double
                 wayPoints.add(Point.fromLngLat(longitude, latitude))
             }
-            var profile: String = arguments?.get("profile") as? String ?: "driving-traffic"
+            val profile: String = arguments?.get("profile") as? String ?: "driving-traffic"
             originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
-            destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
+            val lastIndex = wayPoints.size - 1
+            val lastWaypoint = wayPoints[lastIndex]
+            destinationPoint = Point.fromLngLat(lastWaypoint.longitude(), lastWaypoint.latitude())
 
             fetchRouteWithBearing(false, profile)
             result.success(true)
@@ -498,7 +500,8 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
 
             var profile: String = arguments?.get("profile") as? String? ?: "driving-traffic"
             originPoint = Point.fromLngLat(wayPoints[0].longitude(), wayPoints[0].latitude())
-            destinationPoint = Point.fromLngLat(wayPoints[1].longitude(), wayPoints[1].latitude())
+            val lastWaypoint = wayPoints.last()
+            destinationPoint = Point.fromLngLat(lastWaypoint.longitude(), lastWaypoint.latitude())
 
             fetchRouteWithBearing(true, profile)
             result.success(true)
@@ -890,9 +893,13 @@ class FlutterMapViewFactory : PlatformView, MethodCallHandler, OnMapReadyCallbac
             ///cycling
             ///walking
             ///motorcycle
-            .profile(profile).build()
+            .profile(profile)
 
-        builder.getRoute(object : Callback<DirectionsResponse> {
+        for (i in 1 until wayPoints.size - 1) {
+            builder.addWaypoint(wayPoints[i])
+        }
+
+        builder.build().getRoute(object : Callback<DirectionsResponse> {
             override fun onResponse(
                 call: Call<DirectionsResponse>, response: Response<DirectionsResponse>,
             ) {
