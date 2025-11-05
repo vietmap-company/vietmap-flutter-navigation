@@ -19,6 +19,7 @@ or run this command in the terminal to add the library to the project:
 ```bash
   flutter pub add vietmap_flutter_navigation
 ```
+## If you are using Xcode below 26.0, please install the version 4.1.0-pre.5 and below of vietmap_flutter_navigation library
 ## Android config
 
 

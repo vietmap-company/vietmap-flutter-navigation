@@ -83,6 +83,16 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
         children: [
           FloatingActionButton(
             onPressed: () {
+              _controller?.buildRoute(waypoints: [
+                const LatLng(10.759091, 106.675817),
+                const LatLng(10.762528, 106.653099),
+                const LatLng(11.762528, 107.653099),
+              ]);
+            },
+            child: const Icon(Icons.animation),
+          ),
+          FloatingActionButton(
+            onPressed: () {
               _controller?.moveCamera(
                   latLng: const LatLng(22.762528, 106.653099),
                   zoom: 8,

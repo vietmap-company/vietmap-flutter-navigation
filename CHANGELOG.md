@@ -1,3 +1,13 @@
+## 4.1.0
+* Fix 16kb page size error on Android
+* Support multi stop navigation for iOS and Android
+## 4.0.0
+* Upgrade `vietmap_gl_platform_interface` to `1.0.0`
+* Migrate to new Flutter Gradle configuration 
+## 3.3.2
+* Bump `vietmap_gl_platform_interface` to `0.3.0`
+## 3.3.1
+* Upgrade to latest AGP
 ## 3.3.0
 * Draw route arrow maneuver below road name on `iOS` and `Android`
 ## 3.2.0
