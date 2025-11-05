@@ -1,5 +1,6 @@
 ## 4.1.0
 * Fix 16kb page size error on Android
+* Support multi stop navigation for iOS and Android
 ## 4.0.0
 * Upgrade `vietmap_gl_platform_interface` to `1.0.0`
 * Migrate to new Flutter Gradle configuration 
